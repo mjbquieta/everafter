@@ -1,0 +1,10 @@
+{
+  "extends": "@everafter/tsconfig/library.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"]
+  },
+  "include": ["src"]
+}

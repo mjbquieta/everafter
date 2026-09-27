@@ -1,0 +1,8 @@
+{
+  "extends": "@everafter/tsconfig/library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"]
+}

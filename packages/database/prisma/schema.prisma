@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum WeddingStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum RSVPStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum UserRole {
+  ADMIN
+  PLANNER
+  PLANNER_STAFF
+  COUPLE
+  GUEST
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  CANCELLED
+}
+
+enum ChecklistPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+model User {
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  passwordHash          String    @map("password_hash")
+  firstName             String    @map("first_name")
+  lastName              String    @map("last_name")
+  avatarUrl             String?   @map("avatar_url")
+  emailVerifiedAt       DateTime? @map("email_verified_at")
+  lastLoginAt           DateTime? @map("last_login_at")
+  refreshTokenHash      String?   @map("refresh_token_hash")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  status                String    @default("active")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
+
+  weddingMembers  WeddingMember[]
+  invitedMembers  WeddingMember[] @relation("InvitedByUser")
+  notifications   Notification[]
+  planner         Planner?
+
+  @@map("users")
+}
+
+// ─── Weddings ────────────────────────────────────────────────────────────────
+
+model Wedding {
+  id           String        @id @default(uuid())
+  slug         String        @unique
+  title        String
+  weddingDate  DateTime?     @map("wedding_date")
+  timezone     String        @default("Asia/Manila")
+  status       WeddingStatus @default(DRAFT)
+  publishedAt  DateTime?     @map("published_at")
+  customDomain String?       @map("custom_domain")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  deletedAt    DateTime?     @map("deleted_at")
+
+  members          WeddingMember[]
+  profile          WeddingProfile?
+  websiteSettings  WebsiteSettings?
+  guests           Guest[]
+  budgetCategories BudgetCategory[]
+  checklistItems   ChecklistItem[]
+  galleryAlbums    GalleryAlbum[]
+  plannerClients   PlannerClient[]
+
+  @@index([weddingDate])
+  @@index([status])
+  @@map("weddings")
+}
+
+// ─── Wedding Members (Many-to-Many: Users <-> Weddings) ──────────────────────
+
+model WeddingMember {
+  id        String   @id @default(uuid())
+  weddingId String   @map("wedding_id")
+  userId    String   @map("user_id")
+  role      UserRole
+  invitedBy String?  @map("invited_by")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wedding       Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitedByUser User?   @relation("InvitedByUser", fields: [invitedBy], references: [id])
+
+  @@unique([weddingId, userId])
+  @@index([weddingId])
+  @@index([userId])
+  @@map("wedding_members")
+}
+
+// ─── Wedding Profiles ────────────────────────────────────────────────────────
+
+model WeddingProfile {
+  id               String   @id @default(uuid())
+  weddingId        String   @unique @map("wedding_id")
+  brideName        String?  @map("bride_name")
+  groomName        String?  @map("groom_name")
+  proposalStory    String?  @map("proposal_story")
+  loveStory        String?  @map("love_story")
+  weddingHashtag   String?  @map("wedding_hashtag")
+  ceremonyName     String?  @map("ceremony_name")
+  ceremonyAddress  String?  @map("ceremony_address")
+  ceremonyTime     DateTime? @map("ceremony_time")
+  receptionName    String?  @map("reception_name")
+  receptionAddress String?  @map("reception_address")
+  receptionTime    DateTime? @map("reception_time")
+  dressCode        String?  @map("dress_code")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("wedding_profiles")
+}
+
+// ─── Website Settings ────────────────────────────────────────────────────────
+
+model WebsiteSettings {
+  id              String  @id @default(uuid())
+  weddingId       String  @unique @map("wedding_id")
+  theme           String  @default("classic")
+  primaryColor    String  @default("#8B5E5E") @map("primary_color")
+  secondaryColor  String  @default("#D8B4A0") @map("secondary_color")
+  font            String  @default("Inter")
+  heroImage       String? @map("hero_image")
+  heroBanner      String? @map("hero_banner")
+  navigationStyle String  @default("horizontal") @map("navigation_style")
+  animations      Boolean @default(true)
+  footerText      String? @map("footer_text")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("website_settings")
+}
+
+// ─── Guests ──────────────────────────────────────────────────────────────────
+
+model Guest {
+  id               String   @id @default(uuid())
+  weddingId        String   @map("wedding_id")
+  firstName        String   @map("first_name")
+  lastName         String   @map("last_name")
+  email            String?
+  phone            String?
+  group            String?
+  side             String?
+  tableNumber      String?  @map("table_number")
+  invitationStatus String   @default("pending") @map("invitation_status")
+  mealPreference   String?  @map("meal_preference")
+  notes            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  rsvp    RSVP?
+
+  @@index([weddingId])
+  @@index([email])
+  @@map("guests")
+}
+
+// ─── RSVPs ───────────────────────────────────────────────────────────────────
+
+model RSVP {
+  id             String     @id @default(uuid())
+  guestId        String     @unique @map("guest_id")
+  status         RSVPStatus @default(PENDING)
+  companionCount Int        @default(0) @map("companion_count")
+  mealPreference String?    @map("meal_preference")
+  songRequest    String?    @map("song_request")
+  notes          String?
+  respondedAt    DateTime?  @map("responded_at")
+
+  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@map("rsvps")
+}
+
+// ─── Budget Categories ───────────────────────────────────────────────────────
+
+model BudgetCategory {
+  id        String @id @default(uuid())
+  weddingId String @map("wedding_id")
+  name      String
+  sortOrder Int    @default(0) @map("sort_order")
+
+  wedding Wedding      @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  items   BudgetItem[]
+
+  @@index([weddingId])
+  @@map("budget_categories")
+}
+
+// ─── Budget Items ────────────────────────────────────────────────────────────
+
+model BudgetItem {
+  id            String        @id @default(uuid())
+  categoryId    String        @map("category_id")
+  vendorName    String?       @map("vendor_name")
+  estimatedCost Decimal       @default(0) @map("estimated_cost") @db.Decimal(12, 2)
+  actualCost    Decimal       @default(0) @map("actual_cost") @db.Decimal(12, 2)
+  amountPaid    Decimal       @default(0) @map("amount_paid") @db.Decimal(12, 2)
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  dueDate       DateTime?     @map("due_date")
+  notes         String?
+
+  category BudgetCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@map("budget_items")
+}
+
+// ─── Checklist Items ─────────────────────────────────────────────────────────
+
+model ChecklistItem {
+  id          String            @id @default(uuid())
+  weddingId   String            @map("wedding_id")
+  title       String
+  description String?
+  dueDate     DateTime?         @map("due_date")
+  priority    ChecklistPriority @default(MEDIUM)
+  completedAt DateTime?         @map("completed_at")
+  assignedTo  String?           @map("assigned_to")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@index([weddingId])
+  @@map("checklist_items")
+}
+
+// ─── Checklist Templates ─────────────────────────────────────────────────────
+
+model ChecklistTemplate {
+  id          String @id @default(uuid())
+  name        String
+  description String?
+  items       Json
+
+  @@map("checklist_templates")
+}
+
+// ─── Gallery Albums ──────────────────────────────────────────────────────────
+
+model GalleryAlbum {
+  id         String   @id @default(uuid())
+  weddingId  String   @map("wedding_id")
+  title      String
+  coverImage String?  @map("cover_image")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  wedding Wedding        @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  photos  GalleryPhoto[]
+
+  @@index([weddingId])
+  @@map("gallery_albums")
+}
+
+// ─── Gallery Photos ──────────────────────────────────────────────────────────
+
+model GalleryPhoto {
+  id         String   @id @default(uuid())
+  albumId    String   @map("album_id")
+  storageKey String   @map("storage_key")
+  caption    String?
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  album GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId])
+  @@map("gallery_photos")
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  type      String
+  title     String
+  message   String
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+// ─── Planners ────────────────────────────────────────────────────────────────
+
+model Planner {
+  id           String  @id @default(uuid())
+  businessName String  @map("business_name")
+  ownerId      String  @unique @map("owner_id")
+  website      String?
+  phone        String?
+
+  owner   User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  clients PlannerClient[]
+
+  @@map("planners")
+}
+
+// ─── Planner Clients ─────────────────────────────────────────────────────────
+
+model PlannerClient {
+  id        String   @id @default(uuid())
+  plannerId String   @map("planner_id")
+  weddingId String   @map("wedding_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  planner Planner @relation(fields: [plannerId], references: [id], onDelete: Cascade)
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@unique([plannerId, weddingId])
+  @@index([plannerId])
+  @@index([weddingId])
+  @@map("planner_clients")
+}
