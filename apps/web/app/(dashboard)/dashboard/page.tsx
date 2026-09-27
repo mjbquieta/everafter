@@ -1,31 +1,39 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@everafter/ui';
-import { useAuth } from '@/lib/auth-context';
+import { useWeddingContext } from '@/lib/wedding-context';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { activeWedding, isLoading, weddings } = useWeddingContext();
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
+  useEffect(() => {
+    if (!isLoading && activeWedding) {
+      router.replace(`/dashboard/${activeWedding.id}`);
+    }
+  }, [isLoading, activeWedding, router]);
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground">
-          Welcome, {user?.firstName}!
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isLoading && weddings.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <h1 className="text-2xl font-bold text-foreground">
+          Welcome to EverAfter
         </h1>
-        <p className="mt-2 text-muted">
-          You&apos;re signed in as {user?.email}
+        <p className="text-muted">
+          You don&apos;t have any weddings yet. Create one to get started.
         </p>
       </div>
-      <Button variant="outline" onClick={handleLogout}>
-        Sign out
-      </Button>
-    </main>
-  );
+    );
+  }
+
+  return null;
 }

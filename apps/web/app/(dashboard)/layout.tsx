@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { WeddingProvider } from '@/lib/wedding-context';
+import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 
 export default function DashboardLayout({
   children,
@@ -30,5 +32,9 @@ export default function DashboardLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <WeddingProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </WeddingProvider>
+  );
 }
