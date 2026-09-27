@@ -216,3 +216,77 @@ export interface WeddingProfileResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+// ─── Guests ──────────────────────────────────────────────────────────────────
+
+export interface CreateGuestRequest {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  group?: string;
+  side?: string;
+  tableNumber?: string;
+  mealPreference?: string;
+  notes?: string;
+}
+
+export interface UpdateGuestRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string | null;
+  phone?: string | null;
+  group?: string | null;
+  side?: string | null;
+  tableNumber?: string | null;
+  mealPreference?: string | null;
+  notes?: string | null;
+}
+
+export interface GuestResponse {
+  id: string;
+  weddingId: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  phone: string | null;
+  group: string | null;
+  side: string | null;
+  tableNumber: string | null;
+  invitationStatus: string;
+  mealPreference: string | null;
+  notes: string | null;
+  rsvp: RSVPResponse | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── RSVP ────────────────────────────────────────────────────────────────────
+
+export interface SubmitRSVPRequest {
+  status: RSVPStatus;
+  companionCount?: number;
+  mealPreference?: string;
+  songRequest?: string;
+  notes?: string;
+}
+
+export interface RSVPResponse {
+  id: string;
+  guestId: string;
+  status: RSVPStatus;
+  companionCount: number;
+  mealPreference: string | null;
+  songRequest: string | null;
+  notes: string | null;
+  respondedAt: string | null;
+}
+
+export interface GuestSummaryResponse {
+  totalGuests: number;
+  rsvpAccepted: number;
+  rsvpDeclined: number;
+  rsvpPending: number;
+  totalCompanions: number;
+  totalAttending: number;
+}

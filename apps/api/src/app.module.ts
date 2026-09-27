@@ -7,6 +7,7 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { WeddingsModule } from './modules/weddings/weddings.module';
+import { GuestsModule } from './modules/guests/guests.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -27,6 +28,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     AuthModule,
     UsersModule,
     WeddingsModule,
+    GuestsModule,
   ],
   providers: [
     {
