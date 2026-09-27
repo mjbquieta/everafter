@@ -12,8 +12,12 @@
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:push": "dotenv -e ../../.env -- prisma db push",
     "db:studio": "dotenv -e ../../.env -- prisma studio",
+    "db:seed": "dotenv -e ../../.env -- tsx prisma/seed.ts",
     "build": "echo 'No build step for database package'",
     "lint": "echo 'No lint step for database package'"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"
@@ -21,6 +25,7 @@
   "devDependencies": {
     "dotenv-cli": "^7.4.4",
     "prisma": "^5.22.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.7.2"
   }
 }
