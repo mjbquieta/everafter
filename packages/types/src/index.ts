@@ -361,3 +361,170 @@ export interface BudgetSummaryResponse {
   totalPaid: number;
   categories: BudgetCategorySummary[];
 }
+
+// ─── Checklist ──────────────────────────────────────────────────────────────
+
+export interface CreateChecklistItemRequest {
+  title: string;
+  description?: string;
+  dueDate?: string;
+  priority?: ChecklistPriority;
+  assignedTo?: string;
+}
+
+export interface UpdateChecklistItemRequest {
+  title?: string;
+  description?: string | null;
+  dueDate?: string | null;
+  priority?: ChecklistPriority;
+  completed?: boolean;
+  assignedTo?: string | null;
+}
+
+export interface ChecklistItemResponse {
+  id: string;
+  weddingId: string;
+  title: string;
+  description: string | null;
+  dueDate: string | null;
+  priority: string;
+  completedAt: string | null;
+  assignedTo: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChecklistSummaryResponse {
+  totalItems: number;
+  completedItems: number;
+  pendingItems: number;
+  overdueItems: number;
+}
+
+export interface ChecklistTemplateResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  items: Record<string, unknown>[];
+}
+
+// ─── Gallery ────────────────────────────────────────────────────────────────
+
+export interface CreateAlbumRequest {
+  title: string;
+  coverImage?: string;
+}
+
+export interface UpdateAlbumRequest {
+  title?: string;
+  coverImage?: string | null;
+}
+
+export interface GalleryAlbumResponse {
+  id: string;
+  weddingId: string;
+  title: string;
+  coverImage: string | null;
+  photos: GalleryPhotoResponse[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePhotoRequest {
+  storageKey: string;
+  caption?: string;
+  sortOrder?: number;
+}
+
+export interface UpdatePhotoRequest {
+  caption?: string | null;
+  sortOrder?: number;
+}
+
+export interface ReorderPhotosRequest {
+  photoIds: string[];
+}
+
+export interface GalleryPhotoResponse {
+  id: string;
+  albumId: string;
+  storageKey: string;
+  caption: string | null;
+  sortOrder: number;
+  createdAt: string;
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+
+export interface NotificationResponse {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+// ─── Planners ───────────────────────────────────────────────────────────────
+
+export interface CreatePlannerRequest {
+  businessName: string;
+  website?: string;
+  phone?: string;
+}
+
+export interface UpdatePlannerRequest {
+  businessName?: string;
+  website?: string | null;
+  phone?: string | null;
+}
+
+export interface PlannerResponse {
+  id: string;
+  ownerId: string;
+  businessName: string;
+  website: string | null;
+  phone: string | null;
+  clients: PlannerClientResponse[];
+}
+
+export interface AddClientRequest {
+  weddingId: string;
+}
+
+export interface PlannerClientResponse {
+  id: string;
+  plannerId: string;
+  weddingId: string;
+  weddingTitle: string;
+  createdAt: string;
+}
+
+// ─── Website Settings ───────────────────────────────────────────────────────
+
+export interface UpdateWebsiteSettingsRequest {
+  theme?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  font?: string;
+  heroImage?: string | null;
+  heroBanner?: string | null;
+  navigationStyle?: string;
+  animations?: boolean;
+  footerText?: string | null;
+}
+
+export interface WebsiteSettingsResponse {
+  id: string;
+  weddingId: string;
+  theme: string;
+  primaryColor: string;
+  secondaryColor: string;
+  font: string;
+  heroImage: string | null;
+  heroBanner: string | null;
+  navigationStyle: string;
+  animations: boolean;
+  footerText: string | null;
+}

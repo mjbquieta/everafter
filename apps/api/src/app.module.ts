@@ -9,6 +9,11 @@ import { UsersModule } from './modules/users/users.module';
 import { WeddingsModule } from './modules/weddings/weddings.module';
 import { GuestsModule } from './modules/guests/guests.module';
 import { BudgetModule } from './modules/budget/budget.module';
+import { ChecklistModule } from './modules/checklist/checklist.module';
+import { GalleryModule } from './modules/gallery/gallery.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PlannersModule } from './modules/planners/planners.module';
+import { WebsiteSettingsModule } from './modules/website-settings/website-settings.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -31,6 +36,11 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     WeddingsModule,
     GuestsModule,
     BudgetModule,
+    ChecklistModule,
+    GalleryModule,
+    NotificationsModule,
+    PlannersModule,
+    WebsiteSettingsModule,
   ],
   providers: [
     {
