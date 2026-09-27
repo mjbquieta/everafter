@@ -290,3 +290,74 @@ export interface GuestSummaryResponse {
   totalCompanions: number;
   totalAttending: number;
 }
+
+// ─── Budget ─────────────────────────────────────────────────────────────────
+
+export interface CreateBudgetCategoryRequest {
+  name: string;
+  sortOrder?: number;
+}
+
+export interface UpdateBudgetCategoryRequest {
+  name?: string;
+  sortOrder?: number;
+}
+
+export interface ReorderBudgetCategoriesRequest {
+  categoryIds: string[];
+}
+
+export interface BudgetCategoryResponse {
+  id: string;
+  weddingId: string;
+  name: string;
+  sortOrder: number;
+  items: BudgetItemResponse[];
+}
+
+export interface CreateBudgetItemRequest {
+  vendorName?: string;
+  estimatedCost?: number;
+  actualCost?: number;
+  amountPaid?: number;
+  paymentStatus?: PaymentStatus;
+  dueDate?: string;
+  notes?: string;
+}
+
+export interface UpdateBudgetItemRequest {
+  vendorName?: string | null;
+  estimatedCost?: number;
+  actualCost?: number;
+  amountPaid?: number;
+  paymentStatus?: PaymentStatus;
+  dueDate?: string | null;
+  notes?: string | null;
+}
+
+export interface BudgetItemResponse {
+  id: string;
+  categoryId: string;
+  vendorName: string | null;
+  estimatedCost: number;
+  actualCost: number;
+  amountPaid: number;
+  paymentStatus: string;
+  dueDate: string | null;
+  notes: string | null;
+}
+
+export interface BudgetCategorySummary {
+  categoryId: string;
+  categoryName: string;
+  estimatedCost: number;
+  actualCost: number;
+  amountPaid: number;
+}
+
+export interface BudgetSummaryResponse {
+  totalEstimated: number;
+  totalActual: number;
+  totalPaid: number;
+  categories: BudgetCategorySummary[];
+}
