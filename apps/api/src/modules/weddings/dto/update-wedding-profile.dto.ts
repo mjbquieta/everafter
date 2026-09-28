@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsOptional, IsString, IsDateString, IsArray } from 'class-validator';
 
 export class UpdateWeddingProfileDto {
   @IsOptional()
@@ -48,4 +48,9 @@ export class UpdateWeddingProfileDto {
   @IsOptional()
   @IsString()
   dressCode?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  dressCodeColors?: string[] | null;
 }

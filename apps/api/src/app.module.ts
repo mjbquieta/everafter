@@ -14,6 +14,7 @@ import { GalleryModule } from './modules/gallery/gallery.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PlannersModule } from './modules/planners/planners.module';
 import { WebsiteSettingsModule } from './modules/website-settings/website-settings.module';
+import { PublicModule } from './modules/public/public.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
@@ -41,6 +42,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     NotificationsModule,
     PlannersModule,
     WebsiteSettingsModule,
+    PublicModule,
   ],
   providers: [
     {

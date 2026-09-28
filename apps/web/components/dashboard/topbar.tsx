@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useWeddingContext } from '@/lib/wedding-context';
 
@@ -52,17 +52,11 @@ export function Topbar() {
         {activeWedding && (
           <div ref={weddingMenuRef} className="relative">
             <button
-              onClick={() =>
-                weddings.length > 1 && setShowWeddingMenu(!showWeddingMenu)
-              }
-              className={`flex items-center gap-1.5 text-sm font-medium text-foreground ${
-                weddings.length > 1
-                  ? 'cursor-pointer hover:text-primary'
-                  : 'cursor-default'
-              }`}
+              onClick={() => setShowWeddingMenu(!showWeddingMenu)}
+              className="flex items-center gap-1.5 text-sm font-medium text-foreground cursor-pointer hover:text-primary"
             >
               {activeWedding.title}
-              {weddings.length > 1 && <ChevronDown className="h-4 w-4" />}
+              <ChevronDown className="h-4 w-4" />
             </button>
 
             {showWeddingMenu && (
@@ -84,6 +78,18 @@ export function Topbar() {
                     {w.title}
                   </button>
                 ))}
+                <div className="border-t border-border mt-1 pt-1">
+                  <button
+                    onClick={() => {
+                      setShowWeddingMenu(false);
+                      router.push('/dashboard/new');
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create New Wedding
+                  </button>
+                </div>
               </div>
             )}
           </div>

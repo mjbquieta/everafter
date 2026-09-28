@@ -135,6 +135,7 @@ model WeddingProfile {
   receptionAddress String?  @map("reception_address")
   receptionTime    DateTime? @map("reception_time")
   dressCode        String?  @map("dress_code")
+  dressCodeColors  String?  @map("dress_code_colors")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

@@ -61,7 +61,7 @@ async function main() {
       groomName: 'Mark Quieta',
       ceremonyName: 'San Agustin Church',
       receptionName: 'Shangri-La BGC',
-      weddingHashtag: '#MarkAndIssa2025',
+      weddingHashtag: '#MichaelAndIssa2025',
       dressCode: 'Semi-formal',
     },
   });
@@ -80,11 +80,41 @@ async function main() {
 
   // ── Guests & RSVPs ────────────────────────────────────────────────
   const guestData = [
-    { firstName: 'Ana', lastName: 'Santos', email: 'ana@example.com', group: 'Family', side: 'Bride' },
-    { firstName: 'Carlos', lastName: 'Garcia', email: 'carlos@example.com', group: 'Friends', side: 'Groom' },
-    { firstName: 'Bea', lastName: 'Cruz', email: 'bea@example.com', group: 'Friends', side: 'Bride' },
-    { firstName: 'David', lastName: 'Lim', email: 'david@example.com', group: 'Work', side: 'Groom' },
-    { firstName: 'Elena', lastName: 'Tan', email: 'elena@example.com', group: 'Family', side: 'Bride' },
+    {
+      firstName: 'Ana',
+      lastName: 'Santos',
+      email: 'ana@example.com',
+      group: 'Family',
+      side: 'Bride',
+    },
+    {
+      firstName: 'Carlos',
+      lastName: 'Garcia',
+      email: 'carlos@example.com',
+      group: 'Friends',
+      side: 'Groom',
+    },
+    {
+      firstName: 'Bea',
+      lastName: 'Cruz',
+      email: 'bea@example.com',
+      group: 'Friends',
+      side: 'Bride',
+    },
+    {
+      firstName: 'David',
+      lastName: 'Lim',
+      email: 'david@example.com',
+      group: 'Work',
+      side: 'Groom',
+    },
+    {
+      firstName: 'Elena',
+      lastName: 'Tan',
+      email: 'elena@example.com',
+      group: 'Family',
+      side: 'Bride',
+    },
   ];
 
   // Delete existing guests for this wedding to avoid duplicates on re-run
@@ -214,11 +244,33 @@ async function main() {
   await prisma.checklistItem.deleteMany({ where: { weddingId: wedding.id } });
 
   const checklistData = [
-    { title: 'Book ceremony venue', priority: 'HIGH' as const, completedAt: new Date('2024-12-01') },
-    { title: 'Send save-the-dates', priority: 'HIGH' as const, completedAt: new Date('2025-01-15') },
-    { title: 'Finalize guest list', priority: 'MEDIUM' as const, completedAt: null },
-    { title: 'Order wedding cake', priority: 'MEDIUM' as const, completedAt: null, dueDate: new Date('2025-05-01') },
-    { title: 'Plan honeymoon itinerary', priority: 'LOW' as const, completedAt: null, dueDate: new Date('2025-06-01') },
+    {
+      title: 'Book ceremony venue',
+      priority: 'HIGH' as const,
+      completedAt: new Date('2024-12-01'),
+    },
+    {
+      title: 'Send save-the-dates',
+      priority: 'HIGH' as const,
+      completedAt: new Date('2025-01-15'),
+    },
+    {
+      title: 'Finalize guest list',
+      priority: 'MEDIUM' as const,
+      completedAt: null,
+    },
+    {
+      title: 'Order wedding cake',
+      priority: 'MEDIUM' as const,
+      completedAt: null,
+      dueDate: new Date('2025-05-01'),
+    },
+    {
+      title: 'Plan honeymoon itinerary',
+      priority: 'LOW' as const,
+      completedAt: null,
+      dueDate: new Date('2025-06-01'),
+    },
   ];
 
   for (const item of checklistData) {

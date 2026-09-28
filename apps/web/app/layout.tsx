@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 import { QueryProvider } from '@/lib/query-provider';
 import { AuthProvider } from '@/lib/auth-context';
 import './globals.css';
@@ -27,6 +28,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

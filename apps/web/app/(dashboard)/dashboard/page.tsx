@@ -9,31 +9,18 @@ export default function DashboardPage() {
   const { activeWedding, isLoading, weddings } = useWeddingContext();
 
   useEffect(() => {
-    if (!isLoading && activeWedding) {
+    if (isLoading) return;
+
+    if (activeWedding) {
       router.replace(`/dashboard/${activeWedding.id}`);
+    } else if (weddings.length === 0) {
+      router.replace('/dashboard/new');
     }
-  }, [isLoading, activeWedding, router]);
+  }, [isLoading, activeWedding, weddings, router]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-muted">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!isLoading && weddings.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <h1 className="text-2xl font-bold text-foreground">
-          Welcome to EverAfter
-        </h1>
-        <p className="text-muted">
-          You don&apos;t have any weddings yet. Create one to get started.
-        </p>
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-muted">Loading...</p>
+    </div>
+  );
 }

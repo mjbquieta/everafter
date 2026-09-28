@@ -1,21 +1,37 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useWeddingContext } from '@/lib/wedding-context';
+import {
+  useGuestSummary,
+  useBudgetSummary,
+  useChecklistSummary,
+  useChecklistItems,
+  useGuests,
+  useWeddingProfile,
+} from '@/lib/hooks/use-dashboard';
+import {
+  DashboardHeader,
+  GuestsCard,
+  RSVPCard,
+  BudgetCard,
+  ChecklistCard,
+  UpcomingTasks,
+  RecentRSVPs,
+} from '@/features/dashboard';
 
 export default function WeddingDashboardPage() {
   const params = useParams<{ weddingId: string }>();
-  const { weddings, activeWedding, setActiveWedding } = useWeddingContext();
+  const { activeWedding } = useWeddingContext();
 
-  useEffect(() => {
-    if (params.weddingId && weddings.length > 0) {
-      const match = weddings.find((w) => w.id === params.weddingId);
-      if (match && match.id !== activeWedding?.id) {
-        setActiveWedding(match);
-      }
-    }
-  }, [params.weddingId, weddings, activeWedding?.id, setActiveWedding]);
+  const weddingId = params.weddingId;
+
+  const profile = useWeddingProfile(weddingId);
+  const guestSummary = useGuestSummary(weddingId);
+  const budgetSummary = useBudgetSummary(weddingId);
+  const checklistSummary = useChecklistSummary(weddingId);
+  const checklistItems = useChecklistItems(weddingId);
+  const guests = useGuests(weddingId);
 
   if (!activeWedding) {
     return (
@@ -26,13 +42,42 @@ export default function WeddingDashboardPage() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">
-        {activeWedding.title}
-      </h1>
-      <p className="mt-1 text-muted">
-        Welcome to your wedding dashboard. More features coming soon.
-      </p>
+    <div className="mx-auto max-w-6xl space-y-8">
+      <DashboardHeader
+        wedding={activeWedding}
+        profile={profile.data}
+        isLoading={profile.isLoading}
+      />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <GuestsCard
+          data={guestSummary.data}
+          isLoading={guestSummary.isLoading}
+        />
+        <RSVPCard
+          data={guestSummary.data}
+          isLoading={guestSummary.isLoading}
+        />
+        <BudgetCard
+          data={budgetSummary.data}
+          isLoading={budgetSummary.isLoading}
+        />
+        <ChecklistCard
+          data={checklistSummary.data}
+          isLoading={checklistSummary.isLoading}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <UpcomingTasks
+          items={checklistItems.data}
+          isLoading={checklistItems.isLoading}
+        />
+        <RecentRSVPs
+          guests={guests.data}
+          isLoading={guests.isLoading}
+        />
+      </div>
     </div>
   );
 }

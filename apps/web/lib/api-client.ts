@@ -25,13 +25,16 @@ export class ApiError extends Error {
   }
 }
 
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
+interface RefreshResult {
+  accessToken: string;
+  user: import('@everafter/types').UserResponse;
+}
 
-async function tryRefresh(): Promise<boolean> {
-  if (isRefreshing && refreshPromise) return refreshPromise;
+let refreshPromise: Promise<RefreshResult | null> | null = null;
 
-  isRefreshing = true;
+async function doRefresh(): Promise<RefreshResult | null> {
+  if (refreshPromise) return refreshPromise;
+
   refreshPromise = (async () => {
     try {
       const res = await fetch(`${API_URL}/auth/refresh`, {
@@ -39,20 +42,27 @@ async function tryRefresh(): Promise<boolean> {
         credentials: 'include',
       });
 
-      if (!res.ok) return false;
+      if (!res.ok) {
+        setAccessToken(null);
+        return null;
+      }
 
       const body = await res.json();
       setAccessToken(body.data.accessToken);
-      return true;
+      return body.data as RefreshResult;
     } catch {
-      return false;
+      setAccessToken(null);
+      return null;
     } finally {
-      isRefreshing = false;
       refreshPromise = null;
     }
   })();
 
   return refreshPromise;
+}
+
+export async function refreshAuth(): Promise<RefreshResult | null> {
+  return doRefresh();
 }
 
 export async function apiFetch<T>(
@@ -75,16 +85,15 @@ export async function apiFetch<T>(
   });
 
   if (res.status === 401 && accessToken) {
-    const refreshed = await tryRefresh();
-    if (refreshed) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
+    const result = await doRefresh();
+    if (result) {
+      headers['Authorization'] = `Bearer ${result.accessToken}`;
       res = await fetch(`${API_URL}${path}`, {
         ...options,
         headers,
         credentials: 'include',
       });
     } else {
-      setAccessToken(null);
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

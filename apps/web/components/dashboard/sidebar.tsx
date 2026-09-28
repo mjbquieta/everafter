@@ -33,9 +33,39 @@ export function Sidebar() {
   const pathname = usePathname();
   const { activeWedding } = useWeddingContext();
 
-  const basePath = activeWedding
-    ? `/dashboard/${activeWedding.id}`
-    : '/dashboard';
+  if (!activeWedding) {
+    return (
+      <aside
+        className={`flex flex-col border-r border-border bg-surface transition-all duration-200 ${
+          collapsed ? 'w-16' : 'w-64'
+        }`}
+      >
+        <nav className="flex-1 py-4">
+          {navItems.map((item) => (
+            <span
+              key={item.label}
+              className="relative flex items-center gap-3 px-4 py-2.5 text-sm text-muted/50 cursor-default"
+            >
+              <item.icon className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>{item.label}</span>}
+            </span>
+          ))}
+        </nav>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center justify-center border-t border-border py-3 text-muted hover:text-foreground transition-colors"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-5 w-5" />
+          ) : (
+            <ChevronLeft className="h-5 w-5" />
+          )}
+        </button>
+      </aside>
+    );
+  }
+
+  const basePath = `/dashboard/${activeWedding.id}`;
 
   return (
     <aside

@@ -8,6 +8,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
@@ -44,12 +45,15 @@ export class AuthController {
   ) {
     const result = await this.authService.login(dto);
 
+    // Clear any stale cookie from the old restricted path
+    res.clearCookie(REFRESH_COOKIE, { path: '/api/v1/auth' });
+
     res.cookie(REFRESH_COOKIE, result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: REFRESH_MAX_AGE,
-      path: '/api/v1/auth',
+      path: '/',
     });
 
     return { accessToken: result.accessToken, user: result.user };
@@ -63,14 +67,7 @@ export class AuthController {
   ) {
     const token = req.cookies?.[REFRESH_COOKIE];
     if (!token) {
-      res.status(HttpStatus.UNAUTHORIZED).json({
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'No refresh token provided',
-          details: [],
-        },
-      });
-      return;
+      throw new UnauthorizedException('No refresh token provided');
     }
 
     const result = await this.authService.refresh(token);
@@ -78,9 +75,9 @@ export class AuthController {
     res.cookie(REFRESH_COOKIE, result.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: REFRESH_MAX_AGE,
-      path: '/api/v1/auth',
+      path: '/',
     });
 
     return { accessToken: result.accessToken, user: result.user };
@@ -98,8 +95,8 @@ export class AuthController {
     res.clearCookie(REFRESH_COOKIE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/api/v1/auth',
+      sameSite: 'lax',
+      path: '/',
     });
   }
 

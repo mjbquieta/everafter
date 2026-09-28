@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { UserResponse, AuthTokenResponse } from '@everafter/types';
-import { apiFetch, setAccessToken } from './api-client';
+import { apiFetch, setAccessToken, refreshAuth } from './api-client';
 
 interface AuthContextValue {
   user: UserResponse | null;
@@ -31,14 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch<AuthTokenResponse>('/auth/refresh', { method: 'POST' })
+    refreshAuth()
       .then((data) => {
-        setAccessToken(data.accessToken);
-        setUser(data.user);
-      })
-      .catch(() => {
-        setAccessToken(null);
-        setUser(null);
+        if (data) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
       })
       .finally(() => setIsLoading(false));
   }, []);

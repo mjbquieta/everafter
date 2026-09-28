@@ -99,6 +99,27 @@ export class WeddingsService {
 
     const data: Record<string, unknown> = {};
 
+    if (dto.slug !== undefined) {
+      const normalized = dto.slug
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      if (!normalized) {
+        throw new ConflictException('Slug cannot be empty');
+      }
+
+      if (normalized !== existing.slug) {
+        const taken = await this.prisma.wedding.findUnique({
+          where: { slug: normalized },
+        });
+        if (taken) {
+          throw new ConflictException('This URL path is already taken');
+        }
+        data.slug = normalized;
+      }
+    }
+
     if (dto.title !== undefined) data.title = dto.title;
     if (dto.timezone !== undefined) data.timezone = dto.timezone;
     if (dto.customDomain !== undefined) data.customDomain = dto.customDomain;
@@ -295,6 +316,12 @@ export class WeddingsService {
       }
     }
 
+    if (dto.dressCodeColors !== undefined) {
+      data.dressCodeColors = dto.dressCodeColors
+        ? JSON.stringify(dto.dressCodeColors)
+        : null;
+    }
+
     const dateFields = ['ceremonyTime', 'receptionTime'] as const;
 
     for (const field of dateFields) {
@@ -395,6 +422,9 @@ export class WeddingsService {
       receptionAddress: profile.receptionAddress,
       receptionTime: profile.receptionTime?.toISOString() ?? null,
       dressCode: profile.dressCode,
+      dressCodeColors: profile.dressCodeColors
+        ? (JSON.parse(profile.dressCodeColors) as string[])
+        : null,
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),
     };

@@ -4,6 +4,10 @@ import { WeddingStatus } from '@everafter/types';
 export class UpdateWeddingDto {
   @IsOptional()
   @IsString()
+  slug?: string;
+
+  @IsOptional()
+  @IsString()
   title?: string;
 
   @IsOptional()

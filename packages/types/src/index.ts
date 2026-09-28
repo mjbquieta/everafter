@@ -196,6 +196,7 @@ export interface UpdateWeddingProfileRequest {
   receptionAddress?: string | null;
   receptionTime?: string | null;
   dressCode?: string | null;
+  dressCodeColors?: string[] | null;
 }
 
 export interface WeddingProfileResponse {
@@ -213,6 +214,7 @@ export interface WeddingProfileResponse {
   receptionAddress: string | null;
   receptionTime: string | null;
   dressCode: string | null;
+  dressCodeColors: string[] | null;
   createdAt: string;
   updatedAt: string;
 }

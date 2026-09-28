@@ -26,8 +26,16 @@ export function WeddingProvider({ children }: { children: ReactNode }) {
     useState<WeddingResponse | null>(null);
 
   useEffect(() => {
-    if (weddings?.length && !activeWedding) {
+    if (!weddings?.length) return;
+
+    if (!activeWedding) {
       setActiveWeddingState(weddings[0]);
+    } else {
+      // Keep activeWedding in sync when query data refreshes (e.g. slug change)
+      const updated = weddings.find((w) => w.id === activeWedding.id);
+      if (updated && updated !== activeWedding) {
+        setActiveWeddingState(updated);
+      }
     }
   }, [weddings, activeWedding]);
 
