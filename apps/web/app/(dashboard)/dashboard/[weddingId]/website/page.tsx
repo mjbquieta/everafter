@@ -20,6 +20,8 @@ import {
   FontPicker,
   SectionToggles,
   PreviewPanel,
+  NavLayoutPicker,
+  DividerPicker,
 } from '@/features/website-builder';
 import { ApiError } from '@/lib/api-client';
 
@@ -44,6 +46,9 @@ export default function WebsiteBuilderPage() {
     secondaryColor: string;
     font: string;
     heroBanner: string | null;
+    navigationStyle: string;
+    dividerStyle: string;
+    dividerSize: string;
   } | null>(null);
 
   const [sections, setSections] = useState<Record<string, boolean>>({
@@ -66,6 +71,9 @@ export default function WebsiteBuilderPage() {
         secondaryColor: settings.secondaryColor,
         font: settings.font,
         heroBanner: settings.heroBanner,
+        navigationStyle: settings.navigationStyle,
+        dividerStyle: settings.dividerStyle,
+        dividerSize: settings.dividerSize,
       });
     }
   }, [settings, localSettings]);
@@ -113,6 +121,30 @@ export default function WebsiteBuilderPage() {
   const handleSectionToggle = useCallback(
     (key: string, enabled: boolean) => {
       setSections((prev) => ({ ...prev, [key]: enabled }));
+    },
+    [],
+  );
+
+  const handleNavLayoutChange = useCallback(
+    (layout: 'left' | 'center' | 'right') => {
+      setLocalSettings((prev) => (prev ? { ...prev, navigationStyle: layout } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
+  const handleDividerChange = useCallback(
+    (dividerStyle: string) => {
+      setLocalSettings((prev) => (prev ? { ...prev, dividerStyle } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
+  const handleDividerSizeChange = useCallback(
+    (dividerSize: string) => {
+      setLocalSettings((prev) => (prev ? { ...prev, dividerSize } : null));
+      setHasUnsavedChanges(true);
     },
     [],
   );
@@ -281,6 +313,18 @@ export default function WebsiteBuilderPage() {
         <SectionToggles
           sections={sections}
           onChange={handleSectionToggle}
+        />
+
+        <NavLayoutPicker
+          value={localSettings.navigationStyle as 'left' | 'center' | 'right'}
+          onChange={handleNavLayoutChange}
+        />
+
+        <DividerPicker
+          value={localSettings.dividerStyle as 'classic' | 'minimal' | 'ornate' | 'dots' | 'none'}
+          onChange={handleDividerChange}
+          size={localSettings.dividerSize as 'small' | 'medium' | 'large'}
+          onSizeChange={handleDividerSizeChange}
         />
 
         {/* Save button */}

@@ -46,7 +46,7 @@ export function Topbar() {
 
   return (
     <header className="flex h-16 shrink-0 items-center border-b border-border bg-surface px-6">
-      <span className="text-primary font-semibold text-lg">EverAfter</span>
+      <span className="text-xl font-serif font-medium tracking-tight text-neutral-900">EverAfter</span>
 
       <div className="flex-1 flex justify-center">
         {activeWedding && (

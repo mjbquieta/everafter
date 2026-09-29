@@ -30,6 +30,14 @@ export class UpdateWebsiteSettingsDto {
   navigationStyle?: string;
 
   @IsOptional()
+  @IsString()
+  dividerStyle?: string;
+
+  @IsOptional()
+  @IsString()
+  dividerSize?: string;
+
+  @IsOptional()
   @IsBoolean()
   animations?: boolean;
 

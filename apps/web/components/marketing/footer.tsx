@@ -14,7 +14,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
           <div>
-            <span className="text-lg font-semibold text-primary">EverAfter</span>
+            <span className="text-xl font-serif font-medium tracking-tight text-neutral-900">EverAfter</span>
             <p className="mt-1 text-sm text-muted">
               Plan your wedding. Share your story. Celebrate forever.
             </p>

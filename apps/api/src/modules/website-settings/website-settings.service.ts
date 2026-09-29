@@ -30,6 +30,8 @@ export class WebsiteSettingsService {
     if (dto.heroImage !== undefined) data.heroImage = dto.heroImage;
     if (dto.heroBanner !== undefined) data.heroBanner = dto.heroBanner;
     if (dto.navigationStyle !== undefined) data.navigationStyle = dto.navigationStyle;
+    if (dto.dividerStyle !== undefined) data.dividerStyle = dto.dividerStyle;
+    if (dto.dividerSize !== undefined) data.dividerSize = dto.dividerSize;
     if (dto.animations !== undefined) data.animations = dto.animations;
     if (dto.footerText !== undefined) data.footerText = dto.footerText;
 
@@ -53,6 +55,8 @@ export class WebsiteSettingsService {
       heroImage: settings.heroImage,
       heroBanner: settings.heroBanner,
       navigationStyle: settings.navigationStyle,
+      dividerStyle: settings.dividerStyle,
+      dividerSize: settings.dividerSize,
       animations: settings.animations,
       footerText: settings.footerText,
     };

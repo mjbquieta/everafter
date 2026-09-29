@@ -513,6 +513,8 @@ export interface UpdateWebsiteSettingsRequest {
   heroImage?: string | null;
   heroBanner?: string | null;
   navigationStyle?: string;
+  dividerStyle?: string;
+  dividerSize?: string;
   animations?: boolean;
   footerText?: string | null;
 }
@@ -527,6 +529,8 @@ export interface WebsiteSettingsResponse {
   heroImage: string | null;
   heroBanner: string | null;
   navigationStyle: string;
+  dividerStyle: string;
+  dividerSize: string;
   animations: boolean;
   footerText: string | null;
 }

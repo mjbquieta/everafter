@@ -103,10 +103,10 @@ export function RsvpSection({ slug }: RsvpSectionProps) {
   };
 
   return (
-    <section className="px-6 py-20 md:py-28" id="rsvp">
+    <section id="rsvp" className="px-6 py-20 md:py-28">
       <div className="mx-auto max-w-md text-center">
         <h2
-          className="text-3xl md:text-4xl font-serif font-bold mb-3"
+          className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
           style={{ color: 'var(--wedding-foreground)' }}
         >
           RSVP
@@ -245,7 +245,7 @@ export function RsvpSection({ slug }: RsvpSectionProps) {
               style={{ color: 'var(--wedding-primary)' }}
             />
             <h3
-              className="text-2xl font-serif font-bold mb-2"
+              className="text-2xl font-serif font-medium tracking-tight mb-2"
               style={{ color: 'var(--wedding-foreground)' }}
             >
               {rsvpStatus === 'ACCEPTED' ? 'See you there!' : 'We\u2019ll miss you!'}

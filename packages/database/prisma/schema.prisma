@@ -155,7 +155,9 @@ model WebsiteSettings {
   font            String  @default("Inter")
   heroImage       String? @map("hero_image")
   heroBanner      String? @map("hero_banner")
-  navigationStyle String  @default("horizontal") @map("navigation_style")
+  navigationStyle String  @default("left") @map("navigation_style")
+  dividerStyle    String  @default("classic") @map("divider_style")
+  dividerSize     String  @default("medium") @map("divider_size")
   animations      Boolean @default(true)
   footerText      String? @map("footer_text")
 

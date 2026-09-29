@@ -19,5 +19,6 @@
   --radius-lg: 14px;
   --radius-full: 9999px;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", "Georgia", serif;
 }

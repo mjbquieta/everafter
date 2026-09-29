@@ -7,7 +7,9 @@ import {
   HeroSection,
   StorySection,
   DetailsSection,
+  FloralDivider,
 } from '@/features/public-wedding';
+import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
 interface PreviewPanelProps {
   slug: string;
@@ -16,6 +18,9 @@ interface PreviewPanelProps {
     secondaryColor: string;
     font: string;
     heroBanner: string | null;
+    navigationStyle: string;
+    dividerStyle: string;
+    dividerSize: string;
   };
   profile: {
     brideName: string | null;
@@ -151,31 +156,37 @@ export function PreviewPanel({
             )}
 
             {(sections.story ?? true) && (
-              <StorySection
-                proposalStory={profile.proposalStory}
-                loveStory={profile.loveStory}
-              />
+              <>
+                <FloralDivider className="py-4" style={settings.dividerStyle as DividerStyle} size={settings.dividerSize as DividerSize} />
+                <StorySection
+                  proposalStory={profile.proposalStory}
+                  loveStory={profile.loveStory}
+                />
+              </>
             )}
 
             {(sections.details ?? true) && (
-              <DetailsSection
-                ceremonyName={profile.ceremonyName}
-                ceremonyAddress={profile.ceremonyAddress}
-                ceremonyTime={profile.ceremonyTime}
-                receptionName={profile.receptionName}
-                receptionAddress={profile.receptionAddress}
-                receptionTime={profile.receptionTime}
-                dressCode={profile.dressCode}
-                dressCodeColors={profile.dressCodeColors}
-                primaryColor={settings.primaryColor}
-                timezone={wedding.timezone}
-              />
+              <div style={{ backgroundColor: 'var(--wedding-secondary)' }}>
+                <FloralDivider className="py-4" style={settings.dividerStyle as DividerStyle} size={settings.dividerSize as DividerSize} />
+                <DetailsSection
+                  ceremonyName={profile.ceremonyName}
+                  ceremonyAddress={profile.ceremonyAddress}
+                  ceremonyTime={profile.ceremonyTime}
+                  receptionName={profile.receptionName}
+                  receptionAddress={profile.receptionAddress}
+                  receptionTime={profile.receptionTime}
+                  dressCode={profile.dressCode}
+                  dressCodeColors={profile.dressCodeColors}
+                  primaryColor={settings.primaryColor}
+                  timezone={wedding.timezone}
+                />
+              </div>
             )}
 
             {(sections.rsvp ?? true) && (
-              <div className="px-6 py-20 text-center">
+              <div id="rsvp" className="px-6 py-20 text-center">
                 <h2
-                  className="text-3xl font-serif font-bold mb-3"
+                  className="text-3xl font-serif font-medium tracking-tight mb-3"
                   style={{ color: 'var(--wedding-foreground)' }}
                 >
                   RSVP

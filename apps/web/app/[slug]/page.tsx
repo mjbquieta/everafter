@@ -51,6 +51,8 @@ interface PublicWeddingData {
     heroImage: string | null;
     heroBanner: string | null;
     navigationStyle: string;
+    dividerStyle: string;
+    dividerSize: string;
     animations: boolean;
     footerText: string | null;
   };

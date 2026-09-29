@@ -16,7 +16,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="text-lg font-semibold text-primary">
+        <Link href="/" className="text-xl font-serif font-medium tracking-tight text-neutral-900">
           EverAfter
         </Link>
 

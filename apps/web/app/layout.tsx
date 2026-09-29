@@ -1,14 +1,23 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { QueryProvider } from '@/lib/query-provider';
 import { AuthProvider } from '@/lib/auth-context';
 import './globals.css';
 
-const inter = Inter({
+const serif = Cormorant_Garamond({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+});
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
 });
 
 export const metadata: Metadata = {
@@ -23,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="bg-background text-foreground font-sans antialiased">
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>

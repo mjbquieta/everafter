@@ -50,12 +50,12 @@ function VenueCard({
   return (
     <div className="flex-1 min-w-[280px] rounded-lg border p-8 text-center"
          style={{ borderColor: 'var(--wedding-secondary)', backgroundColor: 'var(--wedding-background)' }}>
-      <p className="text-sm uppercase tracking-[0.2em] mb-3"
+      <p className="font-sans text-xs font-semibold uppercase tracking-[0.2em] mb-3"
          style={{ color: 'var(--wedding-primary)' }}>
         {label}
       </p>
       {name && (
-        <h3 className="text-xl font-serif font-semibold mb-3"
+        <h3 className="text-xl font-serif font-medium tracking-tight mb-3"
             style={{ color: 'var(--wedding-foreground)' }}>
           {name}
         </h3>
@@ -98,10 +98,10 @@ export function DetailsSection({
   if (!hasCeremony && !hasReception && !dressCode) return null;
 
   return (
-    <section className="px-6 py-20 md:py-28"
+    <section id="details" className="px-6 py-20 md:py-28"
              style={{ backgroundColor: 'var(--wedding-secondary)', opacity: 1 }}>
       <div className="mx-auto max-w-4xl">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-center mb-12"
+        <h2 className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-center mb-12"
             style={{ color: 'var(--wedding-foreground)' }}>
           Wedding Details
         </h2>
@@ -131,7 +131,7 @@ export function DetailsSection({
           <div className="mt-12 text-center">
             <div className="flex items-center justify-center gap-2 mb-6">
               <Shirt className="h-4 w-4" style={{ color: 'var(--wedding-primary)' }} />
-              <p className="text-sm uppercase tracking-[0.15em] font-medium"
+              <p className="font-sans text-xs font-semibold uppercase tracking-[0.2em]"
                  style={{ color: 'var(--wedding-foreground)' }}>
                 Dress Code
               </p>

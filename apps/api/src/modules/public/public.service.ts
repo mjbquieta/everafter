@@ -36,6 +36,8 @@ export interface PublicWeddingData {
     heroImage: string | null;
     heroBanner: string | null;
     navigationStyle: string;
+    dividerStyle: string;
+    dividerSize: string;
     animations: boolean;
     footerText: string | null;
   };
@@ -110,7 +112,9 @@ export class PublicService {
         font: wedding.websiteSettings?.font ?? 'Inter',
         heroImage: wedding.websiteSettings?.heroImage ?? null,
         heroBanner: wedding.websiteSettings?.heroBanner ?? null,
-        navigationStyle: wedding.websiteSettings?.navigationStyle ?? 'horizontal',
+        navigationStyle: wedding.websiteSettings?.navigationStyle ?? 'left',
+        dividerStyle: wedding.websiteSettings?.dividerStyle ?? 'classic',
+        dividerSize: wedding.websiteSettings?.dividerSize ?? 'medium',
         animations: wedding.websiteSettings?.animations ?? true,
         footerText: wedding.websiteSettings?.footerText ?? null,
       },
