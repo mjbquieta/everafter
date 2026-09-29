@@ -15,13 +15,14 @@ import {
   useUnpublishWebsite,
 } from '@/lib/hooks/use-website-settings';
 import {
-  ThemePresets,
+  TemplatePresets,
   ColorPicker,
   FontPicker,
   SectionToggles,
   PreviewPanel,
   NavLayoutPicker,
   DividerPicker,
+  HeroBannerPicker,
 } from '@/features/website-builder';
 import { ApiError } from '@/lib/api-client';
 
@@ -87,14 +88,17 @@ export default function WebsiteBuilderPage() {
   const handleThemeChange = useCallback(
     (
       theme: string,
-      colors: {
+      settings: {
         primaryColor: string;
         secondaryColor: string;
         font: string;
+        heroBanner: string;
+        navigationStyle: string;
+        dividerStyle: string;
+        dividerSize: string;
       },
     ) => {
-      const updates = { theme, ...colors };
-      setLocalSettings((prev) => (prev ? { ...prev, ...updates } : null));
+      setLocalSettings((prev) => (prev ? { ...prev, theme, ...settings } : null));
       setHasUnsavedChanges(true);
     },
     [],
@@ -293,9 +297,19 @@ export default function WebsiteBuilderPage() {
           </div>
         </div>
 
-        <ThemePresets
+        <TemplatePresets
           activeTheme={localSettings.theme}
           onChange={handleThemeChange}
+        />
+
+        <HeroBannerPicker
+          weddingId={weddingId}
+          heroBanner={localSettings.heroBanner}
+          onUploaded={(url) => {
+            setLocalSettings((prev) =>
+              prev ? { ...prev, heroBanner: url } : null,
+            );
+          }}
         />
 
         <ColorPicker

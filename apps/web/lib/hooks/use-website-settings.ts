@@ -4,7 +4,7 @@ import type {
   UpdateWebsiteSettingsRequest,
   WeddingResponse,
 } from '@everafter/types';
-import { apiFetch } from '../api-client';
+import { apiFetch, apiUpload } from '../api-client';
 
 export const websiteKeys = {
   settings: (weddingId: string) =>
@@ -66,6 +66,21 @@ export function usePublishWebsite(weddingId: string) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weddings'] });
+    },
+  });
+}
+
+export function useUploadHeroBanner(weddingId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) =>
+      apiUpload<WebsiteSettingsResponse>(
+        `/weddings/${weddingId}/website-settings/upload/hero-banner`,
+        file,
+      ),
+    onSuccess: (data) => {
+      queryClient.setQueryData(websiteKeys.settings(weddingId), data);
     },
   });
 }

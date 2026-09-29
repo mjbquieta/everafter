@@ -1,11 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import { resolve } from 'path';
 import { AppModule } from './app.module';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix('api/v1');
 
@@ -32,6 +35,11 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
+
+  // Serve uploaded files
+  const configService = app.get(ConfigService);
+  const uploadDir = resolve(configService.get<string>('UPLOAD_DIR', './uploads'));
+  app.useStaticAssets(uploadDir, { prefix: '/uploads' });
 
   const port = process.env.API_PORT ?? 3001;
   await app.listen(port);

@@ -119,3 +119,57 @@ export async function apiFetch<T>(
 
   return body.data as T;
 }
+
+export async function apiUpload<T>(
+  path: string,
+  file: File,
+  fieldName = 'file',
+): Promise<T> {
+  const formData = new FormData();
+  formData.append(fieldName, file);
+
+  const headers: Record<string, string> = {};
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  let res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (res.status === 401 && accessToken) {
+    const result = await doRefresh();
+    if (result) {
+      headers['Authorization'] = `Bearer ${result.accessToken}`;
+      res = await fetch(`${API_URL}${path}`, {
+        method: 'POST',
+        headers,
+        body: formData,
+        credentials: 'include',
+      });
+    } else {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      throw new ApiError(401, 'UNAUTHORIZED', 'Session expired');
+    }
+  }
+
+  const body = await res.json();
+
+  if (!res.ok) {
+    const err = body as ApiErrorResponse;
+    throw new ApiError(
+      res.status,
+      err.error.code,
+      err.error.message,
+      err.error.details,
+    );
+  }
+
+  return body.data as T;
+}
