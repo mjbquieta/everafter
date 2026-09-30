@@ -7,7 +7,6 @@ import {
   HeroSection,
   StorySection,
   DetailsSection,
-  FloralDivider,
   LayoutWrapper,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
@@ -196,53 +195,55 @@ export function PreviewPanel({
             {(sections.rsvp ?? true) && (
               <div
                 id="rsvp"
-                className={
-                  settings.layout === 'editorial'
-                    ? 'px-8 md:px-20 py-20 md:py-32'
-                    : settings.layout === 'magazine'
-                      ? 'px-8 md:px-16 py-16 md:py-24'
-                      : 'px-6 py-20 text-center'
-                }
+                className="px-4 md:px-8 py-16 md:py-24"
               >
-                {settings.layout === 'editorial' ? (
-                  <>
-                    <p
-                      className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
-                      style={{ color: 'var(--wedding-primary)' }}
-                    >
-                      RSVP
-                    </p>
+                <div className={
+                  settings.layout === 'editorial'
+                    ? 'mx-auto max-w-lg'
+                    : settings.layout === 'magazine'
+                      ? 'mx-auto max-w-2xl'
+                      : 'mx-auto max-w-xl text-center'
+                }>
+                  {settings.layout === 'editorial' ? (
+                    <>
+                      <p
+                        className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+                        style={{ color: 'var(--wedding-primary)' }}
+                      >
+                        RSVP
+                      </p>
+                      <h2
+                        className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+                        style={{ color: 'var(--wedding-foreground)' }}
+                      >
+                        Will you attend?
+                      </h2>
+                    </>
+                  ) : settings.layout === 'magazine' ? (
+                    <>
+                      <h2
+                        className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
+                        style={{ color: 'var(--wedding-foreground)' }}
+                      >
+                        RSVP
+                      </h2>
+                      <div
+                        className="h-0.5 w-16 mb-6"
+                        style={{ backgroundColor: 'var(--wedding-primary)' }}
+                      />
+                    </>
+                  ) : (
                     <h2
-                      className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+                      className="text-3xl font-serif font-medium tracking-tight mb-3"
                       style={{ color: 'var(--wedding-foreground)' }}
                     >
-                      Will you attend?
-                    </h2>
-                  </>
-                ) : settings.layout === 'magazine' ? (
-                  <>
-                    <h2
-                      className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
-                      style={{ color: 'var(--wedding-foreground)' }}
-                    >
                       RSVP
                     </h2>
-                    <div
-                      className="h-0.5 w-16 mb-6"
-                      style={{ backgroundColor: 'var(--wedding-primary)' }}
-                    />
-                  </>
-                ) : (
-                  <h2
-                    className="text-3xl font-serif font-medium tracking-tight mb-3"
-                    style={{ color: 'var(--wedding-foreground)' }}
-                  >
-                    RSVP
-                  </h2>
-                )}
-                <p className="text-sm opacity-60">
-                  RSVP form is available on the live site
-                </p>
+                  )}
+                  <p className="text-sm opacity-60">
+                    RSVP form is available on the live site
+                  </p>
+                </div>
               </div>
             )}
           </div>

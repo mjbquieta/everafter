@@ -21,15 +21,15 @@ export function LayoutWrapper({
   showStory,
   showDetails,
 }: LayoutWrapperProps) {
-  // ── Magazine: side-by-side grid when both present, stacked on mobile ──
+  // ── Magazine: 12-column grid, story col-span-5, details col-span-7 ──
   if (layout === 'magazine') {
     const hasBoth = showStory && showDetails;
     return (
-      <>
+      <div className="mx-auto max-w-6xl px-4 md:px-8 py-16 md:py-24">
         {hasBoth ? (
-          <div className="grid md:grid-cols-2">
-            <div>{storySection}</div>
-            <div>{detailsSection}</div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-5">{storySection}</div>
+            <div className="md:col-span-7">{detailsSection}</div>
           </div>
         ) : (
           <>
@@ -37,31 +37,31 @@ export function LayoutWrapper({
             {showDetails && detailsSection}
           </>
         )}
-      </>
+      </div>
     );
   }
 
-  // ── Editorial: alternating left/right offset with generous whitespace ──
+  // ── Editorial: staggered offsets with generous vertical rhythm ──
   if (layout === 'editorial') {
     return (
-      <>
+      <div className="mx-auto max-w-5xl px-4 md:px-8 space-y-20 md:space-y-28 py-20 md:py-28">
         {showStory && (
-          <div className="md:mr-[20%]">
+          <div className="lg:w-2/3 mr-auto">
             {storySection}
           </div>
         )}
         {showDetails && (
-          <div className="md:ml-[20%]">
+          <div className="lg:w-4/5 ml-auto">
             {detailsSection}
           </div>
         )}
-      </>
+      </div>
     );
   }
 
-  // ── Classic: vertical stack with dividers ──
+  // ── Classic: single-column centered flow with dividers ──
   return (
-    <>
+    <div className="mx-auto max-w-4xl px-4 md:px-6 py-16 md:py-24">
       {showStory && (
         <>
           <FloralDivider className="py-4" style={dividerStyle} size={dividerSize} />
@@ -69,11 +69,11 @@ export function LayoutWrapper({
         </>
       )}
       {showDetails && (
-        <div style={{ backgroundColor: 'var(--wedding-secondary)' }}>
+        <>
           <FloralDivider className="py-4" style={dividerStyle} size={dividerSize} />
           {detailsSection}
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 }

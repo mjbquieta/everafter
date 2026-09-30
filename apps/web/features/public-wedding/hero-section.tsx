@@ -89,10 +89,10 @@ export function HeroSection({
   if (isMagazine) {
     return (
       <section id="home" className="relative min-h-[85vh]">
-        <div className="grid md:grid-cols-2 min-h-[85vh]">
+        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[85vh]">
           {/* Image side */}
           <div
-            className="relative min-h-[50vh] md:min-h-full"
+            className="relative min-h-[50vh] md:min-h-full md:col-span-6"
             style={{
               backgroundImage: bannerUrl ? `url(${bannerUrl})` : undefined,
               backgroundSize: 'cover',
@@ -101,7 +101,7 @@ export function HeroSection({
             }}
           />
           {/* Text side */}
-          <div className="flex flex-col justify-center px-8 md:px-16 py-16 md:py-24">
+          <div className="md:col-span-6 flex flex-col justify-center px-8 md:px-16 py-16 md:py-24">
             <p
               className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
               style={{ color: 'var(--wedding-primary)' }}
@@ -167,7 +167,7 @@ export function HeroSection({
         }}
       >
         {bannerUrl && <div className="absolute inset-0 bg-black/30" />}
-        <div className="relative z-10 min-h-[85vh] flex flex-col justify-end px-8 md:px-20 pb-16 md:pb-24 pt-32">
+        <div className="relative z-10 min-h-[85vh] flex flex-col justify-end mx-auto max-w-5xl w-full px-4 md:px-8 pb-16 md:pb-20 pt-32">
           <p
             className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
             style={{

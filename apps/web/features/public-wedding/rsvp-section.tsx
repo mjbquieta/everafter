@@ -104,20 +104,14 @@ export function RsvpSection({ slug, layout }: RsvpSectionProps) {
   return (
     <section
       id="rsvp"
-      className={
-        layout === 'editorial'
-          ? 'px-8 md:px-20 py-20 md:py-32'
-          : layout === 'magazine'
-            ? 'px-8 md:px-16 py-16 md:py-24'
-            : 'px-6 py-20 md:py-28'
-      }
+      className="px-4 md:px-8 py-16 md:py-24"
     >
       <div className={
         layout === 'editorial'
-          ? 'max-w-md'
+          ? 'mx-auto max-w-lg'
           : layout === 'magazine'
-            ? 'max-w-md'
-            : 'mx-auto max-w-md text-center'
+            ? 'mx-auto max-w-2xl'
+            : 'mx-auto max-w-xl text-center'
       }>
         {layout === 'editorial' ? (
           <>

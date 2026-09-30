@@ -13,7 +13,7 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
   // ── Magazine: newspaper-column feel, bold headline, compact text ──
   if (isMagazine) {
     return (
-      <section id="story" className="px-8 md:px-16 py-16 md:py-24">
+      <section id="story">
         <h2
           className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
           style={{ color: 'var(--wedding-foreground)' }}
@@ -25,9 +25,9 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
           style={{ backgroundColor: 'var(--wedding-primary)' }}
         />
 
-        <div className={loveStory && proposalStory ? 'columns-1 md:columns-2 gap-10' : ''}>
+        <div className="space-y-8">
           {loveStory && (
-            <div className="mb-8 break-inside-avoid">
+            <div>
               <h3
                 className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-4"
                 style={{ color: 'var(--wedding-primary)' }}
@@ -44,7 +44,7 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
           )}
 
           {proposalStory && (
-            <div className="break-inside-avoid">
+            <div>
               <h3
                 className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-4"
                 style={{ color: 'var(--wedding-primary)' }}
@@ -64,10 +64,10 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
     );
   }
 
-  // ── Editorial: large italic pull-quote style, left-aligned, generous space ──
+  // ── Editorial: large italic pull-quote style ──
   if (isEditorial) {
     return (
-      <section id="story" className="px-8 md:px-20 py-20 md:py-32">
+      <section id="story">
         <p
           className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
           style={{ color: 'var(--wedding-primary)' }}
@@ -75,7 +75,7 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
           Our Story
         </p>
 
-        <div className="max-w-3xl">
+        <div className="max-w-2xl">
           {loveStory && (
             <div className="mb-16">
               <h3
@@ -114,9 +114,9 @@ export function StorySection({ proposalStory, loveStory, layout }: StorySectionP
     );
   }
 
-  // ── Classic: centered, elegant ──
+  // ── Classic: centered, elegant, constrained reading width ──
   return (
-    <section id="story" className="px-6 py-20 md:py-28">
+    <section id="story">
       <div className="mx-auto max-w-2xl text-center">
         <h2
           className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-10"

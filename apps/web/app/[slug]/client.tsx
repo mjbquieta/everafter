@@ -135,45 +135,30 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
           />
         }
         detailsSection={
-          <>
-            <DetailsSection
-              ceremonyName={profile.ceremonyName}
-              ceremonyAddress={profile.ceremonyAddress}
-              ceremonyTime={profile.ceremonyTime}
-              ceremonyImage={profile.ceremonyImage}
-              receptionName={profile.receptionName}
-              receptionAddress={profile.receptionAddress}
-              receptionTime={profile.receptionTime}
-              receptionImage={profile.receptionImage}
-              weddingDate={wedding.weddingDate}
-              dressCode={profile.dressCode}
-              dressCodeColors={profile.dressCodeColors}
-              primaryColor={settings.primaryColor}
-              timezone={wedding.timezone}
-              layout={settings.layout}
-            />
-            {settings.layout === 'classic' && (
-              <FloralDivider className="py-4" style={divider} size={dividerSize} />
-            )}
-          </>
+          <DetailsSection
+            ceremonyName={profile.ceremonyName}
+            ceremonyAddress={profile.ceremonyAddress}
+            ceremonyTime={profile.ceremonyTime}
+            ceremonyImage={profile.ceremonyImage}
+            receptionName={profile.receptionName}
+            receptionAddress={profile.receptionAddress}
+            receptionTime={profile.receptionTime}
+            receptionImage={profile.receptionImage}
+            weddingDate={wedding.weddingDate}
+            dressCode={profile.dressCode}
+            dressCodeColors={profile.dressCodeColors}
+            primaryColor={settings.primaryColor}
+            timezone={wedding.timezone}
+            layout={settings.layout}
+          />
         }
       />
-
-      {!hasDetails && settings.layout === 'classic' && (
-        <FloralDivider className="py-4" style={divider} size={dividerSize} />
-      )}
 
       <RsvpSection slug={wedding.slug} layout={settings.layout} />
 
       {/* Footer */}
       <footer
-        className={
-          settings.layout === 'editorial'
-            ? 'px-8 md:px-20 pt-16 pb-10'
-            : settings.layout === 'magazine'
-              ? 'px-8 md:px-16 pt-16 pb-10'
-              : 'px-6 pt-16 pb-10 text-center'
-        }
+        className={`px-4 md:px-8 pt-16 pb-10 ${settings.layout === 'classic' ? 'text-center' : ''}`}
         style={{ backgroundColor: 'var(--wedding-secondary)' }}
       >
         {settings.layout === 'classic' && (

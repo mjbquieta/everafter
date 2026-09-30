@@ -185,7 +185,7 @@ function VenueCard({
 
   return (
     <div
-      className="flex-1 min-w-[280px] rounded-xl overflow-hidden border"
+      className="rounded-xl overflow-hidden border"
       style={{
         borderColor: 'var(--wedding-secondary)',
         backgroundColor: 'var(--wedding-background)',
@@ -415,11 +415,7 @@ export function DetailsSection({
   // ── Magazine ──
   if (isMagazine) {
     return (
-      <section
-        id="details"
-        className="px-8 md:px-16 py-16 md:py-24"
-        style={{ backgroundColor: 'var(--wedding-secondary)' }}
-      >
+      <section id="details">
         <h2
           className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
           style={{ color: 'var(--wedding-foreground)' }}
@@ -431,7 +427,7 @@ export function DetailsSection({
           style={{ backgroundColor: 'var(--wedding-primary)' }}
         />
 
-        <div className="grid md:grid-cols-2 gap-x-10">
+        <div className="space-y-0">
           {hasCeremony && (
             <MagazineVenueBlock
               venue={ceremonyVenue}
@@ -489,11 +485,7 @@ export function DetailsSection({
   // ── Editorial ──
   if (isEditorial) {
     return (
-      <section
-        id="details"
-        className="px-8 md:px-20 py-20 md:py-32"
-        style={{ backgroundColor: 'var(--wedding-secondary)' }}
-      >
+      <section id="details">
         <p
           className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
           style={{ color: 'var(--wedding-primary)' }}
@@ -501,7 +493,7 @@ export function DetailsSection({
           Details
         </p>
 
-        <div className="max-w-3xl">
+        <div className="max-w-2xl">
           {hasCeremony && (
             <EditorialVenueBlock
               venue={ceremonyVenue}
@@ -549,61 +541,55 @@ export function DetailsSection({
 
   // ── Classic ──
   return (
-    <section
-      id="details"
-      className="px-6 py-20 md:py-28"
-      style={{ backgroundColor: 'var(--wedding-secondary)', opacity: 1 }}
-    >
-      <div className="mx-auto max-w-4xl">
-        <h2
-          className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-center mb-12"
-          style={{ color: 'var(--wedding-foreground)' }}
-        >
-          Wedding Details
-        </h2>
+    <section id="details">
+      <h2
+        className="text-3xl md:text-4xl font-serif font-medium tracking-tight text-center mb-12"
+        style={{ color: 'var(--wedding-foreground)' }}
+      >
+        Wedding Details
+      </h2>
 
-        <div className="flex flex-col md:flex-row gap-6 justify-center">
-          {hasCeremony && (
-            <VenueCard
-              venue={ceremonyVenue}
-              onViewMap={() => setMapVenue(ceremonyVenue)}
-            />
-          )}
-          {hasReception && (
-            <VenueCard
-              venue={receptionVenue}
-              onViewMap={() => setMapVenue(receptionVenue)}
-            />
-          )}
-        </div>
-
-        {dressCode && (
-          <div className="mt-12 text-center">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Shirt
-                className="h-4 w-4"
-                style={{ color: 'var(--wedding-primary)' }}
-              />
-              <p
-                className="font-sans text-xs font-semibold uppercase tracking-[0.2em]"
-                style={{ color: 'var(--wedding-foreground)' }}
-              >
-                Dress Code
-              </p>
-            </div>
-            <DressCodeCouples
-              colors={dressCodeColors ?? []}
-              primaryColor={primaryColor}
-            />
-            <p
-              className="mt-4 text-base font-serif font-semibold"
-              style={{ color: 'var(--wedding-foreground)' }}
-            >
-              {dressCode}
-            </p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {hasCeremony && (
+          <VenueCard
+            venue={ceremonyVenue}
+            onViewMap={() => setMapVenue(ceremonyVenue)}
+          />
+        )}
+        {hasReception && (
+          <VenueCard
+            venue={receptionVenue}
+            onViewMap={() => setMapVenue(receptionVenue)}
+          />
         )}
       </div>
+
+      {dressCode && (
+        <div className="mt-12 mx-auto max-w-lg text-center">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Shirt
+              className="h-4 w-4"
+              style={{ color: 'var(--wedding-primary)' }}
+            />
+            <p
+              className="font-sans text-xs font-semibold uppercase tracking-[0.2em]"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              Dress Code
+            </p>
+          </div>
+          <DressCodeCouples
+            colors={dressCodeColors ?? []}
+            primaryColor={primaryColor}
+          />
+          <p
+            className="mt-4 text-base font-serif font-semibold"
+            style={{ color: 'var(--wedding-foreground)' }}
+          >
+            {dressCode}
+          </p>
+        </div>
+      )}
 
       {mapVenue && (
         <VenueMapModal
