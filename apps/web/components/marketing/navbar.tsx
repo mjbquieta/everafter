@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
@@ -13,6 +14,16 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+
+  // Convert anchor links to root paths when not on home page
+  const resolveHref = (href: string) => {
+    if (href.startsWith('#') && !isHomePage) {
+      return `/${href}`;
+    }
+    return href;
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -26,7 +37,7 @@ export function Navbar() {
           {navLinks.map((link) => (
             <a
               key={link.href}
-              href={link.href}
+              href={resolveHref(link.href)}
               className="text-sm font-medium text-muted transition-colors hover:text-foreground"
             >
               {link.label}
@@ -67,7 +78,7 @@ export function Navbar() {
             {navLinks.map((link) => (
               <a
                 key={link.href}
-                href={link.href}
+                href={resolveHref(link.href)}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm font-medium text-muted transition-colors hover:text-foreground py-2"
               >

@@ -1,122 +1,174 @@
 import type { Metadata } from 'next';
-import { CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, Check } from 'lucide-react';
 import { Navbar } from '@/components/marketing/navbar';
 import { Footer } from '@/components/marketing/footer';
 
 export const metadata: Metadata = {
   title: 'Roadmap | EverAfter',
   description:
-    'See what we have shipped, what we are building, and what is coming next for EverAfter.',
+    'From initial vows to digital keepsakes—our continuous evolution in crafting timeless wedding experiences.',
 };
 
-interface RoadmapItem {
+interface Milestone {
+  phase: string;
   title: string;
-  description: string;
+  status: 'Shipped' | 'In Progress' | 'Planned';
+  items: string[];
+  position: 'left' | 'right';
 }
 
-interface Column {
-  status: string;
-  icon: React.ReactNode;
-  color: string;
-  items: RoadmapItem[];
-}
-
-const columns: Column[] = [
+const milestones: Milestone[] = [
   {
+    phase: 'Phase 1',
+    title: 'Foundations & Canvas',
     status: 'Shipped',
-    icon: <CheckCircle2 className="h-5 w-5" />,
-    color: 'text-emerald-600',
+    position: 'left',
     items: [
-      {
-        title: 'Guest Management CRM',
-        description:
-          'CSV import/export, dietary stats, table tracking, and seating summary.',
-      },
-      {
-        title: 'Interactive Website Customizer',
-        description:
-          'Path-based public wedding sites with live preview and slug editor.',
-      },
-      {
-        title: 'Multi-Theme Engine',
-        description:
-          'Classic, Magazine, and Editorial layouts with custom colors, fonts, and dividers.',
-      },
-      {
-        title: 'Budget Planner',
-        description:
-          'Full expense tracking with PHP (₱) currency, payment status filters, and print export.',
-      },
-      {
-        title: 'Interactive Wedding Checklist',
-        description:
-          'Priority-sorted tasks with search, filters, and printable checklists.',
-      },
-      {
-        title: 'Calendar Integration',
-        description:
-          'Add-to-calendar buttons for Google Calendar and .ics file downloads.',
-      },
-      {
-        title: 'FAQ & Day-of Programme',
-        description:
-          'Accordion FAQ section and vertical timeline for wedding-day events.',
-      },
+      'Core wedding layouts (Classic, Magazine, Editorial)',
+      'Live builder synchronization with instant preview',
+      'Guest RSVP submission and management',
+      'Interactive schedule and FAQ accordion',
     ],
   },
   {
+    phase: 'Phase 2',
+    title: 'Editorial Polish',
+    status: 'Shipped',
+    position: 'right',
+    items: [
+      'High-res photo gallery lightbox with keyboard navigation',
+      'Curated dress code palette swatches with custom shade names',
+      'Multi-theme engine with custom colors and fonts',
+      'Calendar integration (Google Calendar + .ics downloads)',
+    ],
+  },
+  {
+    phase: 'Phase 3',
+    title: 'Tactile & Ambient Experience',
+    status: 'Shipped',
+    position: 'left',
+    items: [
+      'Ambient background music player with curated presets',
+      'Custom MP3 upload and URL support',
+      'Wax seal & envelope opening ceremony animation',
+      'Interaction-triggered audio auto-play',
+    ],
+  },
+  {
+    phase: 'Phase 4',
+    title: 'Social Invitations & Day-of',
     status: 'In Progress',
-    icon: <Clock className="h-5 w-5" />,
-    color: 'text-amber-600',
+    position: 'right',
     items: [
-      {
-        title: 'Background Music & Audio Player',
-        description:
-          'Ambient audio player for wedding websites with autoplay and track controls.',
-      },
-      {
-        title: 'Prenup Photo Gallery',
-        description:
-          'Lightbox photo albums with masonry grid and full-screen viewer.',
-      },
+      'Rich social preview cards (OG images for Messenger/iMessage)',
+      'Printable day-of timelines and guest lists',
+      'Custom domains & wedding QR cards',
+      'Command palette (⌘K) for quick navigation',
     ],
   },
   {
+    phase: 'Phase 5',
+    title: 'Keepsakes & Guest CRM',
     status: 'Planned',
-    icon: <Sparkles className="h-5 w-5" />,
-    color: 'text-violet-600',
+    position: 'left',
     items: [
-      {
-        title: 'Drag-and-Drop Seating Chart',
-        description:
-          'Visual table builder with drag-and-drop guest placement.',
-      },
-      {
-        title: 'Command Menu & Keyboard Shortcuts',
-        description:
-          'Quick navigation with \u2318K / Ctrl+K command palette.',
-      },
-      {
-        title: 'Automated RSVP Confirmation Emails',
-        description:
-          'Send branded confirmation emails via Resend when guests respond.',
-      },
-      {
-        title: 'Multi-client Coordinator Hub',
-        description:
-          'Manage multiple weddings from a single coordinator dashboard.',
-      },
+      'Collaborative memory wall for guest photos',
+      'Automated thank-you note dispatcher',
+      'Multi-event RSVP tracking',
+      'Drag-and-drop visual seating chart',
     ],
   },
 ];
 
-function RoadmapCard({ title, description }: RoadmapItem) {
+function StatusBadge({ status }: { status: Milestone['status'] }) {
+  const colors = {
+    Shipped: 'bg-amber-100/80 text-amber-900 border-amber-200',
+    'In Progress': 'bg-blue-100/80 text-blue-900 border-blue-200',
+    Planned: 'bg-stone-100/80 text-stone-600 border-stone-200',
+  };
+
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
-      <p className="mt-1 text-sm text-neutral-500 leading-relaxed">
-        {description}
-      </p>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${colors[status]}`}
+    >
+      {status === 'Shipped' && <Check className="h-2.5 w-2.5" />}
+      {status}
+    </span>
+  );
+}
+
+function MilestoneCard({ milestone, index }: { milestone: Milestone; index: number }) {
+  const isLeft = milestone.position === 'left';
+
+  return (
+    <div className="relative flex items-start justify-center gap-8 md:gap-16">
+      {/* Left content */}
+      <div className={`flex-1 ${isLeft ? 'text-right' : 'md:opacity-0'}`}>
+        {isLeft && (
+          <div className="inline-block max-w-sm text-left md:text-right">
+            <div className="flex items-center gap-2 mb-2 md:justify-end">
+              <span className="text-[10px] tracking-widest uppercase font-semibold text-stone-400">
+                {milestone.phase}
+              </span>
+              <StatusBadge status={milestone.status} />
+            </div>
+            <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-2">
+              {milestone.title}
+            </h3>
+            <ul className="space-y-1">
+              {milestone.items.map((item, i) => (
+                <li key={i} className="text-xs md:text-sm text-stone-600 leading-relaxed font-serif">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Center pin */}
+      <div className="relative flex flex-col items-center">
+        <div
+          className={`w-7 h-7 rounded-full bg-white border-2 flex items-center justify-center shadow-sm z-10 ${
+            milestone.status === 'Shipped'
+              ? 'border-amber-600 bg-amber-50'
+              : milestone.status === 'In Progress'
+                ? 'border-blue-600 bg-blue-50'
+                : 'border-stone-300 bg-stone-50'
+          }`}
+        >
+          {milestone.status === 'Shipped' ? (
+            <Check className="h-3.5 w-3.5 text-amber-700" strokeWidth={3} />
+          ) : (
+            <span className="text-xs font-serif text-stone-500">{index + 1}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Right content */}
+      <div className={`flex-1 ${!isLeft ? 'text-left' : 'md:opacity-0'}`}>
+        {!isLeft && (
+          <div className="inline-block max-w-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] tracking-widest uppercase font-semibold text-stone-400">
+                {milestone.phase}
+              </span>
+              <StatusBadge status={milestone.status} />
+            </div>
+            <h3 className="font-serif text-xl md:text-2xl text-stone-900 mb-2">
+              {milestone.title}
+            </h3>
+            <ul className="space-y-1">
+              {milestone.items.map((item, i) => (
+                <li key={i} className="text-xs md:text-sm text-stone-600 leading-relaxed font-serif">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -128,42 +180,81 @@ export default function RoadmapPage() {
 
       <main className="flex-1">
         {/* Header */}
-        <section className="mx-auto max-w-6xl px-6 pt-20 pb-12 text-center">
-          <p className="tracking-[0.2em] uppercase text-xs text-neutral-500 font-semibold mb-3">
-            Product Roadmap
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl font-medium text-neutral-900 mb-4">
-            Building the Future of EverAfter
-          </h1>
-          <p className="mx-auto max-w-2xl text-neutral-500 leading-relaxed">
-            Every feature we build is shaped by couples and coordinators who trust us
-            with their most important day. Here is what we have shipped, what we are
-            working on, and where we are headed next.
-          </p>
+        <section className="mx-auto max-w-4xl px-6 pt-12 pb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-stone-600 hover:text-stone-900 transition-colors mb-8"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Return to Home
+          </Link>
+
+          <div className="text-center">
+            <span className="inline-block text-xs tracking-[0.25em] text-stone-500 uppercase font-sans mb-3">
+              Our Journey & Vision
+            </span>
+            <h1 className="font-serif text-3xl md:text-5xl text-stone-900 font-normal mb-4">
+              The EverAfter Roadmap
+            </h1>
+            <p className="mx-auto max-w-2xl text-sm md:text-base text-stone-600 leading-relaxed font-serif">
+              From initial vows to digital keepsakes—our continuous evolution in crafting
+              timeless wedding experiences.
+            </p>
+          </div>
         </section>
 
-        {/* Columns */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
-          <div className="grid gap-8 md:grid-cols-3">
-            {columns.map((col) => (
-              <div key={col.status}>
-                <div className={`flex items-center gap-2 mb-4 ${col.color}`}>
-                  {col.icon}
-                  <h2 className="text-sm font-bold uppercase tracking-wide">
-                    {col.status}
-                  </h2>
-                  <span className="ml-auto rounded-full border border-current/20 px-2 py-0.5 text-[11px] font-medium">
-                    {col.items.length}
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {col.items.map((item) => (
-                    <RoadmapCard key={item.title} {...item} />
-                  ))}
-                </div>
-              </div>
+        {/* Winding Path */}
+        <section className="relative mx-auto max-w-5xl px-6 py-16">
+          {/* SVG Ribbon Path */}
+          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-full max-w-2xl pointer-events-none hidden md:block">
+            <svg
+              viewBox="0 0 400 1200"
+              className="w-full h-full"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              {/* Champagne ribbon body */}
+              <path
+                d="M 200 0 Q 150 100, 200 200 T 200 400 Q 250 500, 200 600 T 200 800 Q 150 900, 200 1000 T 200 1200"
+                fill="none"
+                stroke="#D6C7B2"
+                strokeWidth="48"
+                strokeLinecap="round"
+                opacity="0.4"
+              />
+              {/* Inner delicate line */}
+              <path
+                d="M 200 0 Q 150 100, 200 200 T 200 400 Q 250 500, 200 600 T 200 800 Q 150 900, 200 1000 T 200 1200"
+                fill="none"
+                stroke="#92400E"
+                strokeWidth="2"
+                strokeDasharray="4 6"
+                opacity="0.2"
+              />
+            </svg>
+          </div>
+
+          {/* Mobile vertical line */}
+          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-stone-200/60 md:hidden" />
+
+          {/* Milestones */}
+          <div className="relative space-y-16 md:space-y-24">
+            {milestones.map((milestone, index) => (
+              <MilestoneCard key={milestone.phase} milestone={milestone} index={index} />
             ))}
           </div>
+        </section>
+
+        {/* Footer CTA */}
+        <section className="mx-auto max-w-2xl px-6 py-16 text-center">
+          <p className="text-sm text-stone-600 font-serif leading-relaxed mb-6">
+            Have a feature request or feedback? We'd love to hear from you.
+          </p>
+          <Link
+            href="/#faq"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-medium bg-stone-900 text-white hover:bg-stone-800 transition-colors"
+          >
+            Get in Touch
+          </Link>
         </section>
       </main>
 
