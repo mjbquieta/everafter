@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsDateString, IsArray } from 'class-validator';
+import { IsOptional, IsString, IsArray } from 'class-validator';
 
 export class UpdateWeddingProfileDto {
   @IsOptional()
@@ -30,7 +30,7 @@ export class UpdateWeddingProfileDto {
   ceremonyAddress?: string | null;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
   ceremonyTime?: string | null;
 
   @IsOptional()
@@ -42,8 +42,16 @@ export class UpdateWeddingProfileDto {
   receptionAddress?: string | null;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
   receptionTime?: string | null;
+
+  @IsOptional()
+  @IsString()
+  ceremonyImage?: string | null;
+
+  @IsOptional()
+  @IsString()
+  receptionImage?: string | null;
 
   @IsOptional()
   @IsString()

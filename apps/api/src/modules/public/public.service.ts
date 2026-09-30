@@ -25,6 +25,8 @@ export interface PublicWeddingData {
     receptionName: string | null;
     receptionAddress: string | null;
     receptionTime: string | null;
+    ceremonyImage: string | null;
+    receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
   };
@@ -35,6 +37,7 @@ export interface PublicWeddingData {
     font: string;
     heroImage: string | null;
     heroBanner: string | null;
+    layout: string;
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
@@ -100,6 +103,8 @@ export class PublicService {
         receptionName: wedding.profile?.receptionName ?? null,
         receptionAddress: wedding.profile?.receptionAddress ?? null,
         receptionTime: wedding.profile?.receptionTime?.toISOString() ?? null,
+        ceremonyImage: wedding.profile?.ceremonyImage ?? null,
+        receptionImage: wedding.profile?.receptionImage ?? null,
         dressCode: wedding.profile?.dressCode ?? null,
         dressCodeColors: wedding.profile?.dressCodeColors
           ? (JSON.parse(wedding.profile.dressCodeColors) as string[])
@@ -112,6 +117,7 @@ export class PublicService {
         font: wedding.websiteSettings?.font ?? 'Inter',
         heroImage: wedding.websiteSettings?.heroImage ?? null,
         heroBanner: wedding.websiteSettings?.heroBanner ?? null,
+        layout: wedding.websiteSettings?.layout ?? 'classic',
         navigationStyle: wedding.websiteSettings?.navigationStyle ?? 'left',
         dividerStyle: wedding.websiteSettings?.dividerStyle ?? 'classic',
         dividerSize: wedding.websiteSettings?.dividerSize ?? 'medium',

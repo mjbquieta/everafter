@@ -12,8 +12,11 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
+  const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000';
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+    origin: corsOrigin === '*'
+      ? true
+      : corsOrigin.split(',').map((o) => o.trim()),
     credentials: true,
   });
 
@@ -42,7 +45,7 @@ async function bootstrap() {
   app.useStaticAssets(uploadDir, { prefix: '/uploads' });
 
   const port = process.env.API_PORT ?? 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`API running on http://localhost:${port}`);
   console.log(`Swagger UI at http://localhost:${port}/api/docs`);

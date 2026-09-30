@@ -8,6 +8,7 @@ import {
   RsvpSection,
   NavigationBar,
   FloralDivider,
+  LayoutWrapper,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -31,6 +32,8 @@ interface PublicWeddingData {
     receptionName: string | null;
     receptionAddress: string | null;
     receptionTime: string | null;
+    ceremonyImage: string | null;
+    receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
   };
@@ -41,6 +44,7 @@ interface PublicWeddingData {
     font: string;
     heroImage: string | null;
     heroBanner: string | null;
+    layout: string;
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
@@ -114,46 +118,75 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         timezone={wedding.timezone}
         hashtag={profile.weddingHashtag}
         heroBanner={settings.heroBanner}
+        layout={settings.layout}
       />
 
-      {hasStory && (
-        <>
-          <FloralDivider className="py-4" style={divider} size={dividerSize} />
+      <LayoutWrapper
+        layout={settings.layout}
+        dividerStyle={divider}
+        dividerSize={dividerSize}
+        showStory={hasStory}
+        showDetails={hasDetails}
+        storySection={
           <StorySection
             proposalStory={profile.proposalStory}
             loveStory={profile.loveStory}
+            layout={settings.layout}
           />
-        </>
+        }
+        detailsSection={
+          <>
+            <DetailsSection
+              ceremonyName={profile.ceremonyName}
+              ceremonyAddress={profile.ceremonyAddress}
+              ceremonyTime={profile.ceremonyTime}
+              ceremonyImage={profile.ceremonyImage}
+              receptionName={profile.receptionName}
+              receptionAddress={profile.receptionAddress}
+              receptionTime={profile.receptionTime}
+              receptionImage={profile.receptionImage}
+              weddingDate={wedding.weddingDate}
+              dressCode={profile.dressCode}
+              dressCodeColors={profile.dressCodeColors}
+              primaryColor={settings.primaryColor}
+              timezone={wedding.timezone}
+              layout={settings.layout}
+            />
+            {settings.layout === 'classic' && (
+              <FloralDivider className="py-4" style={divider} size={dividerSize} />
+            )}
+          </>
+        }
+      />
+
+      {!hasDetails && settings.layout === 'classic' && (
+        <FloralDivider className="py-4" style={divider} size={dividerSize} />
       )}
 
-      {hasDetails && (
-        <div style={{ backgroundColor: 'var(--wedding-secondary)' }}>
-          <FloralDivider className="py-4" style={divider} size={dividerSize} />
-          <DetailsSection
-            ceremonyName={profile.ceremonyName}
-            ceremonyAddress={profile.ceremonyAddress}
-            ceremonyTime={profile.ceremonyTime}
-            receptionName={profile.receptionName}
-            receptionAddress={profile.receptionAddress}
-            receptionTime={profile.receptionTime}
-            dressCode={profile.dressCode}
-            dressCodeColors={profile.dressCodeColors}
-            primaryColor={settings.primaryColor}
-            timezone={wedding.timezone}
-          />
-          <FloralDivider className="py-4" style={divider} size={dividerSize} />
-        </div>
-      )}
-
-      {!hasDetails && <FloralDivider className="py-4" style={divider} size={dividerSize} />}
-
-      <RsvpSection slug={wedding.slug} />
+      <RsvpSection slug={wedding.slug} layout={settings.layout} />
 
       {/* Footer */}
-      <footer className="px-6 pt-16 pb-10 text-center"
-              style={{ backgroundColor: 'var(--wedding-secondary)' }}>
-        <FloralDivider className="pb-8" style={divider} size={dividerSize} />
-        <p className="font-serif text-2xl md:text-3xl font-medium tracking-tight mb-2"
+      <footer
+        className={
+          settings.layout === 'editorial'
+            ? 'px-8 md:px-20 pt-16 pb-10'
+            : settings.layout === 'magazine'
+              ? 'px-8 md:px-16 pt-16 pb-10'
+              : 'px-6 pt-16 pb-10 text-center'
+        }
+        style={{ backgroundColor: 'var(--wedding-secondary)' }}
+      >
+        {settings.layout === 'classic' && (
+          <FloralDivider className="pb-8" style={divider} size={dividerSize} />
+        )}
+        {settings.layout === 'magazine' && (
+          <div className="h-px w-full mb-8" style={{ backgroundColor: 'var(--wedding-primary)', opacity: 0.2 }} />
+        )}
+        <p className={`font-serif tracking-tight mb-2 ${
+          settings.layout === 'editorial' ? 'text-3xl md:text-4xl font-medium' :
+          settings.layout === 'magazine' ? 'text-2xl md:text-3xl font-bold' :
+          'text-2xl md:text-3xl font-medium'
+        }`}
            style={{ color: 'var(--wedding-foreground)' }}>
           {coupleNames}
         </p>

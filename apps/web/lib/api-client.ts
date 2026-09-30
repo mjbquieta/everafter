@@ -1,7 +1,34 @@
 import type { ApiErrorResponse } from '@everafter/types';
 
-const API_URL =
+const ENV_API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+
+/**
+ * Resolve the API base URL.
+ * On the server (SSR) we use the env var as-is.
+ * On the client we replace the hostname with the current browser hostname
+ * so that LAN access (e.g. 192.168.x.x) works without reconfiguring.
+ */
+function resolveApiUrl(): string {
+  if (typeof window === 'undefined') return ENV_API_URL;
+  try {
+    const url = new URL(ENV_API_URL);
+    url.hostname = window.location.hostname;
+    return url.toString().replace(/\/$/, '');
+  } catch {
+    return ENV_API_URL;
+  }
+}
+
+export const API_URL = resolveApiUrl();
+
+/** Resolve an upload path like /uploads/... to a full URL using the API origin */
+export function resolveUploadUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/images/')) return path;
+  return API_URL.replace('/api/v1', '') + path;
+}
 
 let accessToken: string | null = null;
 

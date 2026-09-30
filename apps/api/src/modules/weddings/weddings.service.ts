@@ -307,6 +307,8 @@ export class WeddingsService {
       'ceremonyAddress',
       'receptionName',
       'receptionAddress',
+      'ceremonyImage',
+      'receptionImage',
       'dressCode',
     ] as const;
 
@@ -326,7 +328,16 @@ export class WeddingsService {
 
     for (const field of dateFields) {
       if (dto[field] !== undefined) {
-        data[field] = dto[field] ? new Date(dto[field] as string) : null;
+        if (!dto[field]) {
+          data[field] = null;
+        } else {
+          const raw = dto[field] as string;
+          // Handle bare time strings like "14:30" from <input type="time">
+          const parsed = /^\d{2}:\d{2}$/.test(raw)
+            ? new Date(`1970-01-01T${raw}:00Z`)
+            : new Date(raw);
+          data[field] = isNaN(parsed.getTime()) ? null : parsed;
+        }
       }
     }
 
@@ -421,6 +432,8 @@ export class WeddingsService {
       receptionName: profile.receptionName,
       receptionAddress: profile.receptionAddress,
       receptionTime: profile.receptionTime?.toISOString() ?? null,
+      ceremonyImage: profile.ceremonyImage,
+      receptionImage: profile.receptionImage,
       dressCode: profile.dressCode,
       dressCodeColors: profile.dressCodeColors
         ? (JSON.parse(profile.dressCodeColors) as string[])

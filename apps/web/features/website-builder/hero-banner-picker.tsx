@@ -6,6 +6,7 @@ import { ImagePlus, Trash2, Loader2 } from 'lucide-react';
 import { Button, Label } from '@everafter/ui';
 import { toast } from 'sonner';
 import { useUploadHeroBanner, useUpdateWebsiteSettings } from '@/lib/hooks/use-website-settings';
+import { resolveUploadUrl } from '@/lib/api-client';
 
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 
@@ -77,15 +78,7 @@ export function HeroBannerPicker({
 
   const isUploading = upload.isPending;
   const isRemoving = updateSettings.isPending;
-  const isStaticImage = heroBanner?.startsWith('/images/');
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
-  const baseUrl = apiUrl.replace('/api/v1', '');
-
-  const bannerSrc = heroBanner
-    ? isStaticImage
-      ? heroBanner
-      : `${baseUrl}${heroBanner}`
-    : null;
+  const bannerSrc = resolveUploadUrl(heroBanner);
 
   return (
     <div className="space-y-2">

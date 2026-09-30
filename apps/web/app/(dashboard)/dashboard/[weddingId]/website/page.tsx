@@ -23,6 +23,7 @@ import {
   NavLayoutPicker,
   DividerPicker,
   HeroBannerPicker,
+  LayoutPicker,
 } from '@/features/website-builder';
 import { ApiError } from '@/lib/api-client';
 
@@ -47,6 +48,7 @@ export default function WebsiteBuilderPage() {
     secondaryColor: string;
     font: string;
     heroBanner: string | null;
+    layout: string;
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
@@ -72,6 +74,7 @@ export default function WebsiteBuilderPage() {
         secondaryColor: settings.secondaryColor,
         font: settings.font,
         heroBanner: settings.heroBanner,
+        layout: settings.layout,
         navigationStyle: settings.navigationStyle,
         dividerStyle: settings.dividerStyle,
         dividerSize: settings.dividerSize,
@@ -96,6 +99,7 @@ export default function WebsiteBuilderPage() {
         navigationStyle: string;
         dividerStyle: string;
         dividerSize: string;
+        layout: string;
       },
     ) => {
       setLocalSettings((prev) => (prev ? { ...prev, theme, ...settings } : null));
@@ -132,6 +136,14 @@ export default function WebsiteBuilderPage() {
   const handleNavLayoutChange = useCallback(
     (layout: 'left' | 'center' | 'right') => {
       setLocalSettings((prev) => (prev ? { ...prev, navigationStyle: layout } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
+  const handleLayoutChange = useCallback(
+    (layout: 'classic' | 'magazine' | 'editorial') => {
+      setLocalSettings((prev) => (prev ? { ...prev, layout } : null));
       setHasUnsavedChanges(true);
     },
     [],
@@ -302,6 +314,11 @@ export default function WebsiteBuilderPage() {
           onChange={handleThemeChange}
         />
 
+        <LayoutPicker
+          value={localSettings.layout as 'classic' | 'magazine' | 'editorial'}
+          onChange={handleLayoutChange}
+        />
+
         <HeroBannerPicker
           weddingId={weddingId}
           heroBanner={localSettings.heroBanner}
@@ -374,6 +391,8 @@ export default function WebsiteBuilderPage() {
               receptionName: profile.receptionName,
               receptionAddress: profile.receptionAddress,
               receptionTime: profile.receptionTime,
+              ceremonyImage: profile.ceremonyImage,
+              receptionImage: profile.receptionImage,
               dressCode: profile.dressCode,
               dressCodeColors: profile.dressCodeColors,
             }}

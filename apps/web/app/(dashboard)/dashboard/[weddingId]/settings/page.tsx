@@ -5,17 +5,32 @@ import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, Plus, X } from 'lucide-react';
+import { Save, Plus, X, Upload, Trash2, Image } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button, Input, Label } from '@everafter/ui';
 import { useWeddingProfile } from '@/lib/hooks/use-dashboard';
+import { useWedding } from '@/lib/hooks/use-weddings';
 import {
   useUpdateWeddingProfile,
   useUpdateWedding,
+  useUploadVenueImage,
 } from '@/lib/hooks/use-wedding-mutations';
 import { DressCodeCouples } from '@/features/public-wedding/dress-code-couples';
+import { AddressSearchInput } from '@/features/public-wedding/address-search-input';
+import { resolveUploadUrl } from '@/lib/api-client';
+
+/** Extract "HH:mm" from an ISO date string for <input type="time"> */
+function toTimeValue(iso: string | null | undefined): string {
+  if (!iso) return '';
+  // Already bare time like "14:30"
+  if (/^\d{2}:\d{2}$/.test(iso)) return iso;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toISOString().slice(11, 16);
+}
 
 const profileSchema = z.object({
+  weddingDate: z.string().optional(),
   brideName: z.string().optional(),
   groomName: z.string().optional(),
   weddingHashtag: z.string().optional(),
@@ -67,7 +82,9 @@ function Section({
 
 export default function SettingsPage() {
   const { weddingId } = useParams<{ weddingId: string }>();
-  const { data: profile, isLoading } = useWeddingProfile(weddingId);
+  const { data: wedding, isLoading: isWeddingLoading } = useWedding(weddingId);
+  const { data: profile, isLoading: isProfileLoading } = useWeddingProfile(weddingId);
+  const isLoading = isWeddingLoading || isProfileLoading;
   const updateProfile = useUpdateWeddingProfile(weddingId);
   const updateWedding = useUpdateWedding(weddingId);
   const [dressCodeColors, setDressCodeColors] = useState<string[]>([
@@ -76,15 +93,20 @@ export default function SettingsPage() {
     '#D4A574',
   ]);
   const [colorsChanged, setColorsChanged] = useState(false);
+  const uploadCeremonyImage = useUploadVenueImage(weddingId, 'ceremony');
+  const uploadReceptionImage = useUploadVenueImage(weddingId, 'reception');
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      weddingDate: '',
       brideName: '',
       groomName: '',
       weddingHashtag: '',
@@ -103,15 +125,18 @@ export default function SettingsPage() {
   useEffect(() => {
     if (profile) {
       reset({
+        weddingDate: wedding?.weddingDate
+          ? new Date(wedding.weddingDate).toISOString().slice(0, 10)
+          : '',
         brideName: profile.brideName ?? '',
         groomName: profile.groomName ?? '',
         weddingHashtag: profile.weddingHashtag ?? '',
         ceremonyName: profile.ceremonyName ?? '',
         ceremonyAddress: profile.ceremonyAddress ?? '',
-        ceremonyTime: profile.ceremonyTime ?? '',
+        ceremonyTime: toTimeValue(profile.ceremonyTime),
         receptionName: profile.receptionName ?? '',
         receptionAddress: profile.receptionAddress ?? '',
-        receptionTime: profile.receptionTime ?? '',
+        receptionTime: toTimeValue(profile.receptionTime),
         loveStory: profile.loveStory ?? '',
         proposalStory: profile.proposalStory ?? '',
         dressCode: profile.dressCode ?? '',
@@ -120,7 +145,7 @@ export default function SettingsPage() {
         setDressCodeColors(profile.dressCodeColors);
       }
     }
-  }, [profile, reset]);
+  }, [profile, wedding, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -141,11 +166,18 @@ export default function SettingsPage() {
       });
       setColorsChanged(false);
 
-      // Update the wedding title to match the couple names
+      // Update wedding-level fields (title, date)
+      const weddingUpdates: Record<string, unknown> = {};
       if (data.brideName && data.groomName) {
-        await updateWedding.mutateAsync({
-          title: `${data.brideName} & ${data.groomName}'s Wedding`,
-        });
+        weddingUpdates.title = `${data.brideName} & ${data.groomName}'s Wedding`;
+      }
+      if (data.weddingDate) {
+        weddingUpdates.weddingDate = new Date(data.weddingDate).toISOString();
+      } else {
+        weddingUpdates.weddingDate = null;
+      }
+      if (Object.keys(weddingUpdates).length > 0) {
+        await updateWedding.mutateAsync(weddingUpdates);
       }
 
       toast.success('Settings saved successfully');
@@ -202,6 +234,9 @@ export default function SettingsPage() {
               <Input {...register('groomName')} placeholder="e.g. Michael" />
             </FormField>
           </div>
+          <FormField label="Wedding Date" error={errors.weddingDate?.message}>
+            <Input {...register('weddingDate')} type="date" />
+          </FormField>
           <FormField
             label="Wedding Hashtag"
             error={errors.weddingHashtag?.message}
@@ -297,15 +332,87 @@ export default function SettingsPage() {
               placeholder="e.g. Manila Cathedral"
             />
           </FormField>
-          <FormField label="Address" error={errors.ceremonyAddress?.message}>
-            <Input
-              {...register('ceremonyAddress')}
-              placeholder="e.g. Intramuros, Manila"
+          <div>
+            <Label className="mb-1.5 block">Address</Label>
+            <AddressSearchInput
+              value={watch('ceremonyAddress') ?? ''}
+              onChange={(addr) => setValue('ceremonyAddress', addr, { shouldDirty: true })}
+              placeholder="Search for ceremony venue..."
             />
-          </FormField>
+            {errors.ceremonyAddress?.message && (
+              <p className="mt-1 text-xs text-error">{errors.ceremonyAddress.message}</p>
+            )}
+          </div>
           <FormField label="Time" error={errors.ceremonyTime?.message}>
             <Input {...register('ceremonyTime')} type="time" />
           </FormField>
+          <div>
+            <Label className="mb-1.5 block">Venue Image</Label>
+            {profile?.ceremonyImage ? (
+              <div className="relative group w-full h-40 rounded-lg overflow-hidden border border-border">
+                <img
+                  src={resolveUploadUrl(profile.ceremonyImage)!}
+                  alt="Ceremony venue"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-md text-xs font-medium text-foreground hover:bg-gray-100 transition-colors">
+                    <Upload className="h-3.5 w-3.5" />
+                    Replace
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          uploadCeremonyImage.mutate(file, {
+                            onSuccess: () => toast.success('Ceremony image uploaded'),
+                            onError: () => toast.error('Failed to upload image'),
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateProfile.mutate(
+                        { ceremonyImage: null },
+                        {
+                          onSuccess: () => toast.success('Image removed'),
+                          onError: () => toast.error('Failed to remove image'),
+                        },
+                      );
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-md text-xs font-medium text-error hover:bg-gray-100 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+                <Image className="h-6 w-6 text-muted mb-2" />
+                <span className="text-xs text-muted">Click to upload venue image</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      uploadCeremonyImage.mutate(file, {
+                        onSuccess: () => toast.success('Ceremony image uploaded'),
+                        onError: () => toast.error('Failed to upload image'),
+                      });
+                    }
+                  }}
+                />
+              </label>
+            )}
+          </div>
         </Section>
 
         <Section title="Reception Venue">
@@ -315,15 +422,87 @@ export default function SettingsPage() {
               placeholder="e.g. Shangri-La at the Fort"
             />
           </FormField>
-          <FormField label="Address" error={errors.receptionAddress?.message}>
-            <Input
-              {...register('receptionAddress')}
-              placeholder="e.g. BGC, Taguig"
+          <div>
+            <Label className="mb-1.5 block">Address</Label>
+            <AddressSearchInput
+              value={watch('receptionAddress') ?? ''}
+              onChange={(addr) => setValue('receptionAddress', addr, { shouldDirty: true })}
+              placeholder="Search for reception venue..."
             />
-          </FormField>
+            {errors.receptionAddress?.message && (
+              <p className="mt-1 text-xs text-error">{errors.receptionAddress.message}</p>
+            )}
+          </div>
           <FormField label="Time" error={errors.receptionTime?.message}>
             <Input {...register('receptionTime')} type="time" />
           </FormField>
+          <div>
+            <Label className="mb-1.5 block">Venue Image</Label>
+            {profile?.receptionImage ? (
+              <div className="relative group w-full h-40 rounded-lg overflow-hidden border border-border">
+                <img
+                  src={resolveUploadUrl(profile.receptionImage)!}
+                  alt="Reception venue"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-md text-xs font-medium text-foreground hover:bg-gray-100 transition-colors">
+                    <Upload className="h-3.5 w-3.5" />
+                    Replace
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          uploadReceptionImage.mutate(file, {
+                            onSuccess: () => toast.success('Reception image uploaded'),
+                            onError: () => toast.error('Failed to upload image'),
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateProfile.mutate(
+                        { receptionImage: null },
+                        {
+                          onSuccess: () => toast.success('Image removed'),
+                          onError: () => toast.error('Failed to remove image'),
+                        },
+                      );
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-md text-xs font-medium text-error hover:bg-gray-100 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+                <Image className="h-6 w-6 text-muted mb-2" />
+                <span className="text-xs text-muted">Click to upload venue image</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      uploadReceptionImage.mutate(file, {
+                        onSuccess: () => toast.success('Reception image uploaded'),
+                        onError: () => toast.error('Failed to upload image'),
+                      });
+                    }
+                  }}
+                />
+              </label>
+            )}
+          </div>
         </Section>
 
         <Section title="Your Story">

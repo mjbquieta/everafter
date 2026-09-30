@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import { Search, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, Input } from '@everafter/ui';
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+import { API_URL } from '@/lib/api-client';
 
 interface RsvpSectionProps {
   slug: string;
+  layout?: string;
 }
 
 type Step = 'search' | 'form' | 'confirmed';
@@ -23,7 +22,7 @@ interface GuestMatch {
   notes: string | null;
 }
 
-export function RsvpSection({ slug }: RsvpSectionProps) {
+export function RsvpSection({ slug, layout }: RsvpSectionProps) {
   const [step, setStep] = useState<Step>('search');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -103,14 +102,59 @@ export function RsvpSection({ slug }: RsvpSectionProps) {
   };
 
   return (
-    <section id="rsvp" className="px-6 py-20 md:py-28">
-      <div className="mx-auto max-w-md text-center">
-        <h2
-          className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
-          style={{ color: 'var(--wedding-foreground)' }}
-        >
-          RSVP
-        </h2>
+    <section
+      id="rsvp"
+      className={
+        layout === 'editorial'
+          ? 'px-8 md:px-20 py-20 md:py-32'
+          : layout === 'magazine'
+            ? 'px-8 md:px-16 py-16 md:py-24'
+            : 'px-6 py-20 md:py-28'
+      }
+    >
+      <div className={
+        layout === 'editorial'
+          ? 'max-w-md'
+          : layout === 'magazine'
+            ? 'max-w-md'
+            : 'mx-auto max-w-md text-center'
+      }>
+        {layout === 'editorial' ? (
+          <>
+            <p
+              className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+              style={{ color: 'var(--wedding-primary)' }}
+            >
+              RSVP
+            </p>
+            <h2
+              className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              Will you attend?
+            </h2>
+          </>
+        ) : layout === 'magazine' ? (
+          <>
+            <h2
+              className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              RSVP
+            </h2>
+            <div
+              className="h-0.5 w-16 mb-6"
+              style={{ backgroundColor: 'var(--wedding-primary)' }}
+            />
+          </>
+        ) : (
+          <h2
+            className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+            style={{ color: 'var(--wedding-foreground)' }}
+          >
+            RSVP
+          </h2>
+        )}
         <p className="text-sm mb-10" style={{ color: 'var(--wedding-foreground)', opacity: 0.6 }}>
           Please let us know if you can make it
         </p>

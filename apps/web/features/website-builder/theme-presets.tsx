@@ -10,6 +10,7 @@ interface TemplateSettings {
   navigationStyle: string;
   dividerStyle: string;
   dividerSize: string;
+  layout: string;
 }
 
 interface TemplatePresetsProps {
@@ -28,6 +29,7 @@ const presets: (TemplateSettings & { id: string; label: string })[] = [
     navigationStyle: 'left',
     dividerStyle: 'classic',
     dividerSize: 'medium',
+    layout: 'classic',
   },
   {
     id: 'editorial',
@@ -39,6 +41,7 @@ const presets: (TemplateSettings & { id: string; label: string })[] = [
     navigationStyle: 'right',
     dividerStyle: 'minimal',
     dividerSize: 'medium',
+    layout: 'editorial',
   },
   {
     id: 'minimal',
@@ -50,6 +53,7 @@ const presets: (TemplateSettings & { id: string; label: string })[] = [
     navigationStyle: 'center',
     dividerStyle: 'none',
     dividerSize: 'small',
+    layout: 'classic',
   },
   {
     id: 'romantic',
@@ -61,6 +65,7 @@ const presets: (TemplateSettings & { id: string; label: string })[] = [
     navigationStyle: 'center',
     dividerStyle: 'ornate',
     dividerSize: 'medium',
+    layout: 'magazine',
   },
   {
     id: 'bohemian',
@@ -72,6 +77,7 @@ const presets: (TemplateSettings & { id: string; label: string })[] = [
     navigationStyle: 'left',
     dividerStyle: 'dots',
     dividerSize: 'large',
+    layout: 'magazine',
   },
 ];
 

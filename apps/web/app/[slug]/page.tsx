@@ -40,6 +40,8 @@ interface PublicWeddingData {
     receptionName: string | null;
     receptionAddress: string | null;
     receptionTime: string | null;
+    ceremonyImage: string | null;
+    receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
   };
@@ -50,6 +52,7 @@ interface PublicWeddingData {
     font: string;
     heroImage: string | null;
     heroBanner: string | null;
+    layout: string;
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;

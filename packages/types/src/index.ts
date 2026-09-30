@@ -195,6 +195,8 @@ export interface UpdateWeddingProfileRequest {
   receptionName?: string | null;
   receptionAddress?: string | null;
   receptionTime?: string | null;
+  ceremonyImage?: string | null;
+  receptionImage?: string | null;
   dressCode?: string | null;
   dressCodeColors?: string[] | null;
 }
@@ -213,6 +215,8 @@ export interface WeddingProfileResponse {
   receptionName: string | null;
   receptionAddress: string | null;
   receptionTime: string | null;
+  ceremonyImage: string | null;
+  receptionImage: string | null;
   dressCode: string | null;
   dressCodeColors: string[] | null;
   createdAt: string;
@@ -512,6 +516,7 @@ export interface UpdateWebsiteSettingsRequest {
   font?: string;
   heroImage?: string | null;
   heroBanner?: string | null;
+  layout?: string;
   navigationStyle?: string;
   dividerStyle?: string;
   dividerSize?: string;
@@ -528,6 +533,7 @@ export interface WebsiteSettingsResponse {
   font: string;
   heroImage: string | null;
   heroBanner: string | null;
+  layout: string;
   navigationStyle: string;
   dividerStyle: string;
   dividerSize: string;

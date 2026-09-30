@@ -5,7 +5,7 @@ import type {
   WeddingProfileResponse,
   UpdateWeddingProfileRequest,
 } from '@everafter/types';
-import { apiFetch } from '../api-client';
+import { apiFetch, apiUpload } from '../api-client';
 import { weddingKeys } from './use-weddings';
 
 export function useCreateWedding() {
@@ -49,6 +49,27 @@ export function useUpdateWeddingProfile(weddingId: string) {
           method: 'PATCH',
           body: JSON.stringify(data),
         },
+      ),
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        ['weddings', weddingId, 'profile'],
+        data,
+      );
+    },
+  });
+}
+
+export function useUploadVenueImage(
+  weddingId: string,
+  venue: 'ceremony' | 'reception',
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) =>
+      apiUpload<WeddingProfileResponse>(
+        `/weddings/${weddingId}/profile/upload/${venue}-image`,
+        file,
       ),
     onSuccess: (data) => {
       queryClient.setQueryData(

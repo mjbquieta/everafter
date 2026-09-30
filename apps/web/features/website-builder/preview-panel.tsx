@@ -8,6 +8,7 @@ import {
   StorySection,
   DetailsSection,
   FloralDivider,
+  LayoutWrapper,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -18,6 +19,7 @@ interface PreviewPanelProps {
     secondaryColor: string;
     font: string;
     heroBanner: string | null;
+    layout: string;
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
@@ -34,6 +36,8 @@ interface PreviewPanelProps {
     receptionName: string | null;
     receptionAddress: string | null;
     receptionTime: string | null;
+    ceremonyImage: string | null;
+    receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
   };
@@ -152,45 +156,90 @@ export function PreviewPanel({
                 timezone={wedding.timezone}
                 hashtag={profile.weddingHashtag}
                 heroBanner={settings.heroBanner}
+                layout={settings.layout}
               />
             )}
 
-            {(sections.story ?? true) && (
-              <>
-                <FloralDivider className="py-4" style={settings.dividerStyle as DividerStyle} size={settings.dividerSize as DividerSize} />
+            <LayoutWrapper
+              layout={settings.layout}
+              dividerStyle={settings.dividerStyle as DividerStyle}
+              dividerSize={settings.dividerSize as DividerSize}
+              showStory={sections.story ?? true}
+              showDetails={sections.details ?? true}
+              storySection={
                 <StorySection
                   proposalStory={profile.proposalStory}
                   loveStory={profile.loveStory}
+                  layout={settings.layout}
                 />
-              </>
-            )}
-
-            {(sections.details ?? true) && (
-              <div style={{ backgroundColor: 'var(--wedding-secondary)' }}>
-                <FloralDivider className="py-4" style={settings.dividerStyle as DividerStyle} size={settings.dividerSize as DividerSize} />
+              }
+              detailsSection={
                 <DetailsSection
                   ceremonyName={profile.ceremonyName}
                   ceremonyAddress={profile.ceremonyAddress}
                   ceremonyTime={profile.ceremonyTime}
+                  ceremonyImage={profile.ceremonyImage}
                   receptionName={profile.receptionName}
                   receptionAddress={profile.receptionAddress}
                   receptionTime={profile.receptionTime}
+                  receptionImage={profile.receptionImage}
+                  weddingDate={wedding.weddingDate}
                   dressCode={profile.dressCode}
                   dressCodeColors={profile.dressCodeColors}
                   primaryColor={settings.primaryColor}
                   timezone={wedding.timezone}
+                  layout={settings.layout}
                 />
-              </div>
-            )}
+              }
+            />
 
             {(sections.rsvp ?? true) && (
-              <div id="rsvp" className="px-6 py-20 text-center">
-                <h2
-                  className="text-3xl font-serif font-medium tracking-tight mb-3"
-                  style={{ color: 'var(--wedding-foreground)' }}
-                >
-                  RSVP
-                </h2>
+              <div
+                id="rsvp"
+                className={
+                  settings.layout === 'editorial'
+                    ? 'px-8 md:px-20 py-20 md:py-32'
+                    : settings.layout === 'magazine'
+                      ? 'px-8 md:px-16 py-16 md:py-24'
+                      : 'px-6 py-20 text-center'
+                }
+              >
+                {settings.layout === 'editorial' ? (
+                  <>
+                    <p
+                      className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+                      style={{ color: 'var(--wedding-primary)' }}
+                    >
+                      RSVP
+                    </p>
+                    <h2
+                      className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+                      style={{ color: 'var(--wedding-foreground)' }}
+                    >
+                      Will you attend?
+                    </h2>
+                  </>
+                ) : settings.layout === 'magazine' ? (
+                  <>
+                    <h2
+                      className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
+                      style={{ color: 'var(--wedding-foreground)' }}
+                    >
+                      RSVP
+                    </h2>
+                    <div
+                      className="h-0.5 w-16 mb-6"
+                      style={{ backgroundColor: 'var(--wedding-primary)' }}
+                    />
+                  </>
+                ) : (
+                  <h2
+                    className="text-3xl font-serif font-medium tracking-tight mb-3"
+                    style={{ color: 'var(--wedding-foreground)' }}
+                  >
+                    RSVP
+                  </h2>
+                )}
                 <p className="text-sm opacity-60">
                   RSVP form is available on the live site
                 </p>

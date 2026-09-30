@@ -5,3 +5,4 @@ export { RsvpSection } from './rsvp-section';
 export { DressCodeCouples } from './dress-code-couples';
 export { NavigationBar } from './navigation-bar';
 export { FloralDivider } from './floral-divider';
+export { LayoutWrapper } from './layout-wrapper';

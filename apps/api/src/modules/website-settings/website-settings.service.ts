@@ -29,6 +29,7 @@ export class WebsiteSettingsService {
     if (dto.font !== undefined) data.font = dto.font;
     if (dto.heroImage !== undefined) data.heroImage = dto.heroImage;
     if (dto.heroBanner !== undefined) data.heroBanner = dto.heroBanner;
+    if (dto.layout !== undefined) data.layout = dto.layout;
     if (dto.navigationStyle !== undefined) data.navigationStyle = dto.navigationStyle;
     if (dto.dividerStyle !== undefined) data.dividerStyle = dto.dividerStyle;
     if (dto.dividerSize !== undefined) data.dividerSize = dto.dividerSize;
@@ -54,6 +55,7 @@ export class WebsiteSettingsService {
       font: settings.font,
       heroImage: settings.heroImage,
       heroBanner: settings.heroBanner,
+      layout: settings.layout,
       navigationStyle: settings.navigationStyle,
       dividerStyle: settings.dividerStyle,
       dividerSize: settings.dividerSize,

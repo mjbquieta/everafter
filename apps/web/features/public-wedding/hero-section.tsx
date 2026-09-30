@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { resolveUploadUrl } from '@/lib/api-client';
 
 interface HeroSectionProps {
   brideName: string | null;
@@ -9,6 +10,7 @@ interface HeroSectionProps {
   timezone: string;
   hashtag: string | null;
   heroBanner: string | null;
+  layout?: string;
 }
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
@@ -34,6 +36,7 @@ export function HeroSection({
   timezone,
   hashtag,
   heroBanner,
+  layout,
 }: HeroSectionProps) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
@@ -67,14 +70,7 @@ export function HeroSection({
       ? `${brideName} & ${groomName}`
       : brideName || groomName || 'Our Wedding';
 
-  // Resolve banner URL — stored paths like /uploads/... need the API origin
-  const bannerUrl = (() => {
-    if (!heroBanner) return null;
-    if (heroBanner.startsWith('http')) return heroBanner;
-    if (heroBanner.startsWith('/images/')) return heroBanner;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
-    return apiUrl.replace('/api/v1', '') + heroBanner;
-  })();
+  const bannerUrl = resolveUploadUrl(heroBanner);
 
   const formattedDate = weddingDate
     ? new Date(weddingDate).toLocaleDateString('en-US', {
@@ -86,6 +82,155 @@ export function HeroSection({
       })
     : null;
 
+  const isMagazine = layout === 'magazine';
+  const isEditorial = layout === 'editorial';
+
+  // ── Magazine hero: split layout with image on one side, text on the other ──
+  if (isMagazine) {
+    return (
+      <section id="home" className="relative min-h-[85vh]">
+        <div className="grid md:grid-cols-2 min-h-[85vh]">
+          {/* Image side */}
+          <div
+            className="relative min-h-[50vh] md:min-h-full"
+            style={{
+              backgroundImage: bannerUrl ? `url(${bannerUrl})` : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundColor: bannerUrl ? undefined : 'var(--wedding-secondary)',
+            }}
+          />
+          {/* Text side */}
+          <div className="flex flex-col justify-center px-8 md:px-16 py-16 md:py-24">
+            <p
+              className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+              style={{ color: 'var(--wedding-primary)' }}
+            >
+              Wedding Invitation
+            </p>
+            <h1
+              className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-[0.95] tracking-tight mb-6"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              {brideName && groomName ? (
+                <>
+                  {brideName}
+                  <span className="block font-normal italic text-3xl md:text-4xl my-2" style={{ color: 'var(--wedding-primary)' }}>&amp;</span>
+                  {groomName}
+                </>
+              ) : coupleNames}
+            </h1>
+
+            {formattedDate && (
+              <p
+                className="font-sans text-xs font-semibold uppercase tracking-[0.2em] mb-4"
+                style={{ color: 'var(--wedding-foreground)', opacity: 0.5 }}
+              >
+                {formattedDate}
+              </p>
+            )}
+
+            {hashtag && (
+              <p
+                className="font-serif text-base italic"
+                style={{ color: 'var(--wedding-primary)' }}
+              >
+                #{hashtag}
+              </p>
+            )}
+
+            {mounted && timeLeft && (
+              <div className="mt-10 flex items-center gap-6">
+                <CountdownUnit value={timeLeft.days} label="Days" />
+                <span className="text-3xl font-light opacity-30">:</span>
+                <CountdownUnit value={timeLeft.hours} label="Hours" />
+                <span className="text-3xl font-light opacity-30">:</span>
+                <CountdownUnit value={timeLeft.minutes} label="Min" />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Editorial hero: oversized typography, asymmetric, dramatic whitespace ──
+  if (isEditorial) {
+    return (
+      <section
+        id="home"
+        className="relative min-h-[85vh]"
+        style={{
+          backgroundImage: bannerUrl ? `url(${bannerUrl})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {bannerUrl && <div className="absolute inset-0 bg-black/30" />}
+        <div className="relative z-10 min-h-[85vh] flex flex-col justify-end px-8 md:px-20 pb-16 md:pb-24 pt-32">
+          <p
+            className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+            style={{
+              color: bannerUrl ? 'rgba(255,255,255,0.6)' : 'var(--wedding-primary)',
+            }}
+          >
+            Wedding Invitation
+          </p>
+          <h1
+            className="text-6xl md:text-8xl lg:text-9xl font-serif font-medium leading-[0.9] tracking-tight max-w-4xl"
+            style={{ color: bannerUrl ? '#fff' : 'var(--wedding-foreground)' }}
+          >
+            {brideName && groomName ? (
+              <>
+                {brideName}
+                <span className="block font-normal italic text-4xl md:text-5xl my-3" style={{ color: bannerUrl ? 'rgba(255,255,255,0.6)' : 'var(--wedding-primary)' }}>&amp;</span>
+                {groomName}
+              </>
+            ) : coupleNames}
+          </h1>
+
+          <div className="mt-8 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+            {formattedDate && (
+              <p
+                className="font-sans text-xs font-semibold uppercase tracking-[0.2em]"
+                style={{
+                  color: bannerUrl ? 'rgba(255,255,255,0.6)' : 'var(--wedding-foreground)',
+                  opacity: bannerUrl ? 1 : 0.5,
+                }}
+              >
+                {formattedDate}
+              </p>
+            )}
+            {hashtag && (
+              <p
+                className="font-serif text-base italic"
+                style={{
+                  color: bannerUrl ? 'rgba(255,255,255,0.6)' : 'var(--wedding-primary)',
+                }}
+              >
+                #{hashtag}
+              </p>
+            )}
+          </div>
+
+          {mounted && timeLeft && (
+            <div
+              className="mt-10 flex items-center gap-6"
+              style={{ color: bannerUrl ? '#fff' : 'var(--wedding-foreground)' }}
+            >
+              <CountdownUnit value={timeLeft.days} label="Days" />
+              <span className="text-3xl font-light opacity-30">:</span>
+              <CountdownUnit value={timeLeft.hours} label="Hours" />
+              <span className="text-3xl font-light opacity-30">:</span>
+              <CountdownUnit value={timeLeft.minutes} label="Min" />
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // ── Classic hero: centered, elegant ──
   return (
     <section
       id="home"

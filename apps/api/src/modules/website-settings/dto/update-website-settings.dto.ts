@@ -27,6 +27,10 @@ export class UpdateWebsiteSettingsDto {
 
   @IsOptional()
   @IsString()
+  layout?: string;
+
+  @IsOptional()
+  @IsString()
   navigationStyle?: string;
 
   @IsOptional()
