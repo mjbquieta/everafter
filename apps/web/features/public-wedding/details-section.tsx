@@ -262,32 +262,20 @@ function VenueCard({
   if (!venue.name && !venue.address && !venue.dateTime) return null;
 
   return (
-    <div
-      className="rounded-xl border"
-      style={{
-        borderColor: 'var(--wedding-secondary)',
-        backgroundColor: 'var(--wedding-background)',
-      }}
-    >
+    <div className="bg-[#FAF9F7]/60 border border-stone-200/70 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]">
       {venue.image && (
         <img
           src={resolveUploadUrl(venue.image)!}
           alt={`${venue.label} venue`}
-          className="w-full h-48 object-cover rounded-t-xl"
+          className="aspect-[16/10] w-full object-cover rounded-xl mb-6 shadow-inner"
         />
       )}
-      <div className="p-8 text-center">
-        <p
-          className="font-sans text-xs font-semibold uppercase tracking-[0.2em] mb-3"
-          style={{ color: 'var(--wedding-primary)' }}
-        >
+      <div className="text-center flex-1 flex flex-col">
+        <p className="font-sans text-xs uppercase tracking-[0.2em] text-stone-400 mb-1">
           {venue.label}
         </p>
         {venue.name && (
-          <h3
-            className="text-xl font-serif font-medium tracking-tight mb-3"
-            style={{ color: 'var(--wedding-foreground)' }}
-          >
+          <h3 className="font-serif text-2xl text-stone-900 mb-3">
             {venue.name}
           </h3>
         )}
@@ -306,7 +294,7 @@ function VenueCard({
           </div>
         )}
         {venue.address && (
-          <div className="flex items-center justify-center gap-1.5">
+          <div className="flex items-center justify-center gap-1.5 mb-4">
             <MapPin
               className="h-4 w-4 shrink-0"
               style={{ color: 'var(--wedding-primary)' }}
@@ -319,7 +307,7 @@ function VenueCard({
             </p>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-auto">
           {venue.address && <ViewMapButton onClick={onViewMap} />}
           <AddToCalendarButton
             weddingDate={weddingDate}
@@ -667,7 +655,7 @@ export function DetailsSection({
         Wedding Details
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         {hasCeremony && (
           <VenueCard
             venue={ceremonyVenue}

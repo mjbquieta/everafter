@@ -70,15 +70,15 @@ export function DressCodeCouples({ colors, primaryColor }: DressCodeCouplesProps
       </p>
 
       {/* Color Swatches */}
-      <div className="flex items-center justify-center gap-4 py-4">
+      <div className="flex justify-center items-start gap-4 md:gap-6 py-4 flex-wrap">
         {palette.slice(0, 5).map((swatch, i) => (
-          <div key={i} className="flex flex-col items-center gap-1.5">
+          <div key={i} className="flex flex-col items-center w-20 text-center gap-1.5">
             <div
-              className="w-10 h-10 rounded-full border border-stone-200 shadow-sm transition-transform hover:scale-110 cursor-pointer"
+              className="w-10 h-10 rounded-full border-2 border-stone-200 shadow-sm transition-transform hover:scale-110 cursor-pointer"
               style={{ backgroundColor: swatch.hex }}
               title={swatch.name}
             />
-            <span className="text-xs font-serif text-stone-600 tracking-wide capitalize text-center">
+            <span className="text-xs font-serif text-stone-600 tracking-wide capitalize">
               {swatch.name}
             </span>
           </div>
