@@ -24,6 +24,7 @@ interface PreviewPanelProps {
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
+    heroTextColor: string;
   };
   profile: {
     brideName: string | null;
@@ -165,6 +166,7 @@ export function PreviewPanel({
                 hashtag={profile.weddingHashtag}
                 heroBanner={settings.heroBanner}
                 layout={settings.layout}
+                heroTextColor={settings.heroTextColor as 'light' | 'dark'}
               />
               </div>
             )}

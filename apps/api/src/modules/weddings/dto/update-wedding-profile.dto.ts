@@ -59,8 +59,7 @@ export class UpdateWeddingProfileDto {
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  dressCodeColors?: string[] | null;
+  dressCodeColors?: (string | { hex: string; name: string })[] | null;
 
   @IsOptional()
   @IsArray()

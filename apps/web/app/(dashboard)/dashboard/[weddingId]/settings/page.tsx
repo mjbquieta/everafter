@@ -88,7 +88,9 @@ export default function SettingsPage() {
   const isLoading = isWeddingLoading || isProfileLoading;
   const updateProfile = useUpdateWeddingProfile(weddingId);
   const updateWedding = useUpdateWedding(weddingId);
-  const [dressCodeColors, setDressCodeColors] = useState<string[]>([
+
+  type ColorInput = string | { hex: string; name: string };
+  const [dressCodeColors, setDressCodeColors] = useState<ColorInput[]>([
     '#2C3E50',
     '#8B5E5E',
     '#D4A574',
@@ -173,7 +175,7 @@ export default function SettingsPage() {
         loveStory: data.loveStory || null,
         proposalStory: data.proposalStory || null,
         dressCode: data.dressCode || null,
-        dressCodeColors: dressCodeColors.length > 0 ? dressCodeColors : null,
+        dressCodeColors: dressCodeColors.length > 0 ? (dressCodeColors as any) : null,
         scheduleEvents: scheduleEvents.length > 0 ? scheduleEvents : null,
         faqItems: faqItems.length > 0 ? faqItems : null,
       });
@@ -278,49 +280,72 @@ export default function SettingsPage() {
             <p className="text-xs text-muted mb-3">
               Choose colors to display on the couple illustrations in the dress code section
             </p>
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              {dressCodeColors.map((color, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <label
-                    className="relative h-10 w-10 rounded-lg border-2 border-border cursor-pointer overflow-hidden"
-                    title={`Color ${i + 1}`}
-                  >
+            <div className="flex flex-wrap items-start gap-3 mb-4">
+              {dressCodeColors.map((color, i) => {
+                const hex = typeof color === 'string' ? color : color.hex;
+                const name = typeof color === 'string' ? '' : color.name || '';
+
+                return (
+                  <div key={i} className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <label
+                        className="relative h-10 w-10 rounded-lg border-2 border-border cursor-pointer overflow-hidden"
+                        title={name || `Color ${i + 1}`}
+                      >
+                        <input
+                          type="color"
+                          value={hex}
+                          onChange={(e) => {
+                            const next = [...dressCodeColors];
+                            if (typeof color === 'string') {
+                              next[i] = e.target.value;
+                            } else {
+                              next[i] = { ...color, hex: e.target.value };
+                            }
+                            setDressCodeColors(next);
+                            setColorsChanged(true);
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <div
+                          className="h-full w-full"
+                          style={{ backgroundColor: hex }}
+                        />
+                      </label>
+                      {dressCodeColors.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDressCodeColors(dressCodeColors.filter((_, j) => j !== i));
+                            setColorsChanged(true);
+                          }}
+                          className="text-muted hover:text-error transition-colors"
+                          title="Remove color"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                     <input
-                      type="color"
-                      value={color}
+                      type="text"
+                      value={name}
                       onChange={(e) => {
                         const next = [...dressCodeColors];
-                        next[i] = e.target.value;
+                        next[i] = { hex, name: e.target.value };
                         setDressCodeColors(next);
                         setColorsChanged(true);
                       }}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      placeholder="Color name"
+                      className="w-24 px-2 py-1 text-xs border border-border rounded-md focus:outline-none focus:border-primary"
                     />
-                    <div
-                      className="h-full w-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  </label>
-                  {dressCodeColors.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setDressCodeColors(dressCodeColors.filter((_, j) => j !== i));
-                        setColorsChanged(true);
-                      }}
-                      className="text-muted hover:text-error transition-colors"
-                      title="Remove color"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
               {dressCodeColors.length < 6 && (
                 <button
                   type="button"
                   onClick={() => {
-                    setDressCodeColors([...dressCodeColors, '#888888']);
+                    setDressCodeColors([...dressCodeColors, { hex: '#888888', name: '' }]);
                     setColorsChanged(true);
                   }}
                   className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-dashed border-border text-muted hover:border-primary hover:text-primary transition-colors"
