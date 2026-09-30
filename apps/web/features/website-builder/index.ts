@@ -7,3 +7,5 @@ export { NavLayoutPicker } from './nav-layout-picker';
 export { DividerPicker } from './divider-picker';
 export { HeroBannerPicker } from './hero-banner-picker';
 export { LayoutPicker } from './layout-picker';
+export { AudioSettings } from './audio-settings';
+export { OpeningTransitionPicker } from './opening-transition-picker';

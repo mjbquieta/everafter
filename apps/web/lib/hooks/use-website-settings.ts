@@ -85,6 +85,21 @@ export function useUploadHeroBanner(weddingId: string) {
   });
 }
 
+export function useUploadAudio(weddingId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) =>
+      apiUpload<WebsiteSettingsResponse>(
+        `/weddings/${weddingId}/website-settings/upload/audio`,
+        file,
+      ),
+    onSuccess: (data) => {
+      queryClient.setQueryData(websiteKeys.settings(weddingId), data);
+    },
+  });
+}
+
 export function useUnpublishWebsite(weddingId: string) {
   const queryClient = useQueryClient();
 

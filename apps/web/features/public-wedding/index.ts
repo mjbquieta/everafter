@@ -9,3 +9,6 @@ export { LayoutWrapper } from './layout-wrapper';
 export { MotionSection } from './motion-section';
 export { ScheduleSection } from './schedule-section';
 export { FaqSection } from './faq-section';
+export { GallerySection } from './gallery-section';
+export { AudioPlayer } from './audio-player';
+export { OpeningExperience } from './opening-experience';

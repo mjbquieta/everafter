@@ -51,4 +51,12 @@ export class UpdateWebsiteSettingsDto {
   @IsOptional()
   @IsString()
   footerText?: string | null;
+
+  @IsOptional()
+  @IsBoolean()
+  enableBackgroundMusic?: boolean;
+
+  @IsOptional()
+  @IsString()
+  audioUrl?: string | null;
 }

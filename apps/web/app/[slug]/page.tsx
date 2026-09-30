@@ -61,6 +61,9 @@ interface PublicWeddingData {
     animations: boolean;
     sections: Record<string, boolean> | null;
     footerText: string | null;
+    enableBackgroundMusic: boolean;
+    audioUrl: string | null;
+    openingTransition: string;
   };
 }
 

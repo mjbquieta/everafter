@@ -12,6 +12,8 @@ import {
   MotionSection,
   ScheduleSection,
   FaqSection,
+  AudioPlayer,
+  OpeningExperience,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -56,6 +58,9 @@ interface PublicWeddingData {
     animations: boolean;
     sections: Record<string, boolean> | null;
     footerText: string | null;
+    enableBackgroundMusic: boolean;
+    audioUrl: string | null;
+    openingTransition: string;
   };
 }
 
@@ -75,6 +80,9 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
 
   const sec = settings.sections as Record<string, unknown> | null;
   const sectionOn = (key: string) => (sec?.[key] as boolean) ?? true;
+
+  // Extract opening transition from sections (stored as _openingTransition)
+  const openingTransition = (sec?._openingTransition as string) ?? 'none';
 
   const DEFAULT_ORDER = ['hero', 'content', 'schedule', 'faq', 'rsvp'];
   const sectionOrder: string[] = Array.isArray(sec?._order)
@@ -127,6 +135,12 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         fontFamily: 'var(--wedding-font)',
       }}
     >
+      <OpeningExperience
+        type={openingTransition as 'none' | 'fade' | 'envelope'}
+        slug={wedding.slug}
+        coupleNames={coupleNames}
+      />
+
       <NavigationBar
         items={navItems}
         coupleNames={coupleNames}
@@ -256,6 +270,11 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
           Made with love on EverAfter
         </p>
       </footer>
+
+      {/* Floating Audio Player */}
+      {settings.enableBackgroundMusic && settings.audioUrl && (
+        <AudioPlayer audioUrl={settings.audioUrl} />
+      )}
     </div>
   );
 }

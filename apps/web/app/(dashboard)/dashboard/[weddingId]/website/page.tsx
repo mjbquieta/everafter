@@ -25,6 +25,8 @@ import {
   DividerPicker,
   HeroBannerPicker,
   LayoutPicker,
+  AudioSettings,
+  OpeningTransitionPicker,
 } from '@/features/website-builder';
 import { DEFAULT_SECTION_ORDER } from '@/features/website-builder/section-toggles';
 import { ApiError } from '@/lib/api-client';
@@ -55,6 +57,9 @@ export default function WebsiteBuilderPage() {
     navigationStyle: string;
     dividerStyle: string;
     dividerSize: string;
+    enableBackgroundMusic: boolean;
+    audioUrl: string | null;
+    openingTransition: string;
   } | null>(null);
 
   const [sections, setSections] = useState<Record<string, boolean>>({
@@ -74,6 +79,9 @@ export default function WebsiteBuilderPage() {
   // Sync from server once loaded
   useEffect(() => {
     if (settings && !localSettings) {
+      const sectionsData = settings.sections as Record<string, unknown> | null;
+      const openingTransition = (sectionsData?._openingTransition as string) ?? 'none';
+
       setLocalSettings({
         theme: settings.theme,
         primaryColor: settings.primaryColor,
@@ -84,9 +92,12 @@ export default function WebsiteBuilderPage() {
         navigationStyle: settings.navigationStyle,
         dividerStyle: settings.dividerStyle,
         dividerSize: settings.dividerSize,
+        enableBackgroundMusic: (settings as any).enableBackgroundMusic ?? false,
+        audioUrl: (settings as any).audioUrl ?? null,
+        openingTransition,
       });
       if (settings.sections) {
-        const { _order, ...toggles } = settings.sections as Record<string, unknown>;
+        const { _order, _openingTransition, ...toggles } = settings.sections as Record<string, unknown>;
         setSections((prev) => ({ ...prev, ...(toggles as Record<string, boolean>) }));
         if (Array.isArray(_order)) {
           setSectionOrder(_order as string[]);
@@ -187,10 +198,42 @@ export default function WebsiteBuilderPage() {
     [],
   );
 
+  const handleAudioEnableChange = useCallback(
+    (enabled: boolean) => {
+      setLocalSettings((prev) => (prev ? { ...prev, enableBackgroundMusic: enabled } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
+  const handleAudioUrlChange = useCallback(
+    (url: string) => {
+      setLocalSettings((prev) => (prev ? { ...prev, audioUrl: url || null } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
+  const handleOpeningTransitionChange = useCallback(
+    (transition: string) => {
+      setLocalSettings((prev) => (prev ? { ...prev, openingTransition: transition } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      await updateSettings.mutateAsync({ ...localSettings, sections: { ...sections, _order: sectionOrder } as unknown as Record<string, boolean> });
+      const { openingTransition, ...settingsToSave } = localSettings;
+      await updateSettings.mutateAsync({
+        ...settingsToSave,
+        sections: {
+          ...sections,
+          _order: sectionOrder,
+          _openingTransition: openingTransition
+        } as unknown as Record<string, boolean>
+      });
       setHasUnsavedChanges(false);
       toast.success('Website settings saved');
     } catch {
@@ -222,7 +265,15 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        await updateSettings.mutateAsync({ ...localSettings, sections: { ...sections, _order: sectionOrder } as unknown as Record<string, boolean> });
+        const { openingTransition, ...settingsToSave } = localSettings;
+        await updateSettings.mutateAsync({
+          ...settingsToSave,
+          sections: {
+            ...sections,
+            _order: sectionOrder,
+            _openingTransition: openingTransition
+          } as unknown as Record<string, boolean>
+        });
         setHasUnsavedChanges(false);
       }
       await publishWebsite.mutateAsync();
@@ -395,6 +446,19 @@ export default function WebsiteBuilderPage() {
           onChange={handleDividerChange}
           size={localSettings.dividerSize as 'small' | 'medium' | 'large'}
           onSizeChange={handleDividerSizeChange}
+        />
+
+        <AudioSettings
+          weddingId={weddingId}
+          enableBackgroundMusic={localSettings.enableBackgroundMusic}
+          audioUrl={localSettings.audioUrl}
+          onEnableChange={handleAudioEnableChange}
+          onAudioUrlChange={handleAudioUrlChange}
+        />
+
+        <OpeningTransitionPicker
+          value={localSettings.openingTransition}
+          onChange={handleOpeningTransitionChange}
         />
 
         {/* Save button */}

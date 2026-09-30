@@ -38,6 +38,8 @@ export class WebsiteSettingsService {
       data.sections = dto.sections ? JSON.stringify(dto.sections) : null;
     }
     if (dto.footerText !== undefined) data.footerText = dto.footerText;
+    if (dto.enableBackgroundMusic !== undefined) data.enableBackgroundMusic = dto.enableBackgroundMusic;
+    if (dto.audioUrl !== undefined) data.audioUrl = dto.audioUrl;
 
     const settings = await this.prisma.websiteSettings.upsert({
       where: { weddingId },
@@ -67,6 +69,8 @@ export class WebsiteSettingsService {
         ? JSON.parse(settings.sections)
         : null,
       footerText: settings.footerText,
+      enableBackgroundMusic: settings.enableBackgroundMusic,
+      audioUrl: settings.audioUrl,
     };
   }
 }

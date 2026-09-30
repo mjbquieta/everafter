@@ -46,6 +46,8 @@ export interface PublicWeddingData {
     animations: boolean;
     sections: Record<string, boolean> | null;
     footerText: string | null;
+    enableBackgroundMusic: boolean;
+    audioUrl: string | null;
   };
 }
 
@@ -135,6 +137,8 @@ export class PublicService {
           ? JSON.parse(wedding.websiteSettings.sections)
           : null,
         footerText: wedding.websiteSettings?.footerText ?? null,
+        enableBackgroundMusic: wedding.websiteSettings?.enableBackgroundMusic ?? false,
+        audioUrl: wedding.websiteSettings?.audioUrl ?? null,
       },
     };
   }
