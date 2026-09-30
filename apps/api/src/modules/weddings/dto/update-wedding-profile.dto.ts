@@ -61,4 +61,12 @@ export class UpdateWeddingProfileDto {
   @IsArray()
   @IsString({ each: true })
   dressCodeColors?: string[] | null;
+
+  @IsOptional()
+  @IsArray()
+  scheduleEvents?: { time: string; title: string; description?: string }[] | null;
+
+  @IsOptional()
+  @IsArray()
+  faqItems?: { question: string; answer: string }[] | null;
 }

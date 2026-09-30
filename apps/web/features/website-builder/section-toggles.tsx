@@ -9,6 +9,8 @@ const sectionDefs = [
   { key: 'hero', label: 'Hero', description: 'Couple names, date & countdown' },
   { key: 'story', label: 'Our Story', description: 'Love story & proposal' },
   { key: 'details', label: 'Details', description: 'Ceremony & reception info' },
+  { key: 'schedule', label: 'Programme', description: 'Order of wedding day events' },
+  { key: 'faq', label: 'FAQ', description: 'Frequently asked questions' },
   { key: 'rsvp', label: 'RSVP', description: 'Guest response form' },
 ];
 

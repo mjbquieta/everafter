@@ -58,6 +58,8 @@ export default function WebsiteBuilderPage() {
     hero: true,
     story: true,
     details: true,
+    schedule: true,
+    faq: true,
     rsvp: true,
   });
 
@@ -79,6 +81,9 @@ export default function WebsiteBuilderPage() {
         dividerStyle: settings.dividerStyle,
         dividerSize: settings.dividerSize,
       });
+      if (settings.sections) {
+        setSections((prev) => ({ ...prev, ...settings.sections }));
+      }
     }
   }, [settings, localSettings]);
 
@@ -129,6 +134,7 @@ export default function WebsiteBuilderPage() {
   const handleSectionToggle = useCallback(
     (key: string, enabled: boolean) => {
       setSections((prev) => ({ ...prev, [key]: enabled }));
+      setHasUnsavedChanges(true);
     },
     [],
   );
@@ -168,7 +174,7 @@ export default function WebsiteBuilderPage() {
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      await updateSettings.mutateAsync(localSettings);
+      await updateSettings.mutateAsync({ ...localSettings, sections });
       setHasUnsavedChanges(false);
       toast.success('Website settings saved');
     } catch {
@@ -200,7 +206,7 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        await updateSettings.mutateAsync(localSettings);
+        await updateSettings.mutateAsync({ ...localSettings, sections });
         setHasUnsavedChanges(false);
       }
       await publishWebsite.mutateAsync();
@@ -395,6 +401,8 @@ export default function WebsiteBuilderPage() {
               receptionImage: profile.receptionImage,
               dressCode: profile.dressCode,
               dressCodeColors: profile.dressCodeColors,
+              scheduleEvents: profile.scheduleEvents,
+              faqItems: profile.faqItems,
             }}
             wedding={{
               weddingDate: activeWedding.weddingDate,

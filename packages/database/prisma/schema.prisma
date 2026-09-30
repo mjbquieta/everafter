@@ -138,6 +138,8 @@ model WeddingProfile {
   receptionImage   String?  @map("reception_image")
   dressCode        String?  @map("dress_code")
   dressCodeColors  String?  @map("dress_code_colors")
+  scheduleEvents   String?  @map("schedule_events")
+  faqItems         String?  @map("faq_items")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -162,6 +164,7 @@ model WebsiteSettings {
   dividerStyle    String  @default("classic") @map("divider_style")
   dividerSize     String  @default("medium") @map("divider_size")
   animations      Boolean @default(true)
+  sections        String? @map("sections")
   footerText      String? @map("footer_text")
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)

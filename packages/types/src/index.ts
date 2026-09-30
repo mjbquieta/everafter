@@ -181,6 +181,19 @@ export interface WeddingMemberResponse {
   };
 }
 
+// ─── Schedule & FAQ ──────────────────────────────────────────────────────────
+
+export interface ScheduleEvent {
+  time: string;
+  title: string;
+  description?: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
 export interface UpdateWeddingProfileRequest {
@@ -199,6 +212,8 @@ export interface UpdateWeddingProfileRequest {
   receptionImage?: string | null;
   dressCode?: string | null;
   dressCodeColors?: string[] | null;
+  scheduleEvents?: ScheduleEvent[] | null;
+  faqItems?: FaqItem[] | null;
 }
 
 export interface WeddingProfileResponse {
@@ -219,6 +234,8 @@ export interface WeddingProfileResponse {
   receptionImage: string | null;
   dressCode: string | null;
   dressCodeColors: string[] | null;
+  scheduleEvents: ScheduleEvent[] | null;
+  faqItems: FaqItem[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -521,6 +538,7 @@ export interface UpdateWebsiteSettingsRequest {
   dividerStyle?: string;
   dividerSize?: string;
   animations?: boolean;
+  sections?: Record<string, boolean> | null;
   footerText?: string | null;
 }
 
@@ -538,5 +556,6 @@ export interface WebsiteSettingsResponse {
   dividerStyle: string;
   dividerSize: string;
   animations: boolean;
+  sections: Record<string, boolean> | null;
   footerText: string | null;
 }

@@ -44,6 +44,8 @@ interface PublicWeddingData {
     receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
+    scheduleEvents: { time: string; title: string; description?: string }[] | null;
+    faqItems: { question: string; answer: string }[] | null;
   };
   settings: {
     theme: string;
@@ -57,6 +59,7 @@ interface PublicWeddingData {
     dividerStyle: string;
     dividerSize: string;
     animations: boolean;
+    sections: Record<string, boolean> | null;
     footerText: string | null;
   };
 }

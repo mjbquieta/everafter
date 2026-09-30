@@ -34,6 +34,9 @@ export class WebsiteSettingsService {
     if (dto.dividerStyle !== undefined) data.dividerStyle = dto.dividerStyle;
     if (dto.dividerSize !== undefined) data.dividerSize = dto.dividerSize;
     if (dto.animations !== undefined) data.animations = dto.animations;
+    if (dto.sections !== undefined) {
+      data.sections = dto.sections ? JSON.stringify(dto.sections) : null;
+    }
     if (dto.footerText !== undefined) data.footerText = dto.footerText;
 
     const settings = await this.prisma.websiteSettings.upsert({
@@ -60,6 +63,9 @@ export class WebsiteSettingsService {
       dividerStyle: settings.dividerStyle,
       dividerSize: settings.dividerSize,
       animations: settings.animations,
+      sections: settings.sections
+        ? JSON.parse(settings.sections)
+        : null,
       footerText: settings.footerText,
     };
   }

@@ -29,6 +29,8 @@ export interface PublicWeddingData {
     receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
+    scheduleEvents: { time: string; title: string; description?: string }[] | null;
+    faqItems: { question: string; answer: string }[] | null;
   };
   settings: {
     theme: string;
@@ -42,6 +44,7 @@ export interface PublicWeddingData {
     dividerStyle: string;
     dividerSize: string;
     animations: boolean;
+    sections: Record<string, boolean> | null;
     footerText: string | null;
   };
 }
@@ -109,6 +112,12 @@ export class PublicService {
         dressCodeColors: wedding.profile?.dressCodeColors
           ? (JSON.parse(wedding.profile.dressCodeColors) as string[])
           : null,
+        scheduleEvents: wedding.profile?.scheduleEvents
+          ? JSON.parse(wedding.profile.scheduleEvents)
+          : null,
+        faqItems: wedding.profile?.faqItems
+          ? JSON.parse(wedding.profile.faqItems)
+          : null,
       },
       settings: {
         theme: wedding.websiteSettings?.theme ?? 'classic',
@@ -122,6 +131,9 @@ export class PublicService {
         dividerStyle: wedding.websiteSettings?.dividerStyle ?? 'classic',
         dividerSize: wedding.websiteSettings?.dividerSize ?? 'medium',
         animations: wedding.websiteSettings?.animations ?? true,
+        sections: wedding.websiteSettings?.sections
+          ? JSON.parse(wedding.websiteSettings.sections)
+          : null,
         footerText: wedding.websiteSettings?.footerText ?? null,
       },
     };

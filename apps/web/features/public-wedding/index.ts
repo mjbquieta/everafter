@@ -6,3 +6,6 @@ export { DressCodeCouples } from './dress-code-couples';
 export { NavigationBar } from './navigation-bar';
 export { FloralDivider } from './floral-divider';
 export { LayoutWrapper } from './layout-wrapper';
+export { MotionSection } from './motion-section';
+export { ScheduleSection } from './schedule-section';
+export { FaqSection } from './faq-section';

@@ -46,6 +46,9 @@ export class UpdateWebsiteSettingsDto {
   animations?: boolean;
 
   @IsOptional()
+  sections?: Record<string, boolean> | null;
+
+  @IsOptional()
   @IsString()
   footerText?: string | null;
 }

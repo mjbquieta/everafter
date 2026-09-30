@@ -9,6 +9,9 @@ import {
   NavigationBar,
   FloralDivider,
   LayoutWrapper,
+  MotionSection,
+  ScheduleSection,
+  FaqSection,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -36,6 +39,8 @@ interface PublicWeddingData {
     receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
+    scheduleEvents: { time: string; title: string; description?: string }[] | null;
+    faqItems: { question: string; answer: string }[] | null;
   };
   settings: {
     theme: string;
@@ -49,6 +54,7 @@ interface PublicWeddingData {
     dividerStyle: string;
     dividerSize: string;
     animations: boolean;
+    sections: Record<string, boolean> | null;
     footerText: string | null;
   };
 }
@@ -67,21 +73,29 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
     ? `${profile.brideName} & ${profile.groomName}`
     : profile.brideName || profile.groomName || 'Our Wedding';
 
-  const hasStory = !!(profile.proposalStory || profile.loveStory);
+  const sec = settings.sections;
+  const sectionOn = (key: string) => sec?.[key] ?? true;
+
+  const hasStory = !!(profile.proposalStory || profile.loveStory) && sectionOn('story');
   const hasDetails = !!(
     profile.ceremonyName || profile.ceremonyAddress || profile.ceremonyTime ||
     profile.receptionName || profile.receptionAddress || profile.receptionTime ||
     profile.dressCode
-  );
+  ) && sectionOn('details');
+  const hasSchedule = !!(profile.scheduleEvents?.length) && sectionOn('schedule');
+  const hasFaq = !!(profile.faqItems?.length) && sectionOn('faq');
+  const showRsvp = sectionOn('rsvp');
 
   const navItems = useMemo(() => {
     const items: { id: string; label: string }[] = [];
     items.push({ id: 'home', label: 'Home' });
     if (hasStory) items.push({ id: 'story', label: 'Our Story' });
     if (hasDetails) items.push({ id: 'details', label: 'Details' });
-    items.push({ id: 'rsvp', label: 'RSVP' });
+    if (hasSchedule) items.push({ id: 'schedule', label: 'Programme' });
+    if (hasFaq) items.push({ id: 'faq', label: 'FAQ' });
+    if (showRsvp) items.push({ id: 'rsvp', label: 'RSVP' });
     return items;
-  }, [hasStory, hasDetails]);
+  }, [hasStory, hasDetails, hasSchedule, hasFaq, showRsvp]);
 
   const divider = (settings.dividerStyle || 'classic') as DividerStyle;
   const dividerSize = (settings.dividerSize || 'medium') as DividerSize;
@@ -111,50 +125,76 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         layout={settings.navigationStyle as 'left' | 'center' | 'right'}
       />
 
-      <HeroSection
-        brideName={profile.brideName}
-        groomName={profile.groomName}
-        weddingDate={wedding.weddingDate}
-        timezone={wedding.timezone}
-        hashtag={profile.weddingHashtag}
-        heroBanner={settings.heroBanner}
-        layout={settings.layout}
-      />
+      <MotionSection enabled={settings.animations}>
+        <HeroSection
+          brideName={profile.brideName}
+          groomName={profile.groomName}
+          weddingDate={wedding.weddingDate}
+          timezone={wedding.timezone}
+          hashtag={profile.weddingHashtag}
+          heroBanner={settings.heroBanner}
+          layout={settings.layout}
+        />
+      </MotionSection>
 
-      <LayoutWrapper
-        layout={settings.layout}
-        dividerStyle={divider}
-        dividerSize={dividerSize}
-        showStory={hasStory}
-        showDetails={hasDetails}
-        storySection={
-          <StorySection
-            proposalStory={profile.proposalStory}
-            loveStory={profile.loveStory}
+      <MotionSection enabled={settings.animations}>
+        <LayoutWrapper
+          layout={settings.layout}
+          dividerStyle={divider}
+          dividerSize={dividerSize}
+          showStory={hasStory}
+          showDetails={hasDetails}
+          storySection={
+            <StorySection
+              proposalStory={profile.proposalStory}
+              loveStory={profile.loveStory}
+              layout={settings.layout}
+            />
+          }
+          detailsSection={
+            <DetailsSection
+              ceremonyName={profile.ceremonyName}
+              ceremonyAddress={profile.ceremonyAddress}
+              ceremonyTime={profile.ceremonyTime}
+              ceremonyImage={profile.ceremonyImage}
+              receptionName={profile.receptionName}
+              receptionAddress={profile.receptionAddress}
+              receptionTime={profile.receptionTime}
+              receptionImage={profile.receptionImage}
+              weddingDate={wedding.weddingDate}
+              dressCode={profile.dressCode}
+              dressCodeColors={profile.dressCodeColors}
+              primaryColor={settings.primaryColor}
+              timezone={wedding.timezone}
+              layout={settings.layout}
+            />
+          }
+        />
+      </MotionSection>
+
+      {hasSchedule && (
+        <MotionSection enabled={settings.animations}>
+          <ScheduleSection
+            events={profile.scheduleEvents!}
             layout={settings.layout}
           />
-        }
-        detailsSection={
-          <DetailsSection
-            ceremonyName={profile.ceremonyName}
-            ceremonyAddress={profile.ceremonyAddress}
-            ceremonyTime={profile.ceremonyTime}
-            ceremonyImage={profile.ceremonyImage}
-            receptionName={profile.receptionName}
-            receptionAddress={profile.receptionAddress}
-            receptionTime={profile.receptionTime}
-            receptionImage={profile.receptionImage}
-            weddingDate={wedding.weddingDate}
-            dressCode={profile.dressCode}
-            dressCodeColors={profile.dressCodeColors}
-            primaryColor={settings.primaryColor}
-            timezone={wedding.timezone}
+        </MotionSection>
+      )}
+
+      {hasFaq && (
+        <MotionSection enabled={settings.animations}>
+          <FaqSection
+            items={profile.faqItems!}
             layout={settings.layout}
           />
-        }
-      />
+        </MotionSection>
+      )}
 
-      <RsvpSection slug={wedding.slug} layout={settings.layout} />
+      {showRsvp && (
+        <MotionSection enabled={settings.animations}>
+          <RsvpSection slug={wedding.slug} layout={settings.layout} />
+        </MotionSection>
+      )}
 
       {/* Footer */}
       <footer

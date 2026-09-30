@@ -166,7 +166,12 @@ export function HeroSection({
           backgroundPosition: 'center',
         }}
       >
-        {bannerUrl && <div className="absolute inset-0 bg-black/30" />}
+        {bannerUrl && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+          </>
+        )}
         <div className="relative z-10 min-h-[85vh] flex flex-col justify-end mx-auto max-w-5xl w-full px-4 md:px-8 pb-16 md:pb-20 pt-32">
           <p
             className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
@@ -241,7 +246,12 @@ export function HeroSection({
         backgroundPosition: 'center',
       }}
     >
-      {bannerUrl && <div className="absolute inset-0 bg-black/30" />}
+      {bannerUrl && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_100%)]" />
+        </>
+      )}
 
       <div className="relative z-10">
         <p

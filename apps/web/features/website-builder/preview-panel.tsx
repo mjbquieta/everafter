@@ -8,6 +8,8 @@ import {
   StorySection,
   DetailsSection,
   LayoutWrapper,
+  ScheduleSection,
+  FaqSection,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -39,6 +41,8 @@ interface PreviewPanelProps {
     receptionImage: string | null;
     dressCode: string | null;
     dressCodeColors: string[] | null;
+    scheduleEvents?: { time: string; title: string; description?: string }[] | null;
+    faqItems?: { question: string; answer: string }[] | null;
   };
   wedding: {
     weddingDate: string | null;
@@ -191,6 +195,20 @@ export function PreviewPanel({
                 />
               }
             />
+
+            {(sections.schedule ?? true) && !!profile.scheduleEvents?.length && (
+              <ScheduleSection
+                events={profile.scheduleEvents}
+                layout={settings.layout}
+              />
+            )}
+
+            {(sections.faq ?? true) && !!profile.faqItems?.length && (
+              <FaqSection
+                items={profile.faqItems}
+                layout={settings.layout}
+              />
+            )}
 
             {(sections.rsvp ?? true) && (
               <div

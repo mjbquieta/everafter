@@ -324,6 +324,18 @@ export class WeddingsService {
         : null;
     }
 
+    if (dto.scheduleEvents !== undefined) {
+      data.scheduleEvents = dto.scheduleEvents
+        ? JSON.stringify(dto.scheduleEvents)
+        : null;
+    }
+
+    if (dto.faqItems !== undefined) {
+      data.faqItems = dto.faqItems
+        ? JSON.stringify(dto.faqItems)
+        : null;
+    }
+
     const dateFields = ['ceremonyTime', 'receptionTime'] as const;
 
     for (const field of dateFields) {
@@ -437,6 +449,12 @@ export class WeddingsService {
       dressCode: profile.dressCode,
       dressCodeColors: profile.dressCodeColors
         ? (JSON.parse(profile.dressCodeColors) as string[])
+        : null,
+      scheduleEvents: profile.scheduleEvents
+        ? JSON.parse(profile.scheduleEvents)
+        : null,
+      faqItems: profile.faqItems
+        ? JSON.parse(profile.faqItems)
         : null,
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),

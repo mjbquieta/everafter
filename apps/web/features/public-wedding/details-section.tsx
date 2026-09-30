@@ -2,9 +2,14 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, Clock, Shirt, X, Map } from 'lucide-react';
+import { MapPin, Clock, Shirt, X, Map, Calendar, ChevronDown } from 'lucide-react';
 import { DressCodeCouples } from './dress-code-couples';
 import { resolveUploadUrl } from '@/lib/api-client';
+import {
+  generateGoogleCalendarUrl,
+  downloadIcsFile,
+  buildCalendarEvent,
+} from './calendar-utils';
 
 const VenueMap = dynamic(
   () => import('./venue-map').then((m) => m.VenueMap),
@@ -161,7 +166,7 @@ function ViewMapButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors border"
+      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors border"
       style={{
         color: 'var(--wedding-primary)',
         borderColor: 'var(--wedding-primary)',
@@ -173,19 +178,92 @@ function ViewMapButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+// ── Add to Calendar Button ──
+function AddToCalendarButton({
+  weddingDate,
+  venueTime,
+  venueName,
+  venueAddress,
+}: {
+  weddingDate: string | null;
+  venueTime: string | null;
+  venueName: string | null;
+  venueAddress: string | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const event = buildCalendarEvent({ weddingDate, venueTime, venueName, venueAddress });
+  if (!event) return null;
+
+  return (
+    <div className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors border"
+        style={{
+          color: 'var(--wedding-primary)',
+          borderColor: 'var(--wedding-primary)',
+        }}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+        Add to Calendar
+        <ChevronDown className="h-3 w-3" />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div
+            className="absolute left-0 mt-1 z-50 w-52 rounded-lg border shadow-lg py-1"
+            style={{
+              backgroundColor: 'var(--wedding-background, #fff)',
+              borderColor: 'var(--wedding-secondary)',
+            }}
+          >
+            <a
+              href={generateGoogleCalendarUrl(event)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2 text-sm hover:opacity-70 transition-opacity"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              Google Calendar
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                downloadIcsFile(event);
+                setOpen(false);
+              }}
+              className="block w-full text-left px-4 py-2 text-sm hover:opacity-70 transition-opacity"
+              style={{ color: 'var(--wedding-foreground)' }}
+            >
+              Apple / Outlook (.ics)
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Classic venue card ──
 function VenueCard({
   venue,
   onViewMap,
+  weddingDate,
+  venueTime,
 }: {
   venue: VenueInfo;
   onViewMap: () => void;
+  weddingDate: string | null;
+  venueTime: string | null;
 }) {
   if (!venue.name && !venue.address && !venue.dateTime) return null;
 
   return (
     <div
-      className="rounded-xl overflow-hidden border"
+      className="rounded-xl border"
       style={{
         borderColor: 'var(--wedding-secondary)',
         backgroundColor: 'var(--wedding-background)',
@@ -195,7 +273,7 @@ function VenueCard({
         <img
           src={resolveUploadUrl(venue.image)!}
           alt={`${venue.label} venue`}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover rounded-t-xl"
         />
       )}
       <div className="p-8 text-center">
@@ -241,7 +319,15 @@ function VenueCard({
             </p>
           </div>
         )}
-        {venue.address && <ViewMapButton onClick={onViewMap} />}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+          {venue.address && <ViewMapButton onClick={onViewMap} />}
+          <AddToCalendarButton
+            weddingDate={weddingDate}
+            venueTime={venueTime}
+            venueName={venue.name}
+            venueAddress={venue.address}
+          />
+        </div>
       </div>
     </div>
   );
@@ -251,9 +337,13 @@ function VenueCard({
 function MagazineVenueBlock({
   venue,
   onViewMap,
+  weddingDate,
+  venueTime,
 }: {
   venue: VenueInfo;
   onViewMap: () => void;
+  weddingDate: string | null;
+  venueTime: string | null;
 }) {
   if (!venue.name && !venue.address && !venue.dateTime) return null;
 
@@ -311,7 +401,15 @@ function MagazineVenueBlock({
           </p>
         </div>
       )}
-      {venue.address && <ViewMapButton onClick={onViewMap} />}
+      <div className="flex flex-wrap items-center gap-2 mt-4">
+        {venue.address && <ViewMapButton onClick={onViewMap} />}
+        <AddToCalendarButton
+          weddingDate={weddingDate}
+          venueTime={venueTime}
+          venueName={venue.name}
+          venueAddress={venue.address}
+        />
+      </div>
     </div>
   );
 }
@@ -320,9 +418,13 @@ function MagazineVenueBlock({
 function EditorialVenueBlock({
   venue,
   onViewMap,
+  weddingDate,
+  venueTime,
 }: {
   venue: VenueInfo;
   onViewMap: () => void;
+  weddingDate: string | null;
+  venueTime: string | null;
 }) {
   if (!venue.name && !venue.address && !venue.dateTime) return null;
 
@@ -365,7 +467,15 @@ function EditorialVenueBlock({
           {venue.address}
         </p>
       )}
-      {venue.address && <ViewMapButton onClick={onViewMap} />}
+      <div className="flex flex-wrap items-center gap-2 mt-4">
+        {venue.address && <ViewMapButton onClick={onViewMap} />}
+        <AddToCalendarButton
+          weddingDate={weddingDate}
+          venueTime={venueTime}
+          venueName={venue.name}
+          venueAddress={venue.address}
+        />
+      </div>
     </div>
   );
 }
@@ -432,12 +542,16 @@ export function DetailsSection({
             <MagazineVenueBlock
               venue={ceremonyVenue}
               onViewMap={() => setMapVenue(ceremonyVenue)}
+              weddingDate={weddingDate}
+              venueTime={ceremonyTime}
             />
           )}
           {hasReception && (
             <MagazineVenueBlock
               venue={receptionVenue}
               onViewMap={() => setMapVenue(receptionVenue)}
+              weddingDate={weddingDate}
+              venueTime={receptionTime}
             />
           )}
         </div>
@@ -498,12 +612,16 @@ export function DetailsSection({
             <EditorialVenueBlock
               venue={ceremonyVenue}
               onViewMap={() => setMapVenue(ceremonyVenue)}
+              weddingDate={weddingDate}
+              venueTime={ceremonyTime}
             />
           )}
           {hasReception && (
             <EditorialVenueBlock
               venue={receptionVenue}
               onViewMap={() => setMapVenue(receptionVenue)}
+              weddingDate={weddingDate}
+              venueTime={receptionTime}
             />
           )}
 
@@ -554,12 +672,16 @@ export function DetailsSection({
           <VenueCard
             venue={ceremonyVenue}
             onViewMap={() => setMapVenue(ceremonyVenue)}
+            weddingDate={weddingDate}
+            venueTime={ceremonyTime}
           />
         )}
         {hasReception && (
           <VenueCard
             venue={receptionVenue}
             onViewMap={() => setMapVenue(receptionVenue)}
+            weddingDate={weddingDate}
+            venueTime={receptionTime}
           />
         )}
       </div>

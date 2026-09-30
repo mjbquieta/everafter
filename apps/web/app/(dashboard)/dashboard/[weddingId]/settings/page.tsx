@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Save, Plus, X, Upload, Trash2, Image } from 'lucide-react';
+import { Save, Plus, X, Upload, Trash2, Image, Clock } from 'lucide-react';
+import type { ScheduleEvent, FaqItem } from '@everafter/types';
 import { toast } from 'sonner';
 import { Button, Input, Label } from '@everafter/ui';
 import { useWeddingProfile } from '@/lib/hooks/use-dashboard';
@@ -93,6 +94,10 @@ export default function SettingsPage() {
     '#D4A574',
   ]);
   const [colorsChanged, setColorsChanged] = useState(false);
+  const [scheduleEvents, setScheduleEvents] = useState<ScheduleEvent[]>([]);
+  const [scheduleChanged, setScheduleChanged] = useState(false);
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [faqChanged, setFaqChanged] = useState(false);
   const uploadCeremonyImage = useUploadVenueImage(weddingId, 'ceremony');
   const uploadReceptionImage = useUploadVenueImage(weddingId, 'reception');
 
@@ -144,6 +149,12 @@ export default function SettingsPage() {
       if (profile.dressCodeColors?.length) {
         setDressCodeColors(profile.dressCodeColors);
       }
+      if (profile.scheduleEvents) {
+        setScheduleEvents(profile.scheduleEvents);
+      }
+      if (profile.faqItems) {
+        setFaqItems(profile.faqItems);
+      }
     }
   }, [profile, wedding, reset]);
 
@@ -163,8 +174,12 @@ export default function SettingsPage() {
         proposalStory: data.proposalStory || null,
         dressCode: data.dressCode || null,
         dressCodeColors: dressCodeColors.length > 0 ? dressCodeColors : null,
+        scheduleEvents: scheduleEvents.length > 0 ? scheduleEvents : null,
+        faqItems: faqItems.length > 0 ? faqItems : null,
       });
       setColorsChanged(false);
+      setScheduleChanged(false);
+      setFaqChanged(false);
 
       // Update wedding-level fields (title, date)
       const weddingUpdates: Record<string, unknown> = {};
@@ -217,7 +232,7 @@ export default function SettingsPage() {
         </div>
         <Button
           onClick={handleSubmit(onSubmit)}
-          disabled={(!isDirty && !colorsChanged) || updateProfile.isPending}
+          disabled={(!isDirty && !colorsChanged && !scheduleChanged && !faqChanged) || updateProfile.isPending}
         >
           <Save className="h-4 w-4 mr-1.5" />
           {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
@@ -527,8 +542,140 @@ export default function SettingsPage() {
           </FormField>
         </Section>
 
+        <Section title="Wedding Programme">
+          <p className="text-xs text-muted -mt-2 mb-2">
+            Add the order of events for your wedding day
+          </p>
+          <div className="space-y-3">
+            {scheduleEvents.map((event, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Clock className="h-3.5 w-3.5 text-muted" />
+                  <Input
+                    value={event.time}
+                    onChange={(e) => {
+                      const next = [...scheduleEvents];
+                      next[i] = { ...next[i], time: e.target.value };
+                      setScheduleEvents(next);
+                      setScheduleChanged(true);
+                    }}
+                    placeholder="3:00 PM"
+                    className="w-28 h-9 text-xs"
+                  />
+                </div>
+                <Input
+                  value={event.title}
+                  onChange={(e) => {
+                    const next = [...scheduleEvents];
+                    next[i] = { ...next[i], title: e.target.value };
+                    setScheduleEvents(next);
+                    setScheduleChanged(true);
+                  }}
+                  placeholder="Event title"
+                  className="flex-1 h-9 text-xs"
+                />
+                <Input
+                  value={event.description ?? ''}
+                  onChange={(e) => {
+                    const next = [...scheduleEvents];
+                    next[i] = { ...next[i], description: e.target.value || undefined };
+                    setScheduleEvents(next);
+                    setScheduleChanged(true);
+                  }}
+                  placeholder="Description (optional)"
+                  className="flex-1 h-9 text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduleEvents(scheduleEvents.filter((_, j) => j !== i));
+                    setScheduleChanged(true);
+                  }}
+                  className="text-muted hover:text-error transition-colors mt-2"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setScheduleEvents([...scheduleEvents, { time: '', title: '' }]);
+              setScheduleChanged(true);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add Event
+          </Button>
+        </Section>
+
+        <Section title="FAQ">
+          <p className="text-xs text-muted -mt-2 mb-2">
+            Common questions your guests might have
+          </p>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div
+                key={i}
+                className="rounded-md border border-border p-3 space-y-2"
+              >
+                <div className="flex items-start gap-2">
+                  <Input
+                    value={item.question}
+                    onChange={(e) => {
+                      const next = [...faqItems];
+                      next[i] = { ...next[i], question: e.target.value };
+                      setFaqItems(next);
+                      setFaqChanged(true);
+                    }}
+                    placeholder="Question"
+                    className="flex-1 h-9 text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFaqItems(faqItems.filter((_, j) => j !== i));
+                      setFaqChanged(true);
+                    }}
+                    className="text-muted hover:text-error transition-colors mt-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <textarea
+                  value={item.answer}
+                  onChange={(e) => {
+                    const next = [...faqItems];
+                    next[i] = { ...next[i], answer: e.target.value };
+                    setFaqItems(next);
+                    setFaqChanged(true);
+                  }}
+                  placeholder="Answer"
+                  rows={2}
+                  className="flex w-full rounded-md border border-border bg-surface px-3 py-2 text-xs text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                />
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setFaqItems([...faqItems, { question: '', answer: '' }]);
+              setFaqChanged(true);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add Question
+          </Button>
+        </Section>
+
         <div className="flex justify-end pb-6">
-          <Button type="submit" disabled={(!isDirty && !colorsChanged) || updateProfile.isPending}>
+          <Button type="submit" disabled={(!isDirty && !colorsChanged && !scheduleChanged && !faqChanged) || updateProfile.isPending}>
             <Save className="h-4 w-4 mr-1.5" />
             {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
