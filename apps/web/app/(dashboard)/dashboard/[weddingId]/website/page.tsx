@@ -128,9 +128,18 @@ export default function WebsiteBuilderPage() {
         dividerStyle: string;
         dividerSize: string;
         layout: string;
+        heroTextColor?: string;
       },
     ) => {
-      setLocalSettings((prev) => (prev ? { ...prev, theme, ...settings } : null));
+      setLocalSettings((prev) => {
+        if (!prev) return null;
+        const newSettings = { ...prev, theme, ...settings };
+        // Apply heroTextColor from template if provided
+        if (settings.heroTextColor) {
+          newSettings.heroTextColor = settings.heroTextColor;
+        }
+        return newSettings;
+      });
       setHasUnsavedChanges(true);
     },
     [],

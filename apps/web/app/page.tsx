@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Mail,
@@ -8,6 +11,8 @@ import {
   CheckSquare,
   ArrowRight,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
   Check,
 } from 'lucide-react';
@@ -203,46 +208,48 @@ function DesktopMockup({ theme }: { theme: (typeof themes)[number] }) {
 
 function MobileMockup({ theme }: { theme: (typeof themes)[number] }) {
   return (
-    <div className="w-[130px] md:w-[150px] rounded-2xl border-[3px] border-stone-800 bg-stone-800 shadow-2xl shadow-stone-900/20 overflow-hidden">
-      {/* Notch */}
-      <div className="flex justify-center py-1.5 bg-stone-800">
-        <div className="h-1.5 w-12 rounded-full bg-stone-700" />
-      </div>
+    <div className="w-[140px] sm:w-[160px] md:w-[170px] h-[300px] sm:h-[340px] md:h-[360px] rounded-[28px] sm:rounded-[34px] border-[5px] sm:border-[6px] border-stone-800 bg-stone-900 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] overflow-hidden">
       {/* Screen */}
-      <div style={{ backgroundColor: theme.bg }} className="px-3 py-5">
-        <div className="text-center">
-          <p
-            className="font-sans text-[6px] font-bold uppercase tracking-[0.2em] mb-2"
-            style={{ color: theme.primary }}
-          >
-            The Wedding of
-          </p>
-          <h4
-            className="font-serif text-sm font-medium tracking-tight leading-tight"
-            style={{ color: theme.fg }}
-          >
-            {theme.couple}
-          </h4>
-          <p
-            className="font-sans text-[6px] uppercase tracking-[0.15em] mt-1.5"
-            style={{ color: theme.fg, opacity: 0.5 }}
-          >
-            {theme.date}
-          </p>
-          {/* Divider */}
-          <div className="mx-auto my-3 h-px w-10" style={{ backgroundColor: theme.secondary }} />
-          {/* Placeholder content lines */}
-          <div className="space-y-1.5 mt-3">
-            <div className="mx-auto h-1 w-4/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-            <div className="mx-auto h-1 w-3/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-            <div className="mx-auto h-1 w-2/3 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-          </div>
-          {/* RSVP button */}
-          <div
-            className="mt-4 mx-auto rounded-md py-1.5 text-[7px] font-bold text-white"
-            style={{ backgroundColor: theme.primary }}
-          >
-            RSVP Now
+      <div className="rounded-[23px] sm:rounded-[28px] overflow-hidden bg-white relative flex flex-col h-full">
+        {/* Dynamic Island / Speaker Pill */}
+        <div className="w-10 sm:w-12 h-2.5 sm:h-3 bg-stone-900 rounded-full mx-auto mt-1.5 z-20 shrink-0" />
+
+        {/* Content Area */}
+        <div style={{ backgroundColor: theme.bg }} className="flex-1 px-3 py-4 flex flex-col justify-center">
+          <div className="text-center">
+            <p
+              className="font-sans text-[7px] uppercase tracking-widest mb-2"
+              style={{ color: theme.primary }}
+            >
+              The Wedding of
+            </p>
+            <h4
+              className="font-serif text-[10px] sm:text-[11px] font-medium tracking-tight leading-tight"
+              style={{ color: theme.fg }}
+            >
+              {theme.couple}
+            </h4>
+            <p
+              className="font-sans text-[7px] uppercase tracking-widest mt-1.5"
+              style={{ color: theme.fg, opacity: 0.5 }}
+            >
+              {theme.date}
+            </p>
+            {/* Divider */}
+            <div className="mx-auto my-2.5 h-px w-8" style={{ backgroundColor: theme.secondary }} />
+            {/* Placeholder content lines */}
+            <div className="space-y-1 mt-2.5">
+              <div className="mx-auto h-0.5 w-4/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
+              <div className="mx-auto h-0.5 w-3/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
+              <div className="mx-auto h-0.5 w-2/3 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
+            </div>
+            {/* RSVP button */}
+            <div
+              className="mt-3 mx-auto inline-block rounded-full px-3 py-1 text-[7px] font-sans font-bold text-white"
+              style={{ backgroundColor: theme.primary }}
+            >
+              RSVP Now
+            </div>
           </div>
         </div>
       </div>
@@ -250,38 +257,160 @@ function MobileMockup({ theme }: { theme: (typeof themes)[number] }) {
   );
 }
 
-function ThemeShowcase({ theme, reverse }: { theme: (typeof themes)[number]; reverse?: boolean }) {
+function ThemeCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  const activeTheme = themes[activeIndex];
+
+  // Auto-advance every 6 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % themes.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  const handlePrevious = () => {
+    setActiveIndex((prev) => (prev - 1 + themes.length) % themes.length);
+    setIsPaused(true);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % themes.length);
+    setIsPaused(true);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const delta = touchStartX.current - touchEndX.current;
+    if (Math.abs(delta) > 50) {
+      if (delta > 0) {
+        handleNext();
+      } else {
+        handlePrevious();
+      }
+    }
+  };
+
   return (
-    <div className={`flex flex-col items-center gap-8 lg:flex-row lg:gap-16 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
-      {/* Mockups */}
-      <div className="relative flex-1 max-w-2xl w-full">
-        <div className="relative">
-          <DesktopMockup theme={theme} />
-          {/* Mobile floating beside desktop */}
-          <div className={`absolute -bottom-6 ${reverse ? '-left-4 md:-left-8' : '-right-4 md:-right-8'} z-10`}>
-            <MobileMockup theme={theme} />
+    <div
+      className="relative"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Theme Tabs */}
+      <div className="flex items-center justify-center gap-4 mb-12 flex-wrap">
+        {themes.map((theme, i) => (
+          <button
+            key={theme.name}
+            onClick={() => {
+              setActiveIndex(i);
+              setIsPaused(true);
+            }}
+            className={`group flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+              activeIndex === i
+                ? 'bg-stone-900 text-white'
+                : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'
+            }`}
+          >
+            <span className="text-xs font-sans font-medium">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span className="text-xs font-serif hidden sm:inline">{theme.name}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Carousel Content */}
+      <div className="flex flex-col items-center gap-8 lg:flex-row lg:gap-16">
+        {/* Mockups */}
+        <div className="relative flex-1 max-w-2xl w-full">
+          <div className="relative transition-all duration-500 ease-out">
+            <DesktopMockup theme={activeTheme} />
+            {/* Mobile floating beside desktop */}
+            <div className="absolute -bottom-6 sm:-bottom-8 right-6 sm:right-12 z-10 transition-all duration-500">
+              <MobileMockup theme={activeTheme} />
+            </div>
+          </div>
+        </div>
+
+        {/* Theme Info */}
+        <div className="flex-shrink-0 text-center lg:text-left lg:max-w-[320px]">
+          <div className="transition-all duration-500 ease-out">
+            <h3 className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-stone-900">
+              {activeTheme.name}
+            </h3>
+            <p className="mt-3 text-base text-stone-600 leading-relaxed font-serif">
+              {activeTheme.description}
+            </p>
+            {/* Color palette */}
+            <div className="mt-4 flex items-center gap-2 justify-center lg:justify-start">
+              {[activeTheme.bg, activeTheme.primary, activeTheme.secondary, activeTheme.accent].map((color, i) => (
+                <div
+                  key={i}
+                  className="h-6 w-6 rounded-full border border-stone-200"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+            </div>
+            {/* CTA */}
+            <div className="mt-6">
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-6 py-2.5 rounded-full text-sm font-sans font-medium transition-colors"
+              >
+                Use This Theme
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-      {/* Info */}
-      <div className="flex-shrink-0 text-center lg:text-left lg:max-w-[320px]">
-        <h3 className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-stone-900">
-          {theme.name}
-        </h3>
-        <p className="mt-3 text-base text-stone-600 leading-relaxed font-serif">
-          {theme.description}
-        </p>
-        {/* Color palette */}
-        <div className="mt-4 flex items-center gap-2 justify-center lg:justify-start">
-          {[theme.bg, theme.primary, theme.secondary, theme.accent].map((color, i) => (
-            <div
+
+      {/* Navigation Arrows */}
+      <div className="flex items-center justify-center gap-3 mt-10">
+        <button
+          onClick={handlePrevious}
+          className="w-10 h-10 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-colors"
+          aria-label="Previous theme"
+        >
+          <ChevronLeft className="h-5 w-5 text-stone-700" />
+        </button>
+        <div className="flex items-center gap-1.5">
+          {themes.map((_, i) => (
+            <button
               key={i}
-              className="h-6 w-6 rounded-full border border-stone-200"
-              style={{ backgroundColor: color }}
-              title={color}
+              onClick={() => {
+                setActiveIndex(i);
+                setIsPaused(true);
+              }}
+              className={`transition-all ${
+                activeIndex === i
+                  ? 'w-8 h-2 bg-stone-900'
+                  : 'w-2 h-2 bg-stone-300 hover:bg-stone-400'
+              } rounded-full`}
+              aria-label={`Go to theme ${i + 1}`}
             />
           ))}
         </div>
+        <button
+          onClick={handleNext}
+          className="w-10 h-10 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-colors"
+          aria-label="Next theme"
+        >
+          <ChevronRight className="h-5 w-5 text-stone-700" />
+        </button>
       </div>
     </div>
   );
@@ -344,7 +473,7 @@ export default function HomePage() {
       {/* ─── Theme Showcase ──────────────────────────────────────────────── */}
       <section id="themes" className="py-24 md:py-32">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="mx-auto max-w-3xl text-center mb-20">
+          <div className="mx-auto max-w-3xl text-center mb-16">
             <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">
               Curated Stationery Themes
             </p>
@@ -356,11 +485,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="space-y-24 md:space-y-32">
-            {themes.map((theme, i) => (
-              <ThemeShowcase key={theme.name} theme={theme} reverse={i % 2 === 1} />
-            ))}
-          </div>
+          <ThemeCarousel />
         </div>
       </section>
 
