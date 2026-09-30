@@ -113,11 +113,29 @@ export function RSVPCard({
     <MetricCard icon={<Mail className="h-4 w-4" />} title="RSVP Progress">
       <p className="text-2xl font-bold text-foreground">{responded}%</p>
       <div className="mt-2">
-        <ProgressBar value={responded} />
+        <div className="h-1.5 w-full rounded-full bg-border/60">
+          <div
+            className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500"
+            style={{ width: `${responded}%` }}
+          />
+        </div>
       </div>
-      <p className="text-xs text-muted mt-1.5">
-        {data.rsvpAccepted + data.rsvpDeclined} of {data.totalGuests} responded
-      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+        <span className="inline-flex items-center gap-1 text-emerald-700">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          {data.rsvpAccepted} Attending
+        </span>
+        <span className="text-stone-300">·</span>
+        <span className="inline-flex items-center gap-1 text-stone-600">
+          <span className="h-1.5 w-1.5 rounded-full bg-stone-400" />
+          {data.rsvpDeclined} Declined
+        </span>
+        <span className="text-stone-300">·</span>
+        <span className="inline-flex items-center gap-1 text-stone-500">
+          <span className="h-1.5 w-1.5 rounded-full bg-stone-300" />
+          {data.rsvpPending} Awaiting
+        </span>
+      </div>
     </MetricCard>
   );
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
-import { Input } from '@everafter/ui';
-import type { GuestSummaryResponse } from '@everafter/types';
+import { Search, X, Download, Upload, RotateCcw } from 'lucide-react';
+import { Input, Button } from '@everafter/ui';
+import type { GuestSummaryResponse, GuestResponse } from '@everafter/types';
 
 interface GuestFiltersProps {
   search: string;
@@ -16,6 +16,50 @@ interface GuestFiltersProps {
   onGroupChange: (value: string) => void;
   groups: string[];
   summary?: GuestSummaryResponse;
+  guests?: GuestResponse[];
+  slug?: string;
+  onImportClick?: () => void;
+}
+
+function escapeCsvField(value: string | null | undefined): string {
+  if (value == null) return '';
+  const str = String(value);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function exportGuestsCsv(guests: GuestResponse[], slug: string) {
+  const headers = [
+    'First Name', 'Last Name', 'Email', 'Phone', 'Side', 'Group',
+    'Table Number', 'RSVP Status', 'Meal Preference', 'Dietary Notes', 'Companions',
+  ];
+
+  const rows = guests.map((g) => [
+    g.firstName,
+    g.lastName,
+    g.email,
+    g.phone,
+    g.side,
+    g.group,
+    g.tableNumber,
+    g.rsvp?.status ?? 'PENDING',
+    g.rsvp?.mealPreference ?? g.mealPreference,
+    g.rsvp?.notes ?? g.notes,
+    String(g.rsvp?.companionCount ?? 0),
+  ].map(escapeCsvField).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `guests-${slug || 'export'}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function FilterSelect({
@@ -65,6 +109,9 @@ export function GuestFilters({
   onGroupChange,
   groups,
   summary,
+  guests,
+  slug,
+  onImportClick,
 }: GuestFiltersProps) {
   const [localSearch, setLocalSearch] = useState(search);
 
@@ -72,6 +119,16 @@ export function GuestFilters({
     const timer = setTimeout(() => onSearchChange(localSearch), 300);
     return () => clearTimeout(timer);
   }, [localSearch, onSearchChange]);
+
+  const hasActiveFilter = !!(localSearch || rsvpStatus || side || group);
+
+  const handleClearAll = () => {
+    setLocalSearch('');
+    onSearchChange('');
+    onRsvpStatusChange('');
+    onSideChange('');
+    onGroupChange('');
+  };
 
   return (
     <div className="space-y-4">
@@ -139,6 +196,40 @@ export function GuestFilters({
               ...groups.map((g) => ({ value: g, label: g })),
             ]}
           />
+        )}
+
+        {hasActiveFilter && (
+          <button
+            onClick={handleClearAll}
+            className="inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-stone-800 transition-colors shrink-0"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Clear Filters
+          </button>
+        )}
+
+        {onImportClick && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onImportClick}
+            className="shrink-0"
+          >
+            <Upload className="h-4 w-4 mr-1.5" />
+            Import CSV
+          </Button>
+        )}
+
+        {guests && guests.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportGuestsCsv(guests, slug ?? 'export')}
+            className="shrink-0"
+          >
+            <Download className="h-4 w-4 mr-1.5" />
+            Export CSV
+          </Button>
         )}
       </div>
     </div>

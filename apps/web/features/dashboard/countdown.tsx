@@ -63,13 +63,24 @@ export function Countdown({ weddingDate, timezone }: CountdownProps) {
     );
   }
 
+  const formattedWeddingDate = new Date(weddingDate).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
   return (
-    <div className="flex items-center gap-6">
-      <CountdownUnit value={timeLeft.days} label="Days" />
-      <span className="text-2xl font-light text-border">:</span>
-      <CountdownUnit value={timeLeft.hours} label="Hours" />
-      <span className="text-2xl font-light text-border">:</span>
-      <CountdownUnit value={timeLeft.minutes} label="Minutes" />
+    <div>
+      <div className="flex items-center gap-6">
+        <CountdownUnit value={timeLeft.days} label="Days" />
+        <span className="text-2xl font-light text-border">:</span>
+        <CountdownUnit value={timeLeft.hours} label="Hours" />
+        <span className="text-2xl font-light text-border">:</span>
+        <CountdownUnit value={timeLeft.minutes} label="Minutes" />
+      </div>
+      <p className="text-sm text-stone-500 mt-1">
+        Days to go · {formattedWeddingDate}
+      </p>
     </div>
   );
 }

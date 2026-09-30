@@ -23,16 +23,28 @@ export function ChecklistHeader({
     ? Math.round((summary.completedItems / summary.totalItems) * 100)
     : 0;
 
+  const barColor =
+    summary.overdueItems > 0
+      ? 'bg-red-500'
+      : pct >= 100
+        ? 'bg-emerald-500'
+        : 'bg-primary';
+
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-3 text-sm flex-wrap">
           <span className="text-foreground font-medium">
-            {summary.completedItems} of {summary.totalItems} tasks completed
+            {summary.completedItems} of {summary.totalItems} tasks completed ({pct}%)
           </span>
           {summary.overdueItems > 0 && (
-            <span className="text-error text-xs">
+            <span className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-[11px] font-medium text-red-700">
               {summary.overdueItems} overdue
+            </span>
+          )}
+          {pct >= 100 && summary.totalItems > 0 && (
+            <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+              All done!
             </span>
           )}
         </div>
@@ -40,8 +52,8 @@ export function ChecklistHeader({
       </div>
       <div className="h-2 w-full rounded-full bg-border/60">
         <div
-          className="h-2 rounded-full bg-primary transition-all duration-500"
-          style={{ width: `${pct}%` }}
+          className={`h-2 rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
     </div>

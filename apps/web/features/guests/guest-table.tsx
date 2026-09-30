@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { MoreHorizontal, Pencil, Trash2, UtensilsCrossed } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, UtensilsCrossed, Link2 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { GuestResponse } from '@everafter/types';
 
 interface GuestTableProps {
   guests: GuestResponse[];
   onEdit: (guest: GuestResponse) => void;
   onDelete: (guest: GuestResponse) => void;
+  slug?: string;
 }
 
 const rsvpConfig: Record<string, { label: string; className: string }> = {
@@ -49,10 +51,12 @@ function ActionsMenu({
   guest,
   onEdit,
   onDelete,
+  onCopyLink,
 }: {
   guest: GuestResponse;
   onEdit: () => void;
   onDelete: () => void;
+  onCopyLink?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -66,7 +70,7 @@ function ActionsMenu({
 
       setPosition({
         top: spaceBelow < menuHeight ? rect.top - menuHeight : rect.bottom + 4,
-        left: rect.right - 144,
+        left: rect.right - 176,
       });
     }
     setOpen(!open);
@@ -88,7 +92,7 @@ function ActionsMenu({
             onClick={() => setOpen(false)}
           />
           <div
-            className="fixed z-50 w-36 rounded-md border border-border bg-surface py-1 shadow-lg"
+            className="fixed z-50 w-44 rounded-md border border-border bg-surface py-1 shadow-lg"
             style={{ top: position.top, left: position.left }}
           >
             <button
@@ -101,6 +105,18 @@ function ActionsMenu({
               <Pencil className="h-3.5 w-3.5" />
               Edit
             </button>
+            {onCopyLink && (
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onCopyLink();
+                }}
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-primary/5 transition-colors"
+              >
+                <Link2 className="h-3.5 w-3.5" />
+                Copy RSVP Link
+              </button>
+            )}
             <button
               onClick={() => {
                 setOpen(false);
@@ -118,7 +134,30 @@ function ActionsMenu({
   );
 }
 
-export function GuestTable({ guests, onEdit, onDelete }: GuestTableProps) {
+export function GuestTable({ guests, onEdit, onDelete, slug }: GuestTableProps) {
+  const handleCopyLink = async (guestId: string) => {
+    if (!slug) return;
+    const url = `${window.location.origin}/${slug}?guest=${guestId}`;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Fallback for non-secure contexts (e.g. localhost over HTTP)
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      toast.success('RSVP link copied to clipboard!');
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
+
   return (
     <>
       {/* Desktop table */}
@@ -208,6 +247,7 @@ export function GuestTable({ guests, onEdit, onDelete }: GuestTableProps) {
                     guest={guest}
                     onEdit={() => onEdit(guest)}
                     onDelete={() => onDelete(guest)}
+                    onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
                   />
                 </td>
               </tr>
@@ -236,6 +276,7 @@ export function GuestTable({ guests, onEdit, onDelete }: GuestTableProps) {
                 guest={guest}
                 onEdit={() => onEdit(guest)}
                 onDelete={() => onDelete(guest)}
+                onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
               />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">

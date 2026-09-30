@@ -66,6 +66,7 @@ interface CategoryCardProps {
   onEditItem: (categoryId: string, item: BudgetItemResponse) => void;
   onDeleteItem: (categoryId: string, itemId: string) => void;
   onDeleteCategory: (categoryId: string) => void;
+  forceExpanded?: boolean;
 }
 
 export function CategoryCard({
@@ -74,8 +75,10 @@ export function CategoryCard({
   onEditItem,
   onDeleteItem,
   onDeleteCategory,
+  forceExpanded,
 }: CategoryCardProps) {
   const [expanded, setExpanded] = useState(true);
+  const isExpanded = forceExpanded ?? expanded;
 
   const totalEstimated = category.items.reduce((s, i) => s + i.estimatedCost, 0);
   const totalActual = category.items.reduce((s, i) => s + i.actualCost, 0);
@@ -98,12 +101,12 @@ export function CategoryCard({
         </button>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted">{formatCurrency(totalActual)}</span>
-          <Button variant="ghost" size="sm" onClick={() => onAddItem(category.id)}>
+          <Button variant="ghost" size="sm" onClick={() => onAddItem(category.id)} className="print:hidden">
             <Plus className="h-3.5 w-3.5" />
           </Button>
           <button
             onClick={() => onDeleteCategory(category.id)}
-            className="text-muted hover:text-error transition-colors"
+            className="text-muted hover:text-error transition-colors print:hidden"
             title="Delete category"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -126,8 +129,7 @@ export function CategoryCard({
       </div>
 
       {/* Items */}
-      {expanded && (
-        <div>
+      <div className={isExpanded ? '' : 'hidden print:block'}>
           {category.items.length === 0 ? (
             <div className="px-4 py-6 text-center">
               <p className="text-sm text-muted">No items yet.</p>
@@ -141,7 +143,7 @@ export function CategoryCard({
               </Button>
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-sm budget-print-table">
               <thead>
                 <tr className="text-xs text-muted">
                   <th className="px-4 py-2 text-left font-medium">Vendor</th>
@@ -150,7 +152,7 @@ export function CategoryCard({
                   <th className="px-4 py-2 text-right font-medium hidden md:table-cell">Paid</th>
                   <th className="px-4 py-2 text-center font-medium">Status</th>
                   <th className="px-4 py-2 text-right font-medium hidden lg:table-cell">Due</th>
-                  <th className="px-4 py-2 w-10" />
+                  <th className="px-4 py-2 w-10 print:hidden" />
                 </tr>
               </thead>
               <tbody>
@@ -183,7 +185,7 @@ export function CategoryCard({
                           ? new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                           : '—'}
                       </td>
-                      <td className="px-4 py-2.5">
+                      <td className="px-4 py-2.5 print:hidden">
                         <ItemActions
                           onEdit={() => onEditItem(category.id, item)}
                           onDelete={() => onDeleteItem(category.id, item.id)}
@@ -195,8 +197,7 @@ export function CategoryCard({
               </tbody>
             </table>
           )}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

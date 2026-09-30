@@ -2,11 +2,12 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { Globe, CircleDot, Save, Check, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Globe, CircleDot, Save, Check, AlertCircle, MailCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button, Input, Label } from '@everafter/ui';
 import { useWeddingContext } from '@/lib/wedding-context';
-import { useWeddingProfile } from '@/lib/hooks/use-dashboard';
+import { useWeddingProfile, useGuestSummary as useDashboardGuestSummary } from '@/lib/hooks/use-dashboard';
 import {
   useWebsiteSettings,
   useUpdateWebsiteSettings,
@@ -25,6 +26,7 @@ import {
   HeroBannerPicker,
   LayoutPicker,
 } from '@/features/website-builder';
+import { DEFAULT_SECTION_ORDER } from '@/features/website-builder/section-toggles';
 import { ApiError } from '@/lib/api-client';
 
 export default function WebsiteBuilderPage() {
@@ -36,6 +38,7 @@ export default function WebsiteBuilderPage() {
     useWebsiteSettings(weddingId);
   const { data: profile, isLoading: profileLoading } =
     useWeddingProfile(weddingId);
+  const { data: guestSummary } = useDashboardGuestSummary(weddingId);
   const updateSettings = useUpdateWebsiteSettings(weddingId);
   const updateSlug = useUpdateSlug(weddingId);
   const publishWebsite = usePublishWebsite(weddingId);
@@ -63,6 +66,7 @@ export default function WebsiteBuilderPage() {
     rsvp: true,
   });
 
+  const [sectionOrder, setSectionOrder] = useState<string[]>(DEFAULT_SECTION_ORDER);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [slugValue, setSlugValue] = useState('');
   const [slugError, setSlugError] = useState('');
@@ -82,7 +86,11 @@ export default function WebsiteBuilderPage() {
         dividerSize: settings.dividerSize,
       });
       if (settings.sections) {
-        setSections((prev) => ({ ...prev, ...settings.sections }));
+        const { _order, ...toggles } = settings.sections as Record<string, unknown>;
+        setSections((prev) => ({ ...prev, ...(toggles as Record<string, boolean>) }));
+        if (Array.isArray(_order)) {
+          setSectionOrder(_order as string[]);
+        }
       }
     }
   }, [settings, localSettings]);
@@ -139,6 +147,14 @@ export default function WebsiteBuilderPage() {
     [],
   );
 
+  const handleReorder = useCallback(
+    (newOrder: string[]) => {
+      setSectionOrder(newOrder);
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
   const handleNavLayoutChange = useCallback(
     (layout: 'left' | 'center' | 'right') => {
       setLocalSettings((prev) => (prev ? { ...prev, navigationStyle: layout } : null));
@@ -174,7 +190,7 @@ export default function WebsiteBuilderPage() {
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      await updateSettings.mutateAsync({ ...localSettings, sections });
+      await updateSettings.mutateAsync({ ...localSettings, sections: { ...sections, _order: sectionOrder } as unknown as Record<string, boolean> });
       setHasUnsavedChanges(false);
       toast.success('Website settings saved');
     } catch {
@@ -206,7 +222,7 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        await updateSettings.mutateAsync({ ...localSettings, sections });
+        await updateSettings.mutateAsync({ ...localSettings, sections: { ...sections, _order: sectionOrder } as unknown as Record<string, boolean> });
         setHasUnsavedChanges(false);
       }
       await publishWebsite.mutateAsync();
@@ -243,6 +259,21 @@ export default function WebsiteBuilderPage() {
             Website Builder
           </h2>
         </div>
+
+        {/* RSVP quick-status */}
+        {guestSummary && (
+          <Link
+            href={`/dashboard/${weddingId}/guests`}
+            className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white/60 px-3 py-2 text-xs text-stone-600 hover:bg-white transition-colors"
+          >
+            <MailCheck className="h-3.5 w-3.5 text-stone-400" />
+            <span>
+              <span className="font-semibold text-stone-900">{guestSummary.totalAttending}</span> Attending
+              <span className="mx-1.5 text-stone-300">&middot;</span>
+              <span className="font-semibold text-stone-900">{guestSummary.rsvpPending}</span> Pending
+            </span>
+          </Link>
+        )}
 
         {/* Publish status */}
         <div className="rounded-lg border border-border p-4 space-y-3">
@@ -350,6 +381,8 @@ export default function WebsiteBuilderPage() {
         <SectionToggles
           sections={sections}
           onChange={handleSectionToggle}
+          order={sectionOrder}
+          onReorder={handleReorder}
         />
 
         <NavLayoutPicker
@@ -409,6 +442,7 @@ export default function WebsiteBuilderPage() {
               timezone: activeWedding.timezone,
             }}
             sections={sections}
+            sectionOrder={sectionOrder}
           />
         )}
       </div>

@@ -73,8 +73,17 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
     ? `${profile.brideName} & ${profile.groomName}`
     : profile.brideName || profile.groomName || 'Our Wedding';
 
-  const sec = settings.sections;
-  const sectionOn = (key: string) => sec?.[key] ?? true;
+  const sec = settings.sections as Record<string, unknown> | null;
+  const sectionOn = (key: string) => (sec?.[key] as boolean) ?? true;
+
+  const DEFAULT_ORDER = ['hero', 'content', 'schedule', 'faq', 'rsvp'];
+  const sectionOrder: string[] = Array.isArray(sec?._order)
+    ? (sec._order as string[])
+    : DEFAULT_ORDER;
+  const orderOf = (key: string) => {
+    const idx = sectionOrder.indexOf(key);
+    return idx >= 0 ? idx : 99;
+  };
 
   const hasStory = !!(profile.proposalStory || profile.loveStory) && sectionOn('story');
   const hasDetails = !!(
@@ -110,7 +119,7 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
 
   return (
     <div
-      className="min-h-screen scroll-smooth"
+      className="min-h-screen scroll-smooth flex flex-col"
       style={{
         ...cssVars,
         backgroundColor: 'var(--wedding-background)',
@@ -125,81 +134,91 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         layout={settings.navigationStyle as 'left' | 'center' | 'right'}
       />
 
-      <MotionSection enabled={settings.animations}>
-        <HeroSection
-          brideName={profile.brideName}
-          groomName={profile.groomName}
-          weddingDate={wedding.weddingDate}
-          timezone={wedding.timezone}
-          hashtag={profile.weddingHashtag}
-          heroBanner={settings.heroBanner}
-          layout={settings.layout}
-        />
-      </MotionSection>
-
-      <MotionSection enabled={settings.animations}>
-        <LayoutWrapper
-          layout={settings.layout}
-          dividerStyle={divider}
-          dividerSize={dividerSize}
-          showStory={hasStory}
-          showDetails={hasDetails}
-          storySection={
-            <StorySection
-              proposalStory={profile.proposalStory}
-              loveStory={profile.loveStory}
-              layout={settings.layout}
-            />
-          }
-          detailsSection={
-            <DetailsSection
-              ceremonyName={profile.ceremonyName}
-              ceremonyAddress={profile.ceremonyAddress}
-              ceremonyTime={profile.ceremonyTime}
-              ceremonyImage={profile.ceremonyImage}
-              receptionName={profile.receptionName}
-              receptionAddress={profile.receptionAddress}
-              receptionTime={profile.receptionTime}
-              receptionImage={profile.receptionImage}
-              weddingDate={wedding.weddingDate}
-              dressCode={profile.dressCode}
-              dressCodeColors={profile.dressCodeColors}
-              primaryColor={settings.primaryColor}
-              timezone={wedding.timezone}
-              layout={settings.layout}
-            />
-          }
-        />
-      </MotionSection>
-
-      {hasSchedule && (
+      <div style={{ order: orderOf('hero') }}>
         <MotionSection enabled={settings.animations}>
-          <ScheduleSection
-            events={profile.scheduleEvents!}
+          <HeroSection
+            brideName={profile.brideName}
+            groomName={profile.groomName}
+            weddingDate={wedding.weddingDate}
+            timezone={wedding.timezone}
+            hashtag={profile.weddingHashtag}
+            heroBanner={settings.heroBanner}
             layout={settings.layout}
           />
         </MotionSection>
+      </div>
+
+      <div style={{ order: orderOf('content') }}>
+        <MotionSection enabled={settings.animations}>
+          <LayoutWrapper
+            layout={settings.layout}
+            dividerStyle={divider}
+            dividerSize={dividerSize}
+            showStory={hasStory}
+            showDetails={hasDetails}
+            storySection={
+              <StorySection
+                proposalStory={profile.proposalStory}
+                loveStory={profile.loveStory}
+                layout={settings.layout}
+              />
+            }
+            detailsSection={
+              <DetailsSection
+                ceremonyName={profile.ceremonyName}
+                ceremonyAddress={profile.ceremonyAddress}
+                ceremonyTime={profile.ceremonyTime}
+                ceremonyImage={profile.ceremonyImage}
+                receptionName={profile.receptionName}
+                receptionAddress={profile.receptionAddress}
+                receptionTime={profile.receptionTime}
+                receptionImage={profile.receptionImage}
+                weddingDate={wedding.weddingDate}
+                dressCode={profile.dressCode}
+                dressCodeColors={profile.dressCodeColors}
+                primaryColor={settings.primaryColor}
+                timezone={wedding.timezone}
+                layout={settings.layout}
+              />
+            }
+          />
+        </MotionSection>
+      </div>
+
+      {hasSchedule && (
+        <div style={{ order: orderOf('schedule') }}>
+          <MotionSection enabled={settings.animations}>
+            <ScheduleSection
+              events={profile.scheduleEvents!}
+              layout={settings.layout}
+            />
+          </MotionSection>
+        </div>
       )}
 
       {hasFaq && (
-        <MotionSection enabled={settings.animations}>
-          <FaqSection
-            items={profile.faqItems!}
-            layout={settings.layout}
-          />
-        </MotionSection>
+        <div style={{ order: orderOf('faq') }}>
+          <MotionSection enabled={settings.animations}>
+            <FaqSection
+              items={profile.faqItems!}
+              layout={settings.layout}
+            />
+          </MotionSection>
+        </div>
       )}
 
       {showRsvp && (
-        <MotionSection enabled={settings.animations}>
-          <RsvpSection slug={wedding.slug} layout={settings.layout} />
-        </MotionSection>
+        <div style={{ order: orderOf('rsvp') }}>
+          <MotionSection enabled={settings.animations}>
+            <RsvpSection slug={wedding.slug} layout={settings.layout} />
+          </MotionSection>
+        </div>
       )}
 
       {/* Footer */}
       <footer
         className={`px-4 md:px-8 pt-16 pb-10 ${settings.layout === 'classic' ? 'text-center' : ''}`}
-        style={{ backgroundColor: 'var(--wedding-secondary)' }}
+        style={{ backgroundColor: 'var(--wedding-secondary)', order: 99 }}
       >
         {settings.layout === 'classic' && (
           <FloralDivider className="pb-8" style={divider} size={dividerSize} />

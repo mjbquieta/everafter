@@ -19,8 +19,9 @@ interface NavigationBarProps {
 export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }: NavigationBarProps) {
   const [activeSection, setActiveSection] = useState(items[0]?.id ?? '');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const useLightText = hasBanner && !isScrolled;
+  const useLightText = hasBanner && !isScrolled && !mobileMenuOpen;
 
   const handleScroll = useCallback(() => {
     setIsScrolled(window.scrollY > 80);
@@ -95,7 +96,11 @@ export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        mobileMenuOpen
+          ? 'bg-[#FAF9F7]'
+          : isScrolled
+            ? 'bg-white/90 backdrop-blur-md shadow-sm'
+            : 'bg-transparent'
       }`}
     >
       <div className={`mx-auto max-w-5xl flex items-center px-6 h-16 ${layout === 'center' ? 'justify-center' : 'justify-between'}`}>
@@ -120,6 +125,8 @@ export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }
           scrollTo={scrollTo}
           useLightText={useLightText}
           coupleNames={coupleNames}
+          open={mobileMenuOpen}
+          setOpen={setMobileMenuOpen}
         />
       </div>
     </nav>
@@ -132,15 +139,17 @@ function MobileMenu({
   scrollTo,
   useLightText,
   coupleNames,
+  open,
+  setOpen,
 }: {
   items: NavItem[];
   activeSection: string;
   scrollTo: (id: string) => void;
   useLightText: boolean;
   coupleNames: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
-
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -170,12 +179,12 @@ function MobileMenu({
 
       {/* Full-screen overlay */}
       {open && (
-        <div className="fixed inset-0 z-[9999] bg-[#FAF9F7]/95 backdrop-blur-md flex flex-col">
+        <div className="fixed inset-0 z-[9999] bg-[#FAF9F7] flex flex-col">
           {/* Close button */}
-          <div className="flex items-center justify-end px-6 h-16 shrink-0">
+          <div className="flex items-center justify-end px-6 h-16 shrink-0 border-b border-stone-200/50">
             <button
               onClick={() => setOpen(false)}
-              className="p-2 text-stone-800"
+              className="p-2 text-stone-800 hover:text-stone-500 transition-colors"
               aria-label="Close menu"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -186,12 +195,12 @@ function MobileMenu({
           </div>
 
           {/* Links */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-1 -mt-16">
+          <div className="flex-1 flex flex-col items-center justify-center gap-6 py-12">
             {items.map(({ id, label }) => (
               <button
                 key={id}
                 onClick={() => handleNav(id)}
-                className="font-serif text-2xl py-3 transition-colors"
+                className="font-serif text-2xl tracking-wide transition-colors hover:text-stone-500"
                 style={{
                   color: activeSection === id ? 'var(--wedding-primary)' : '#292524',
                 }}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2, AlertCircle, Calendar } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, AlertCircle, Calendar, CheckCircle2 } from 'lucide-react';
 import type { ChecklistItemResponse } from '@everafter/types';
 
 const priorityConfig: Record<string, { label: string; className: string }> = {
@@ -22,11 +22,22 @@ export function TaskItem({ item, onToggle, onEdit, onDelete }: TaskItemProps) {
   const isCompleted = !!item.completedAt;
   const priority = priorityConfig[item.priority] ?? priorityConfig.MEDIUM;
 
-  const isOverdue = !isCompleted && item.dueDate && new Date(item.dueDate) < new Date();
+  const now = new Date();
+  const dueDate = item.dueDate ? new Date(item.dueDate) : null;
+  const isOverdue = !isCompleted && dueDate && dueDate < now;
+  const isDueSoon =
+    !isCompleted &&
+    dueDate &&
+    !isOverdue &&
+    dueDate.getTime() - now.getTime() <= 7 * 24 * 60 * 60 * 1000;
 
   return (
-    <div className={`flex items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3 transition-colors ${
-      isCompleted ? 'opacity-60' : ''
+    <div className={`checklist-print-item flex items-start gap-3 rounded-lg border px-4 py-3 transition-colors ${
+      isCompleted
+        ? 'border-border/60 bg-stone-50/50 opacity-70'
+        : isOverdue
+          ? 'border-red-200 bg-red-50/30'
+          : 'border-border bg-surface'
     }`}>
       <input
         type="checkbox"
@@ -46,17 +57,34 @@ export function TaskItem({ item, onToggle, onEdit, onDelete }: TaskItemProps) {
           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${priority.className}`}>
             {priority.label}
           </span>
-          {item.dueDate && (
-            <span className={`inline-flex items-center gap-1 text-[11px] ${isOverdue ? 'text-error' : 'text-muted'}`}>
-              {isOverdue && <AlertCircle className="h-3 w-3" />}
+          {isCompleted && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+              <CheckCircle2 className="h-3 w-3" />
+              Done
+            </span>
+          )}
+          {isOverdue && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-700">
+              <AlertCircle className="h-3 w-3" />
+              Overdue
+            </span>
+          )}
+          {isDueSoon && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+              <AlertCircle className="h-3 w-3" />
+              Due soon
+            </span>
+          )}
+          {dueDate && (
+            <span className={`inline-flex items-center gap-1 text-[11px] ${isOverdue ? 'text-red-600' : 'text-muted'}`}>
               <Calendar className="h-3 w-3" />
-              {new Date(item.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
           )}
         </div>
       </div>
 
-      <div className="relative shrink-0">
+      <div className="relative shrink-0 print:hidden">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex h-7 w-7 items-center justify-center rounded text-muted hover:bg-primary/5 hover:text-foreground transition-colors"

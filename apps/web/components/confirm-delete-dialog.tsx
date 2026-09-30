@@ -3,34 +3,33 @@
 import { Button } from '@everafter/ui';
 import { X, AlertTriangle } from 'lucide-react';
 
-interface DeleteDialogProps {
+interface ConfirmDeleteDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  guestName: string;
+  title: string;
+  itemName: string;
+  description?: string;
   isDeleting: boolean;
 }
 
-export function DeleteDialog({
+export function ConfirmDeleteDialog({
   open,
   onClose,
   onConfirm,
-  guestName,
+  title,
+  itemName,
+  description,
   isDeleting,
-}: DeleteDialogProps) {
+}: ConfirmDeleteDialogProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-foreground/40"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-foreground/40" onClick={onClose} />
       <div className="relative z-10 w-full max-w-sm rounded-lg border border-border bg-surface shadow-lg">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            Delete Guest?
-          </h2>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <button
             onClick={onClose}
             className="text-muted hover:text-foreground transition-colors"
@@ -47,11 +46,11 @@ export function DeleteDialog({
             <div>
               <p className="text-sm text-foreground">
                 This action cannot be undone. Are you sure you want to remove{' '}
-                <span className="font-medium">{guestName}</span>?
+                <span className="font-medium">{itemName}</span>?
               </p>
-              <p className="mt-1 text-xs text-muted">
-                Any RSVP data for this guest will also be removed.
-              </p>
+              {description && (
+                <p className="mt-1 text-xs text-muted">{description}</p>
+              )}
             </div>
           </div>
 

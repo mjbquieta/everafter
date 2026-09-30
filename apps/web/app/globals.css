@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "@everafter/ui/styles.css";
 
+@source "../../packages/ui/src";
+
 @keyframes accordion-down {
   from { height: 0; }
   to { height: var(--radix-accordion-content-height); }
@@ -17,4 +19,41 @@
 
 @utility animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
+}
+
+/* ── Print styles ── */
+@media print {
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Checklist print: clean black-and-white list */
+  .checklist-print-item {
+    border: none !important;
+    border-bottom: 1px solid #ddd !important;
+    border-radius: 0 !important;
+    padding: 6px 0 !important;
+    background: none !important;
+    opacity: 1 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Budget print: force-show all responsive columns */
+  .budget-print-table th,
+  .budget-print-table td {
+    display: table-cell !important;
+    padding: 4px 8px !important;
+    font-size: 10pt;
+  }
+
+  .budget-print-table {
+    page-break-inside: avoid;
+  }
 }

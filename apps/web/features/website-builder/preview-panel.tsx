@@ -49,6 +49,7 @@ interface PreviewPanelProps {
     timezone: string;
   };
   sections: Record<string, boolean>;
+  sectionOrder?: string[];
 }
 
 type Viewport = 'desktop' | 'tablet' | 'mobile';
@@ -72,6 +73,7 @@ export function PreviewPanel({
   profile,
   wedding,
   sections,
+  sectionOrder,
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<Viewport>('desktop');
   const [copied, setCopied] = useState(false);
@@ -146,12 +148,15 @@ export function PreviewPanel({
           <div
             style={{
               ...cssVars,
+              display: 'flex',
+              flexDirection: 'column',
               backgroundColor: 'var(--wedding-background)',
               color: 'var(--wedding-foreground)',
               fontFamily: 'var(--wedding-font)',
             }}
           >
             {(sections.hero ?? true) && (
+              <div style={{ order: sectionOrder?.indexOf('hero') ?? 0 }}>
               <HeroSection
                 brideName={profile.brideName}
                 groomName={profile.groomName}
@@ -161,8 +166,10 @@ export function PreviewPanel({
                 heroBanner={settings.heroBanner}
                 layout={settings.layout}
               />
+              </div>
             )}
 
+            <div style={{ order: sectionOrder?.indexOf('content') ?? 1 }}>
             <LayoutWrapper
               layout={settings.layout}
               dividerStyle={settings.dividerStyle as DividerStyle}
@@ -195,22 +202,28 @@ export function PreviewPanel({
                 />
               }
             />
+            </div>
 
             {(sections.schedule ?? true) && !!profile.scheduleEvents?.length && (
+              <div style={{ order: sectionOrder?.indexOf('schedule') ?? 2 }}>
               <ScheduleSection
                 events={profile.scheduleEvents}
                 layout={settings.layout}
               />
+              </div>
             )}
 
             {(sections.faq ?? true) && !!profile.faqItems?.length && (
+              <div style={{ order: sectionOrder?.indexOf('faq') ?? 3 }}>
               <FaqSection
                 items={profile.faqItems}
                 layout={settings.layout}
               />
+              </div>
             )}
 
             {(sections.rsvp ?? true) && (
+              <div style={{ order: sectionOrder?.indexOf('rsvp') ?? 4 }}>
               <div
                 id="rsvp"
                 className="px-4 md:px-8 py-16 md:py-24"
@@ -262,6 +275,7 @@ export function PreviewPanel({
                     RSVP form is available on the live site
                   </p>
                 </div>
+              </div>
               </div>
             )}
           </div>

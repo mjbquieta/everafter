@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { UserPlus, Users } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@everafter/ui';
 import type { GuestResponse, CreateGuestRequest, UpdateGuestRequest } from '@everafter/types';
 import {
@@ -19,7 +20,9 @@ import {
   GuestDialog,
   DeleteDialog,
   GuestTableSkeleton,
+  GuestSummaryStrip,
 } from '@/features/guests';
+import { ImportDialog } from '@/features/guests/import-dialog';
 
 export default function GuestsPage() {
   const params = useParams<{ weddingId: string }>();
@@ -35,6 +38,7 @@ export default function GuestsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingGuest, setEditingGuest] = useState<GuestResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<GuestResponse | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Build query params (server-side filters)
   const queryParams: GuestQueryParams = useMemo(() => {
@@ -108,7 +112,12 @@ export default function GuestsPage() {
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
-    await deleteGuest.mutateAsync(deleteTarget.id);
+    try {
+      await deleteGuest.mutateAsync(deleteTarget.id);
+      toast.success('Guest removed');
+    } catch {
+      toast.error('Failed to remove guest');
+    }
     setDeleteTarget(null);
   }, [deleteTarget, deleteGuest]);
 
@@ -118,7 +127,10 @@ export default function GuestsPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">Guests</h1>
         </div>
-        <GuestTableSkeleton />
+        <GuestSummaryStrip isLoading />
+        <div className="mt-6">
+          <GuestTableSkeleton />
+        </div>
       </div>
     );
   }
@@ -133,7 +145,9 @@ export default function GuestsPage() {
         </Button>
       </div>
 
-      <div className="space-y-6">
+      <GuestSummaryStrip guests={guests} isLoading={false} />
+
+      <div className="space-y-6 mt-6">
         <GuestFilters
           search={search}
           onSearchChange={setSearch}
@@ -145,39 +159,40 @@ export default function GuestsPage() {
           onGroupChange={setGroup}
           groups={groups}
           summary={summary}
+          guests={filteredGuests}
+          slug={weddingId}
+          onImportClick={() => setImportOpen(true)}
         />
 
         {filteredGuests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface py-16 px-6 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-              <Users className="h-6 w-6 text-primary" />
+          guests?.length === 0 && !search && !rsvpStatus && !side && !group ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 py-16 px-6 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 mb-5">
+                <Users className="h-7 w-7 text-stone-400" />
+              </div>
+              <h3 className="font-serif text-xl text-stone-900">No guests yet</h3>
+              <p className="mt-2 text-sm text-stone-500 max-w-sm">
+                Start building your guest list with the people you want to celebrate with.
+              </p>
+              <Button size="sm" className="mt-5" onClick={handleOpenCreate}>
+                <UserPlus className="h-4 w-4 mr-1.5" />
+                Add First Guest
+              </Button>
             </div>
-            <h3 className="text-lg font-semibold text-foreground">
-              {guests?.length === 0 && !search && !rsvpStatus && !side && !group
-                ? 'No guests yet'
-                : 'No guests match your filters'}
-            </h3>
-            <p className="mt-1 text-sm text-muted max-w-sm">
-              {guests?.length === 0 && !search && !rsvpStatus && !side && !group
-                ? 'Start adding the people you want to celebrate with you.'
-                : 'Try adjusting your search or filters to find who you\u2019re looking for.'}
-            </p>
-            {guests?.length === 0 &&
-              !search &&
-              !rsvpStatus &&
-              !side &&
-              !group && (
-                <Button size="sm" className="mt-4" onClick={handleOpenCreate}>
-                  <UserPlus className="h-4 w-4 mr-1.5" />
-                  Add Guest
-                </Button>
-              )}
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface py-12 px-6 text-center">
+              <p className="text-sm text-muted">No guests match your filters.</p>
+              <p className="mt-1 text-xs text-muted">
+                Try adjusting your search or filters to find who you&#39;re looking for.
+              </p>
+            </div>
+          )
         ) : (
           <GuestTable
             guests={filteredGuests}
             onEdit={handleOpenEdit}
             onDelete={setDeleteTarget}
+            slug={weddingId}
           />
         )}
       </div>
@@ -200,6 +215,12 @@ export default function GuestsPage() {
             : ''
         }
         isDeleting={deleteGuest.isPending}
+      />
+
+      <ImportDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImport={(guest) => createGuest.mutateAsync(guest)}
       />
     </div>
   );
