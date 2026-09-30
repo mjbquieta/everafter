@@ -119,6 +119,7 @@ export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }
           activeSection={activeSection}
           scrollTo={scrollTo}
           useLightText={useLightText}
+          coupleNames={coupleNames}
         />
       </div>
     </nav>
@@ -130,52 +131,83 @@ function MobileMenu({
   activeSection,
   scrollTo,
   useLightText,
+  coupleNames,
 }: {
   items: NavItem[];
   activeSection: string;
   scrollTo: (id: string) => void;
   useLightText: boolean;
+  coupleNames: string;
 }) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [open]);
+
+  const handleNav = (id: string) => {
+    setOpen(false);
+    // Small delay so the overlay unmounts and body scroll restores before scrolling
+    setTimeout(() => scrollTo(id), 50);
+  };
 
   return (
     <div className="md:hidden">
       <button
-        onClick={() => setOpen(!open)}
-        className="flex flex-col gap-1 p-2"
-        aria-label="Menu"
+        onClick={() => setOpen(true)}
+        className="p-2"
+        aria-label="Open menu"
       >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className="block h-0.5 w-5 rounded-full transition-colors"
-            style={{ backgroundColor: useLightText ? '#fff' : 'var(--wedding-foreground)' }}
-          />
-        ))}
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden>
+          <line x1="0" y1="1" x2="22" y2="1" stroke={useLightText ? '#fff' : 'var(--wedding-foreground)'} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="4" y1="8" x2="22" y2="8" stroke={useLightText ? '#fff' : 'var(--wedding-foreground)'} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="8" y1="15" x2="22" y2="15" stroke={useLightText ? '#fff' : 'var(--wedding-foreground)'} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
       </button>
 
+      {/* Full-screen overlay */}
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-4 top-14 z-50 min-w-[180px] rounded-lg bg-white shadow-lg border border-neutral-100 py-2">
+        <div className="fixed inset-0 z-[9999] bg-[#FAF9F7]/95 backdrop-blur-md flex flex-col">
+          {/* Close button */}
+          <div className="flex items-center justify-end px-6 h-16 shrink-0">
+            <button
+              onClick={() => setOpen(false)}
+              className="p-2 text-stone-800"
+              aria-label="Close menu"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+                <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Links */}
+          <div className="flex-1 flex flex-col items-center justify-center gap-1 -mt-16">
             {items.map(({ id, label }) => (
               <button
                 key={id}
-                onClick={() => {
-                  scrollTo(id);
-                  setOpen(false);
-                }}
-                className="block w-full px-5 py-2.5 text-left font-sans text-xs font-semibold uppercase tracking-[0.15em] transition-colors"
+                onClick={() => handleNav(id)}
+                className="font-serif text-2xl py-3 transition-colors"
                 style={{
-                  color: activeSection === id ? 'var(--wedding-primary)' : 'var(--wedding-foreground)',
-                  backgroundColor: activeSection === id ? 'var(--wedding-secondary)' : 'transparent',
+                  color: activeSection === id ? 'var(--wedding-primary)' : '#292524',
                 }}
               >
                 {label}
               </button>
             ))}
           </div>
-        </>
+
+          {/* Couple names at bottom */}
+          <div className="shrink-0 pb-10 text-center">
+            <p className="font-serif text-sm tracking-wide text-stone-400">
+              {coupleNames}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
