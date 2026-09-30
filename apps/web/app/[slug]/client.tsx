@@ -84,6 +84,9 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
   // Extract opening transition from sections (stored as _openingTransition)
   const openingTransition = (sec?._openingTransition as string) ?? 'none';
 
+  // Extract hero text color from sections (stored as _heroTextColor)
+  const heroTextColor = (sec?._heroTextColor as 'light' | 'dark') ?? (settings.heroBanner ? 'light' : 'dark');
+
   const DEFAULT_ORDER = ['hero', 'content', 'schedule', 'faq', 'rsvp'];
   const sectionOrder: string[] = Array.isArray(sec?._order)
     ? (sec._order as string[])
@@ -158,6 +161,7 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
             hashtag={profile.weddingHashtag}
             heroBanner={settings.heroBanner}
             layout={settings.layout}
+            heroTextColor={heroTextColor}
           />
         </MotionSection>
       </div>

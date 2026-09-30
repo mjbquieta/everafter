@@ -11,6 +11,8 @@ interface OpeningExperienceProps {
 export function OpeningExperience({ type, slug, coupleNames }: OpeningExperienceProps) {
   const [showOpening, setShowOpening] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [flapOpen, setFlapOpen] = useState(false);
+  const [letterSlide, setLetterSlide] = useState(false);
 
   useEffect(() => {
     if (type === 'none') return;
@@ -41,14 +43,25 @@ export function OpeningExperience({ type, slug, coupleNames }: OpeningExperience
       audioEl.play().catch((err) => console.warn('Audio autoplay failed:', err));
     }
 
-    // Start exit animation
-    setIsExiting(true);
     sessionStorage.setItem(`hasOpenedInvitation_${slug}`, 'true');
 
-    // Unmount after animation completes
+    // Step 1: Flip flap open (0ms)
+    setFlapOpen(true);
+
+    // Step 2: Slide letter out (400ms delay)
+    setTimeout(() => {
+      setLetterSlide(true);
+    }, 400);
+
+    // Step 3: Zoom fade-out entire overlay (800ms delay)
+    setTimeout(() => {
+      setIsExiting(true);
+    }, 800);
+
+    // Step 4: Unmount after all animations complete (1200ms total)
     setTimeout(() => {
       setShowOpening(false);
-    }, 600);
+    }, 1200);
   };
 
   if (!showOpening || type === 'none') return null;
@@ -70,51 +83,55 @@ export function OpeningExperience({ type, slug, coupleNames }: OpeningExperience
     return (
       <div
         className={`fixed inset-0 z-[100] bg-stone-900/50 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-500 ${
-          isExiting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+          isExiting ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
         }`}
       >
-        <div
-          className={`bg-[#FAF9F7] rounded-lg shadow-2xl max-w-md w-full p-8 text-center transition-all duration-500 ${
-            isExiting ? 'scale-110 opacity-0' : 'scale-100 opacity-100'
-          }`}
-        >
-          {/* Envelope decorative header */}
-          <div className="mb-6 flex justify-center">
-            <div className="relative">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center">
-                <svg
-                  className="h-8 w-8 text-rose-600"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              {/* Wax seal effect */}
-              <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-rose-600 border-2 border-[#FAF9F7] flex items-center justify-center">
-                <span className="text-[10px] text-white font-serif">❦</span>
-              </div>
+        {/* Envelope container */}
+        <div className="relative w-full max-w-md" style={{ aspectRatio: '4/3' }}>
+          {/* Envelope body (pocket) */}
+          <div className="absolute inset-0 bg-[#FDFBF7] border border-stone-200 shadow-2xl rounded-sm overflow-hidden">
+            {/* Inner invitation card */}
+            <div
+              className={`absolute inset-x-4 top-8 bottom-16 bg-white border border-stone-200 shadow-lg rounded-sm p-6 flex flex-col items-center justify-center transition-transform duration-500 ${
+                letterSlide ? '-translate-y-10' : 'translate-y-0'
+              }`}
+            >
+              <h2 className="font-serif text-3xl md:text-4xl text-stone-900 mb-2 text-center">
+                {coupleNames}
+              </h2>
+              <p className="text-xs md:text-sm text-stone-600 tracking-[0.2em] uppercase">
+                You are invited
+              </p>
             </div>
           </div>
 
-          {/* Invitation text */}
-          <h2 className="font-serif text-3xl text-stone-900 mb-2">
-            {coupleNames}
-          </h2>
-          <p className="text-sm text-stone-600 mb-6 tracking-wide uppercase">
-            You are invited
-          </p>
+          {/* Envelope flap (triangle) */}
+          <div
+            className={`absolute inset-x-0 top-0 h-1/2 origin-top transition-all duration-500 ${
+              flapOpen ? '[transform:rotateX(180deg)]' : '[transform:rotateX(0deg)]'
+            }`}
+            style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+          >
+            <div
+              className="w-full h-full bg-[#FDFBF7] border border-stone-200 shadow-xl"
+              style={{
+                clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+              }}
+            />
+          </div>
 
-          {/* Open button */}
+          {/* Wax seal button */}
           <button
             onClick={handleOpen}
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 shadow-sm"
+            className={`absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-[#8B2635] text-amber-100 flex items-center justify-center shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition-all duration-200 ${
+              flapOpen ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
+            }`}
+            aria-label="Open Invitation"
           >
-            Open Invitation
+            <div className="text-center">
+              <div className="text-2xl leading-none mb-0.5">❦</div>
+              <div className="text-[7px] font-serif tracking-wide uppercase">Open</div>
+            </div>
           </button>
         </div>
       </div>

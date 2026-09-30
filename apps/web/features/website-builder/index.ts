@@ -9,3 +9,4 @@ export { HeroBannerPicker } from './hero-banner-picker';
 export { LayoutPicker } from './layout-picker';
 export { AudioSettings } from './audio-settings';
 export { OpeningTransitionPicker } from './opening-transition-picker';
+export { HeroTextColorPicker } from './hero-text-color-picker';

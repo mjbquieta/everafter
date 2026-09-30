@@ -27,6 +27,7 @@ import {
   LayoutPicker,
   AudioSettings,
   OpeningTransitionPicker,
+  HeroTextColorPicker,
 } from '@/features/website-builder';
 import { DEFAULT_SECTION_ORDER } from '@/features/website-builder/section-toggles';
 import { ApiError } from '@/lib/api-client';
@@ -60,6 +61,7 @@ export default function WebsiteBuilderPage() {
     enableBackgroundMusic: boolean;
     audioUrl: string | null;
     openingTransition: string;
+    heroTextColor: string;
   } | null>(null);
 
   const [sections, setSections] = useState<Record<string, boolean>>({
@@ -81,6 +83,7 @@ export default function WebsiteBuilderPage() {
     if (settings && !localSettings) {
       const sectionsData = settings.sections as Record<string, unknown> | null;
       const openingTransition = (sectionsData?._openingTransition as string) ?? 'none';
+      const heroTextColor = (sectionsData?._heroTextColor as string) ?? (settings.heroBanner ? 'light' : 'dark');
 
       setLocalSettings({
         theme: settings.theme,
@@ -95,9 +98,10 @@ export default function WebsiteBuilderPage() {
         enableBackgroundMusic: (settings as any).enableBackgroundMusic ?? false,
         audioUrl: (settings as any).audioUrl ?? null,
         openingTransition,
+        heroTextColor,
       });
       if (settings.sections) {
-        const { _order, _openingTransition, ...toggles } = settings.sections as Record<string, unknown>;
+        const { _order, _openingTransition, _heroTextColor, ...toggles } = settings.sections as Record<string, unknown>;
         setSections((prev) => ({ ...prev, ...(toggles as Record<string, boolean>) }));
         if (Array.isArray(_order)) {
           setSectionOrder(_order as string[]);
@@ -222,16 +226,25 @@ export default function WebsiteBuilderPage() {
     [],
   );
 
+  const handleHeroTextColorChange = useCallback(
+    (color: 'light' | 'dark') => {
+      setLocalSettings((prev) => (prev ? { ...prev, heroTextColor: color } : null));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      const { openingTransition, ...settingsToSave } = localSettings;
+      const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
       await updateSettings.mutateAsync({
         ...settingsToSave,
         sections: {
           ...sections,
           _order: sectionOrder,
-          _openingTransition: openingTransition
+          _openingTransition: openingTransition,
+          _heroTextColor: heroTextColor
         } as unknown as Record<string, boolean>
       });
       setHasUnsavedChanges(false);
@@ -265,13 +278,14 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        const { openingTransition, ...settingsToSave } = localSettings;
+        const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
         await updateSettings.mutateAsync({
           ...settingsToSave,
           sections: {
             ...sections,
             _order: sectionOrder,
-            _openingTransition: openingTransition
+            _openingTransition: openingTransition,
+            _heroTextColor: heroTextColor
           } as unknown as Record<string, boolean>
         });
         setHasUnsavedChanges(false);
@@ -415,6 +429,11 @@ export default function WebsiteBuilderPage() {
               prev ? { ...prev, heroBanner: url } : null,
             );
           }}
+        />
+
+        <HeroTextColorPicker
+          value={localSettings.heroTextColor as 'light' | 'dark'}
+          onChange={handleHeroTextColorChange}
         />
 
         <ColorPicker

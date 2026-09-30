@@ -48,3 +48,5 @@ docker/data/
 *.tsbuildinfo
 
 docs/*
+
+apps/api/uploads/*
