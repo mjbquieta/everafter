@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { MoreHorizontal, Pencil, Trash2, UtensilsCrossed, Link2, Check, X, Clock } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Link2, Check, X, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import type { GuestResponse, RSVPStatus } from '@everafter/types';
 
@@ -149,7 +149,7 @@ function ActionsMenu({
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-sm text-foreground hover:bg-primary/5 transition-colors"
               >
                 <Link2 className="h-3.5 w-3.5" />
-                Copy RSVP Link
+                Copy Invitation Link
               </button>
             )}
             <button
@@ -170,9 +170,9 @@ function ActionsMenu({
 }
 
 export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatingRsvp, slug }: GuestTableProps) {
-  const handleCopyLink = async () => {
+  const handleCopyLink = async (guestId: string) => {
     if (!slug) return;
-    const url = `${window.location.origin}/${slug}#rsvp`;
+    const url = `${window.location.origin}/${slug}/invite/${guestId}`;
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
@@ -187,7 +187,7 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
         document.execCommand('copy');
         document.body.removeChild(textarea);
       }
-      toast.success('RSVP link copied to clipboard!');
+      toast.success('Personalized invitation link copied!');
     } catch {
       toast.error('Failed to copy link');
     }
@@ -210,13 +210,10 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                 Table
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
-                Party Size
+                Companions
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
                 RSVP Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
-                Meal / Dietary
               </th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-stone-600 uppercase tracking-wider">
                 Actions
@@ -225,10 +222,13 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
           </thead>
           <tbody className="divide-y divide-border">
             {guests.map((guest) => {
-              const partySize = guest.rsvp ? 1 + (guest.rsvp.companionCount || 0) : 1;
-              const mealInfo = guest.rsvp?.mealPreference || guest.mealPreference;
-              const dietaryNotes = guest.rsvp?.notes || guest.notes;
-              const displayMeal = mealInfo || dietaryNotes;
+              // Parse companion limit from notes metadata
+              const companionMatch = guest.notes?.match(/\[companions:(\d+)\]/) ?? null;
+              const maxCompanions = companionMatch ? parseInt(companionMatch[1]) : null;
+              const allowsCompanions = maxCompanions !== null && maxCompanions > 0;
+
+              const hasResponded = guest.rsvp?.status === 'ACCEPTED' || guest.rsvp?.status === 'DECLINED';
+              const companionCount = guest.rsvp?.companionCount ?? 0;
 
               return (
                 <tr
@@ -271,11 +271,18 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-foreground">{partySize}</span>
-                    {guest.rsvp && guest.rsvp.companionCount > 0 && (
-                      <span className="text-xs text-muted ml-1">
-                        (+{guest.rsvp.companionCount})
+                    {hasResponded ? (
+                      companionCount > 0 ? (
+                        <span className="text-sm font-medium text-foreground">+{companionCount}</span>
+                      ) : (
+                        <span className="text-sm text-muted">+0 (Solo)</span>
+                      )
+                    ) : allowsCompanions ? (
+                      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 border border-blue-200">
+                        Up to {maxCompanions}
                       </span>
+                    ) : (
+                      <span className="text-sm text-muted">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -285,28 +292,12 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                       isUpdating={isUpdatingRsvp}
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    {displayMeal ? (
-                      <div className="max-w-xs">
-                        {mealInfo && (
-                          <p className="text-sm text-foreground truncate">{mealInfo}</p>
-                        )}
-                        {dietaryNotes && (
-                          <p className="text-xs text-muted mt-0.5 truncate" title={dietaryNotes}>
-                            {dietaryNotes}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-muted">—</span>
-                    )}
-                  </td>
                   <td className="px-4 py-3 text-right">
                     <ActionsMenu
                       guest={guest}
                       onEdit={() => onEdit(guest)}
                       onDelete={() => onDelete(guest)}
-                      onCopyLink={slug ? handleCopyLink : undefined}
+                      onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
                     />
                   </td>
                 </tr>
@@ -319,9 +310,13 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {guests.map((guest) => {
-          const partySize = guest.rsvp ? 1 + (guest.rsvp.companionCount || 0) : 1;
-          const mealInfo = guest.rsvp?.mealPreference || guest.mealPreference;
-          const dietaryNotes = guest.rsvp?.notes || guest.notes;
+          // Parse companion limit from notes metadata
+          const companionMatch = guest.notes?.match(/\[companions:(\d+)\]/) ?? null;
+          const maxCompanions = companionMatch ? parseInt(companionMatch[1]) : null;
+          const allowsCompanions = maxCompanions !== null && maxCompanions > 0;
+
+          const hasResponded = guest.rsvp?.status === 'ACCEPTED' || guest.rsvp?.status === 'DECLINED';
+          const companionCount = guest.rsvp?.companionCount ?? 0;
 
           return (
             <div
@@ -344,7 +339,7 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                   guest={guest}
                   onEdit={() => onEdit(guest)}
                   onDelete={() => onDelete(guest)}
-                  onCopyLink={slug ? handleCopyLink : undefined}
+                  onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
                 />
               </div>
 
@@ -371,11 +366,20 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                 </div>
 
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-muted">Party Size:</span>
-                  <span className="text-foreground">
-                    {partySize}
-                    {guest.rsvp && guest.rsvp.companionCount > 0 && ` (+${guest.rsvp.companionCount})`}
-                  </span>
+                  <span className="text-muted">Companions:</span>
+                  {hasResponded ? (
+                    companionCount > 0 ? (
+                      <span className="text-sm font-medium text-foreground">+{companionCount}</span>
+                    ) : (
+                      <span className="text-sm text-muted">+0 (Solo)</span>
+                    )
+                  ) : allowsCompanions ? (
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 border border-blue-200">
+                      Up to {maxCompanions}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-muted">—</span>
+                  )}
                 </div>
 
                 <div className="pt-2">
@@ -385,18 +389,6 @@ export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatin
                     isUpdating={isUpdatingRsvp}
                   />
                 </div>
-
-                {(mealInfo || dietaryNotes) && (
-                  <div className="pt-2 border-t border-border">
-                    <p className="text-xs text-muted mb-1">Meal / Dietary:</p>
-                    {mealInfo && (
-                      <p className="text-sm text-foreground">{mealInfo}</p>
-                    )}
-                    {dietaryNotes && (
-                      <p className="text-xs text-muted mt-1">{dietaryNotes}</p>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           );

@@ -55,10 +55,25 @@ export interface PublicGuestSearchResult {
   id: string;
   firstName: string;
   lastName: string;
+  email: string | null;
   rsvpStatus: string | null;
   companionCount: number;
   mealPreference: string | null;
   notes: string | null;
+}
+
+export interface PublicGuestByIdResult {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string | null;
+  notes: string | null;
+  rsvp: {
+    status: string;
+    companionCount: number;
+    mealPreference: string | null;
+    notes: string | null;
+  } | null;
 }
 
 export interface PublicRsvpResult {
@@ -173,11 +188,57 @@ export class PublicService {
       id: g.id,
       firstName: g.firstName,
       lastName: g.lastName,
+      email: g.email,
       rsvpStatus: g.rsvp?.status ?? null,
       companionCount: g.rsvp?.companionCount ?? 0,
       mealPreference: g.rsvp?.mealPreference ?? null,
       notes: g.rsvp?.notes ?? null,
     }));
+  }
+
+  async getGuestById(
+    slug: string,
+    guestId: string,
+  ): Promise<PublicGuestByIdResult> {
+    const wedding = await this.prisma.wedding.findUnique({
+      where: { slug },
+    });
+
+    if (
+      !wedding ||
+      wedding.deletedAt !== null ||
+      wedding.status !== WeddingStatus.PUBLISHED
+    ) {
+      throw new NotFoundException('Wedding not found');
+    }
+
+    const guest = await this.prisma.guest.findFirst({
+      where: {
+        id: guestId,
+        weddingId: wedding.id,
+      },
+      include: { rsvp: true },
+    });
+
+    if (!guest) {
+      throw new NotFoundException('Guest not found');
+    }
+
+    return {
+      id: guest.id,
+      firstName: guest.firstName,
+      lastName: guest.lastName,
+      email: guest.email,
+      notes: guest.notes,
+      rsvp: guest.rsvp
+        ? {
+            status: guest.rsvp.status,
+            companionCount: guest.rsvp.companionCount,
+            mealPreference: guest.rsvp.mealPreference,
+            notes: guest.rsvp.notes,
+          }
+        : null,
+    };
   }
 
   async submitRsvp(

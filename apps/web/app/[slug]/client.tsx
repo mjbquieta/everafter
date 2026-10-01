@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   HeroSection,
   StorySection,
@@ -16,6 +17,19 @@ import {
   OpeningExperience,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+
+interface InvitedGuest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rsvpStatus: string | null;
+  companionCount: number;
+  mealPreference: string | null;
+  notes: string | null;
+}
 
 interface PublicWeddingData {
   wedding: {
@@ -73,10 +87,31 @@ const fontMap: Record<string, string> = {
 
 export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
   const { wedding, profile, settings } = data;
+  const searchParams = useSearchParams();
+  const [invitedGuest, setInvitedGuest] = useState<InvitedGuest | null>(null);
 
   const coupleNames = profile.brideName && profile.groomName
     ? `${profile.brideName} & ${profile.groomName}`
     : profile.brideName || profile.groomName || 'Our Wedding';
+
+  // Load personalized guest data from URL parameter
+  useEffect(() => {
+    const guestId = searchParams.get('guest');
+    if (!guestId) return;
+
+    const loadGuestById = async () => {
+      try {
+        const res = await fetch(`${API_URL}/public/weddings/${wedding.slug}/guests/${guestId}`);
+        if (!res.ok) return; // Silently fail if guest not found
+        const body = await res.json();
+        setInvitedGuest(body.data);
+      } catch {
+        // Silently fail and show generic experience
+      }
+    };
+
+    loadGuestById();
+  }, [searchParams, wedding.slug]);
 
   const sec = settings.sections as Record<string, unknown> | null;
   const sectionOn = (key: string) => (sec?.[key] as boolean) ?? true;
@@ -142,6 +177,7 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         type={openingTransition as 'none' | 'fade' | 'envelope'}
         slug={wedding.slug}
         coupleNames={coupleNames}
+        invitedGuest={invitedGuest}
       />
 
       <NavigationBar
@@ -228,7 +264,7 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
       {showRsvp && (
         <div style={{ order: orderOf('rsvp') }}>
           <MotionSection enabled={settings.animations}>
-            <RsvpSection slug={wedding.slug} layout={settings.layout} />
+            <RsvpSection slug={wedding.slug} layout={settings.layout} invitedGuest={invitedGuest} />
           </MotionSection>
         </div>
       )}

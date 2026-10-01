@@ -2,13 +2,24 @@
 
 import { useState, useEffect } from 'react';
 
+interface InvitedGuest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rsvpStatus: string | null;
+  companionCount: number;
+  mealPreference: string | null;
+  notes: string | null;
+}
+
 interface OpeningExperienceProps {
   type: 'none' | 'fade' | 'envelope';
   slug: string;
   coupleNames: string;
+  invitedGuest?: InvitedGuest | null;
 }
 
-export function OpeningExperience({ type, slug, coupleNames }: OpeningExperienceProps) {
+export function OpeningExperience({ type, slug, coupleNames, invitedGuest }: OpeningExperienceProps) {
   const [showOpening, setShowOpening] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [flapOpen, setFlapOpen] = useState(false);
@@ -119,6 +130,29 @@ export function OpeningExperience({ type, slug, coupleNames }: OpeningExperience
               }}
             />
           </div>
+
+          {/* Personalized address (if invited guest) */}
+          {invitedGuest && (
+            <div
+              className={`absolute left-1/2 top-[15%] -translate-x-1/2 text-center px-4 transition-all duration-500 ${
+                flapOpen ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
+              }`}
+            >
+              <p className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-stone-600 mb-1">
+                Cordially Invited:
+              </p>
+              <p className="font-serif italic text-base sm:text-lg text-stone-800 leading-tight">
+                {invitedGuest.firstName} {invitedGuest.lastName}
+              </p>
+              {invitedGuest.companionCount > 0 && (
+                <p className="text-[10px] sm:text-xs text-stone-600 mt-0.5">
+                  {invitedGuest.companionCount === 1
+                    ? 'and Guest'
+                    : `Party of ${invitedGuest.companionCount + 1}`}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Wax seal button */}
           <button

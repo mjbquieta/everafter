@@ -1,13 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, CheckCircle2, XCircle } from 'lucide-react';
 import { Button, Input } from '@everafter/ui';
 import { API_URL } from '@/lib/api-client';
 
+interface InvitedGuest {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rsvpStatus: string | null;
+  companionCount: number;
+  mealPreference: string | null;
+  notes: string | null;
+}
+
 interface RsvpSectionProps {
   slug: string;
   layout?: string;
+  invitedGuest?: InvitedGuest | null;
 }
 
 type Step = 'search' | 'form' | 'confirmed';
@@ -22,7 +33,7 @@ interface GuestMatch {
   notes: string | null;
 }
 
-export function RsvpSection({ slug, layout }: RsvpSectionProps) {
+export function RsvpSection({ slug, layout, invitedGuest }: RsvpSectionProps) {
   const [step, setStep] = useState<Step>('search');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -33,6 +44,24 @@ export function RsvpSection({ slug, layout }: RsvpSectionProps) {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Auto-populate form if invited guest is provided
+  useEffect(() => {
+    if (!invitedGuest) return;
+
+    setGuest(invitedGuest);
+    setFirstName(invitedGuest.firstName);
+    setLastName(invitedGuest.lastName);
+
+    // Pre-fill form with existing RSVP data
+    if (invitedGuest.rsvpStatus === 'ACCEPTED' || invitedGuest.rsvpStatus === 'DECLINED') {
+      setRsvpStatus(invitedGuest.rsvpStatus);
+    }
+    setCompanionCount(invitedGuest.companionCount);
+    setMealPreference(invitedGuest.mealPreference ?? '');
+    setNotes(invitedGuest.notes ?? '');
+    setStep('form');
+  }, [invitedGuest]);
 
   const handleSearch = async () => {
     if (!firstName.trim() || !lastName.trim()) {
@@ -184,9 +213,26 @@ export function RsvpSection({ slug, layout }: RsvpSectionProps) {
 
         {step === 'form' && guest && (
           <div className="space-y-6 text-left">
-            <p className="text-center text-sm" style={{ color: 'var(--wedding-foreground)', opacity: 0.7 }}>
-              Hello, <span className="font-semibold">{guest.firstName} {guest.lastName}</span>!
-            </p>
+            <div className="text-center">
+              <p className="text-sm" style={{ color: 'var(--wedding-foreground)', opacity: 0.7 }}>
+                Hello, <span className="font-semibold">{guest.firstName} {guest.lastName}</span>!
+              </p>
+              {invitedGuest && (
+                <button
+                  onClick={() => {
+                    setStep('search');
+                    setGuest(null);
+                    setFirstName('');
+                    setLastName('');
+                    setError('');
+                  }}
+                  className="mt-2 text-xs underline hover:no-underline transition-all"
+                  style={{ color: 'var(--wedding-primary)', opacity: 0.7 }}
+                >
+                  Not you? Click here to find your invitation
+                </button>
+              )}
+            </div>
 
             <div className="flex gap-3">
               <button
@@ -260,19 +306,14 @@ export function RsvpSection({ slug, layout }: RsvpSectionProps) {
 
             {error && <p className="text-sm text-error text-center">{error}</p>}
 
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => { setStep('search'); setGuest(null); setError(''); }} className="flex-1">
-                Back
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="flex-1"
-                style={{ backgroundColor: 'var(--wedding-primary)', color: '#fff' }}
-              >
-                {isLoading ? 'Submitting...' : 'Submit RSVP'}
-              </Button>
-            </div>
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="w-full"
+              style={{ backgroundColor: 'var(--wedding-primary)', color: '#fff' }}
+            >
+              {isLoading ? 'Submitting...' : 'Submit RSVP'}
+            </Button>
           </div>
         )}
 

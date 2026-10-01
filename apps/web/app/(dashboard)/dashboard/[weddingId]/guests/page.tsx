@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
   LayoutGrid,
   ChevronDown,
+  UserX,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@everafter/ui';
@@ -131,7 +132,7 @@ export default function GuestsPage() {
         attending: 0,
         attendingParty: 0,
         pending: 0,
-        dietaryCount: 0,
+        declined: 0,
         unassignedTables: 0,
       };
     }
@@ -139,7 +140,7 @@ export default function GuestsPage() {
     let attending = 0;
     let attendingParty = 0;
     let pending = 0;
-    let dietaryCount = 0;
+    let declined = 0;
     let unassignedTables = 0;
 
     guests.forEach((guest) => {
@@ -148,19 +149,10 @@ export default function GuestsPage() {
       if (status === 'ACCEPTED') {
         attending++;
         attendingParty += 1 + (guest.rsvp?.companionCount || 0);
+      } else if (status === 'DECLINED') {
+        declined++;
       } else if (!status || status === 'PENDING') {
         pending++;
-      }
-
-      // Count dietary requirements
-      const hasDietary =
-        (guest.rsvp?.mealPreference && guest.rsvp.mealPreference.trim()) ||
-        (guest.mealPreference && guest.mealPreference.trim()) ||
-        (guest.rsvp?.notes && guest.rsvp.notes.trim()) ||
-        (guest.notes && guest.notes.trim());
-
-      if (hasDietary) {
-        dietaryCount++;
       }
 
       // Count unassigned tables
@@ -169,31 +161,9 @@ export default function GuestsPage() {
       }
     });
 
-    return { attending, attendingParty, pending, dietaryCount, unassignedTables };
+    return { attending, attendingParty, pending, declined, unassignedTables };
   }, [guests]);
 
-  // Dietary breakdown
-  const dietaryBreakdown = useMemo(() => {
-    if (!guests) return {};
-
-    const breakdown: Record<string, number> = {};
-
-    guests.forEach((guest) => {
-      if (guest.rsvp?.status === 'ACCEPTED') {
-        const mealPref = guest.rsvp.mealPreference || guest.mealPreference;
-        const notes = guest.rsvp.notes || guest.notes;
-
-        if (mealPref && mealPref.trim()) {
-          breakdown[mealPref] = (breakdown[mealPref] || 0) + 1;
-        }
-        if (notes && notes.trim()) {
-          breakdown['Custom Notes'] = (breakdown['Custom Notes'] || 0) + 1;
-        }
-      }
-    });
-
-    return breakdown;
-  }, [guests]);
 
   const handleOpenCreate = useCallback(() => {
     setEditingGuest(null);
@@ -318,7 +288,7 @@ export default function GuestsPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Guests & RSVP</h1>
             <p className="text-sm text-muted mt-1">
-              Manage your guest list, attendance, dietary preferences, and table seating in one place.
+              Manage your guest list, attendance, companions, and table seating in one place.
             </p>
           </div>
         </div>
@@ -341,7 +311,7 @@ export default function GuestsPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Guests & RSVP</h1>
           <p className="text-sm text-muted mt-1">
-            Manage your guest list, attendance, dietary preferences, and table seating in one place.
+            Manage your guest list, attendance, companions, and table seating in one place.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -395,7 +365,7 @@ export default function GuestsPage() {
           <div className="space-y-1">
             <p className="text-2xl font-bold text-foreground">{metrics.attending}</p>
             <p className="text-xs text-muted">
-              {metrics.attendingParty} total party heads
+              Confirmed attending ({metrics.attendingParty} total party heads)
             </p>
           </div>
         </div>
@@ -413,11 +383,12 @@ export default function GuestsPage() {
 
         <div className="bg-white rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-3">
-            <UtensilsCrossed className="h-5 w-5 text-blue-600" />
+            <UserX className="h-5 w-5 text-stone-600" />
+            <span className="h-2 w-2 rounded-full bg-stone-400" />
           </div>
           <div className="space-y-1">
-            <p className="text-2xl font-bold text-foreground">{metrics.dietaryCount}</p>
-            <p className="text-xs text-muted">Dietary requirements</p>
+            <p className="text-2xl font-bold text-foreground">{metrics.declined}</p>
+            <p className="text-xs text-muted">Declined</p>
           </div>
         </div>
 
@@ -431,29 +402,6 @@ export default function GuestsPage() {
           </div>
         </div>
       </div>
-
-      {/* Dietary Summary Strip */}
-      {Object.keys(dietaryBreakdown).length > 0 && (
-        <div className="bg-amber-50/50 rounded-lg border border-amber-200/60 p-4">
-          <div className="flex items-start gap-3">
-            <UtensilsCrossed className="h-4 w-4 text-amber-700 mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-amber-900 mb-2">Dietary Summary:</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(dietaryBreakdown).map(([label, count]) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white text-stone-700 border border-amber-200"
-                  >
-                    <span className="font-semibold">{label}:</span>
-                    <span>{count}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Unified Filters */}
       <GuestFilters

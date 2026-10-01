@@ -29,6 +29,14 @@ export class PublicController {
     return this.publicService.searchGuests(slug, firstName, lastName);
   }
 
+  @Get(':slug/guests/:guestId')
+  getGuestById(
+    @Param('slug') slug: string,
+    @Param('guestId') guestId: string,
+  ) {
+    return this.publicService.getGuestById(slug, guestId);
+  }
+
   @Post(':slug/rsvp')
   submitRsvp(
     @Param('slug') slug: string,

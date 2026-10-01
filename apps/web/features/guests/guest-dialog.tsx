@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,8 +16,9 @@ const guestSchema = z.object({
   side: z.string().optional(),
   group: z.string().optional(),
   tableNumber: z.string().optional(),
-  mealPreference: z.string().optional(),
   notes: z.string().optional(),
+  allowCompanions: z.boolean().optional(),
+  maxCompanions: z.number().min(0).max(10).optional(),
 });
 
 type GuestFormData = z.infer<typeof guestSchema>;
@@ -55,10 +56,14 @@ export function GuestDialog({
   guest,
   isSubmitting,
 }: GuestDialogProps) {
+  const [allowCompanions, setAllowCompanions] = useState(false);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<GuestFormData>({
     resolver: zodResolver(guestSchema),
@@ -70,13 +75,21 @@ export function GuestDialog({
       side: '',
       group: '',
       tableNumber: '',
-      mealPreference: '',
       notes: '',
+      allowCompanions: false,
+      maxCompanions: 1,
     },
   });
 
   useEffect(() => {
     if (open) {
+      // Determine if guest has companion allocation (we'll store in notes field as metadata for now)
+      const hasCompanions = guest?.notes?.includes('[companions:') ?? false;
+      const companionMatch = guest?.notes?.match(/\[companions:(\d+)\]/);
+      const maxCompanions = companionMatch ? parseInt(companionMatch[1]) : 1;
+
+      setAllowCompanions(hasCompanions);
+
       reset({
         firstName: guest?.firstName ?? '',
         lastName: guest?.lastName ?? '',
@@ -85,8 +98,9 @@ export function GuestDialog({
         side: guest?.side ?? '',
         group: guest?.group ?? '',
         tableNumber: guest?.tableNumber ?? '',
-        mealPreference: guest?.mealPreference ?? '',
-        notes: guest?.notes ?? '',
+        notes: guest?.notes?.replace(/\[companions:\d+\]\s*/, '') ?? '',
+        allowCompanions: hasCompanions,
+        maxCompanions: maxCompanions,
       });
     }
   }, [open, guest, reset]);
@@ -96,15 +110,21 @@ export function GuestDialog({
   const title = guest ? 'Edit Guest' : 'Add Guest';
 
   const handleFormSubmit = async (data: GuestFormData) => {
+    // Store companion limit as metadata in notes field
+    let notesWithMetadata = data.notes || '';
+    if (allowCompanions && data.maxCompanions) {
+      notesWithMetadata = `[companions:${data.maxCompanions}] ${notesWithMetadata}`.trim();
+    }
+
     const cleaned = {
-      ...data,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email || undefined,
       phone: data.phone || undefined,
       side: data.side || undefined,
       group: data.group || undefined,
       tableNumber: data.tableNumber || undefined,
-      mealPreference: data.mealPreference || undefined,
-      notes: data.notes || undefined,
+      notes: notesWithMetadata || undefined,
     };
     await onSubmit(cleaned);
   };
@@ -180,22 +200,56 @@ export function GuestDialog({
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField label="Table Number">
-              <Input
-                {...register('tableNumber')}
-                placeholder="e.g. Table 1"
-              />
-            </FormField>
-            <FormField label="Meal Preference">
-              <Input
-                {...register('mealPreference')}
-                placeholder="e.g. Vegetarian"
-              />
-            </FormField>
+          <FormField label="Table Number">
+            <Input
+              {...register('tableNumber')}
+              placeholder="e.g. Table 1"
+            />
+          </FormField>
+
+          <div className="space-y-3 rounded-lg border border-border bg-surface/50 p-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">
+                Allow companions / plus-ones?
+              </Label>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={allowCompanions}
+                onClick={() => {
+                  setAllowCompanions(!allowCompanions);
+                  if (allowCompanions) {
+                    setValue('maxCompanions', 1);
+                  }
+                }}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  allowCompanions ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    allowCompanions ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            {allowCompanions && (
+              <FormField label="Max Companions Allowed" error={errors.maxCompanions?.message}>
+                <Input
+                  {...register('maxCompanions', { valueAsNumber: true })}
+                  type="number"
+                  min={1}
+                  max={10}
+                  placeholder="e.g. 1"
+                />
+                <p className="mt-1 text-xs text-muted">
+                  Set the maximum number of companions this guest can bring.
+                </p>
+              </FormField>
+            )}
           </div>
 
-          <FormField label="Notes">
+          <FormField label="Notes or warm wishes for the couple (optional)">
             <textarea
               {...register('notes')}
               rows={2}
