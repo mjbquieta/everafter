@@ -2,10 +2,20 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { UserPlus, Users } from 'lucide-react';
+import {
+  UserPlus,
+  Users,
+  UserCheck,
+  Clock,
+  Download,
+  Upload,
+  UtensilsCrossed,
+  LayoutGrid,
+  ChevronDown,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@everafter/ui';
-import type { GuestResponse, CreateGuestRequest, UpdateGuestRequest } from '@everafter/types';
+import type { GuestResponse, CreateGuestRequest, UpdateGuestRequest, RSVPStatus } from '@everafter/types';
 import {
   useGuests,
   useGuestSummary,
@@ -14,25 +24,28 @@ import {
   useDeleteGuest,
   type GuestQueryParams,
 } from '@/lib/hooks/use-guests';
+import { useSubmitRsvp } from '@/lib/hooks/use-rsvp';
+import { useWeddingContext } from '@/lib/wedding-context';
 import {
   GuestTable,
   GuestFilters,
   GuestDialog,
   DeleteDialog,
   GuestTableSkeleton,
-  GuestSummaryStrip,
 } from '@/features/guests';
 import { ImportDialog } from '@/features/guests/import-dialog';
 
 export default function GuestsPage() {
   const params = useParams<{ weddingId: string }>();
   const weddingId = params.weddingId;
+  const { activeWedding } = useWeddingContext();
 
-  // Filter state
+  // Unified filter state
   const [search, setSearch] = useState('');
   const [rsvpStatus, setRsvpStatus] = useState('');
   const [side, setSide] = useState('');
   const [group, setGroup] = useState('');
+  const [tableFilter, setTableFilter] = useState('');
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -57,20 +70,38 @@ export default function GuestsPage() {
   const createGuest = useCreateGuest(weddingId);
   const updateGuest = useUpdateGuest(weddingId);
   const deleteGuest = useDeleteGuest(weddingId);
+  const submitRsvp = useSubmitRsvp(weddingId);
 
-  // Client-side search filter
+  // Unified filter logic
   const filteredGuests = useMemo(() => {
     if (!guests) return [];
-    if (!search) return guests;
-    const q = search.toLowerCase();
-    return guests.filter(
-      (g) =>
-        `${g.firstName} ${g.lastName}`.toLowerCase().includes(q) ||
-        (g.email && g.email.toLowerCase().includes(q)),
-    );
-  }, [guests, search]);
 
-  // Extract unique groups for filter dropdown
+    let filtered = guests;
+
+    // Search by name, email, or phone
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(
+        (g) =>
+          `${g.firstName} ${g.lastName}`.toLowerCase().includes(q) ||
+          (g.email && g.email.toLowerCase().includes(q)) ||
+          (g.phone && g.phone.toLowerCase().includes(q))
+      );
+    }
+
+    // Filter by table assignment
+    if (tableFilter) {
+      if (tableFilter === 'unassigned') {
+        filtered = filtered.filter((g) => !g.tableNumber || !g.tableNumber.trim());
+      } else {
+        filtered = filtered.filter((g) => g.tableNumber === tableFilter);
+      }
+    }
+
+    return filtered;
+  }, [guests, search, tableFilter]);
+
+  // Extract unique values for filters
   const groups = useMemo(() => {
     if (!guests) return [];
     const set = new Set<string>();
@@ -78,6 +109,90 @@ export default function GuestsPage() {
       if (g.group) set.add(g.group);
     });
     return Array.from(set).sort();
+  }, [guests]);
+
+  const tables = useMemo(() => {
+    if (!guests) return [];
+    const set = new Set<string>();
+    guests.forEach((g) => {
+      if (g.tableNumber) set.add(g.tableNumber);
+    });
+    return Array.from(set).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+  }, [guests]);
+
+  // Unified metrics
+  const metrics = useMemo(() => {
+    if (!guests) {
+      return {
+        attending: 0,
+        attendingParty: 0,
+        pending: 0,
+        dietaryCount: 0,
+        unassignedTables: 0,
+      };
+    }
+
+    let attending = 0;
+    let attendingParty = 0;
+    let pending = 0;
+    let dietaryCount = 0;
+    let unassignedTables = 0;
+
+    guests.forEach((guest) => {
+      const status = guest.rsvp?.status;
+
+      if (status === 'ACCEPTED') {
+        attending++;
+        attendingParty += 1 + (guest.rsvp?.companionCount || 0);
+      } else if (!status || status === 'PENDING') {
+        pending++;
+      }
+
+      // Count dietary requirements
+      const hasDietary =
+        (guest.rsvp?.mealPreference && guest.rsvp.mealPreference.trim()) ||
+        (guest.mealPreference && guest.mealPreference.trim()) ||
+        (guest.rsvp?.notes && guest.rsvp.notes.trim()) ||
+        (guest.notes && guest.notes.trim());
+
+      if (hasDietary) {
+        dietaryCount++;
+      }
+
+      // Count unassigned tables
+      if (!guest.tableNumber || !guest.tableNumber.trim()) {
+        unassignedTables++;
+      }
+    });
+
+    return { attending, attendingParty, pending, dietaryCount, unassignedTables };
+  }, [guests]);
+
+  // Dietary breakdown
+  const dietaryBreakdown = useMemo(() => {
+    if (!guests) return {};
+
+    const breakdown: Record<string, number> = {};
+
+    guests.forEach((guest) => {
+      if (guest.rsvp?.status === 'ACCEPTED') {
+        const mealPref = guest.rsvp.mealPreference || guest.mealPreference;
+        const notes = guest.rsvp.notes || guest.notes;
+
+        if (mealPref && mealPref.trim()) {
+          breakdown[mealPref] = (breakdown[mealPref] || 0) + 1;
+        }
+        if (notes && notes.trim()) {
+          breakdown['Custom Notes'] = (breakdown['Custom Notes'] || 0) + 1;
+        }
+      }
+    });
+
+    return breakdown;
   }, [guests]);
 
   const handleOpenCreate = useCallback(() => {
@@ -121,81 +236,279 @@ export default function GuestsPage() {
     setDeleteTarget(null);
   }, [deleteTarget, deleteGuest]);
 
+  const handleStatusToggle = useCallback(
+    async (guest: GuestResponse, newStatus: RSVPStatus) => {
+      try {
+        await submitRsvp.mutateAsync({
+          guestId: guest.id,
+          data: { status: newStatus },
+        });
+        toast.success(`Updated ${guest.firstName}'s status to ${newStatus}`);
+      } catch {
+        toast.error('Failed to update RSVP status');
+      }
+    },
+    [submitRsvp]
+  );
+
+  const handleExportFullList = useCallback(() => {
+    if (!guests) return;
+
+    const csvHeader = 'Name,Email,Phone,Side,Group,Table,RSVP Status,Party Size,Meal Preference,Notes\n';
+    const csvRows = guests
+      .map((g) => {
+        const name = `${g.firstName} ${g.lastName}`;
+        const email = g.email || '';
+        const phone = g.phone || '';
+        const side = g.side || '';
+        const group = g.group || '';
+        const table = g.tableNumber || 'Unassigned';
+        const status = g.rsvp?.status || 'PENDING';
+        const partySize = g.rsvp ? 1 + (g.rsvp.companionCount || 0) : 1;
+        const meal = g.rsvp?.mealPreference || g.mealPreference || '';
+        const notes = (g.rsvp?.notes || g.notes || '').replace(/,/g, ';');
+        return `"${name}","${email}","${phone}","${side}","${group}","${table}","${status}",${partySize},"${meal}","${notes}"`;
+      })
+      .join('\n');
+
+    const csv = csvHeader + csvRows;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `guest-list-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success('Guest list exported');
+  }, [guests]);
+
+  const handleExportCatering = useCallback(() => {
+    if (!guests) return;
+
+    const attendingGuests = guests.filter((g) => g.rsvp?.status === 'ACCEPTED');
+
+    const csvHeader = 'Name,Party Size,Meal Preference,Dietary Notes\n';
+    const csvRows = attendingGuests
+      .map((g) => {
+        const name = `${g.firstName} ${g.lastName}`;
+        const partySize = 1 + (g.rsvp?.companionCount || 0);
+        const meal = g.rsvp?.mealPreference || g.mealPreference || '';
+        const notes = (g.rsvp?.notes || g.notes || '').replace(/,/g, ';');
+        return `"${name}",${partySize},"${meal}","${notes}"`;
+      })
+      .join('\n');
+
+    const csv = csvHeader + csvRows;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `catering-manifest-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success('Catering manifest exported');
+  }, [guests]);
+
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Guests</h1>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Guests & RSVP</h1>
+            <p className="text-sm text-muted mt-1">
+              Manage your guest list, attendance, dietary preferences, and table seating in one place.
+            </p>
+          </div>
         </div>
-        <GuestSummaryStrip isLoading />
-        <div className="mt-6">
-          <GuestTableSkeleton />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-border p-5 animate-pulse">
+              <div className="h-20" />
+            </div>
+          ))}
         </div>
+        <GuestTableSkeleton />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Guests</h1>
-        <Button size="sm" onClick={handleOpenCreate}>
-          <UserPlus className="h-4 w-4 mr-1.5" />
-          Add Guest
-        </Button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Guests & RSVP</h1>
+          <p className="text-sm text-muted mt-1">
+            Manage your guest list, attendance, dietary preferences, and table seating in one place.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative group">
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+              <ChevronDown className="h-3 w-3 ml-1" />
+            </Button>
+            <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+              <button
+                onClick={handleExportFullList}
+                className="w-full px-4 py-2.5 text-left text-sm hover:bg-stone-50 transition-colors flex items-center gap-2"
+              >
+                <Download className="h-4 w-4 text-muted" />
+                <div>
+                  <p className="font-medium text-foreground">Export Full List</p>
+                  <p className="text-xs text-muted">All guests with details</p>
+                </div>
+              </button>
+              <button
+                onClick={handleExportCatering}
+                className="w-full px-4 py-2.5 text-left text-sm hover:bg-stone-50 transition-colors flex items-center gap-2 border-t border-border"
+              >
+                <UtensilsCrossed className="h-4 w-4 text-muted" />
+                <div>
+                  <p className="font-medium text-foreground">Export Catering Manifest</p>
+                  <p className="text-xs text-muted">Attending guests only</p>
+                </div>
+              </button>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import CSV
+          </Button>
+          <Button size="sm" onClick={handleOpenCreate}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Guest
+          </Button>
+        </div>
       </div>
 
-      <GuestSummaryStrip guests={guests} isLoading={false} />
+      {/* Unified 4-Card Metric Header */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <UserCheck className="h-5 w-5 text-emerald-600" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl font-bold text-foreground">{metrics.attending}</p>
+            <p className="text-xs text-muted">
+              {metrics.attendingParty} total party heads
+            </p>
+          </div>
+        </div>
 
-      <div className="space-y-6 mt-6">
-        <GuestFilters
-          search={search}
-          onSearchChange={setSearch}
-          rsvpStatus={rsvpStatus}
-          onRsvpStatusChange={setRsvpStatus}
-          side={side}
-          onSideChange={setSide}
-          group={group}
-          onGroupChange={setGroup}
-          groups={groups}
-          summary={summary}
-          guests={filteredGuests}
-          slug={weddingId}
-          onImportClick={() => setImportOpen(true)}
-        />
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <Clock className="h-5 w-5 text-amber-600" />
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl font-bold text-foreground">{metrics.pending}</p>
+            <p className="text-xs text-muted">Awaiting response</p>
+          </div>
+        </div>
 
-        {filteredGuests.length === 0 ? (
-          guests?.length === 0 && !search && !rsvpStatus && !side && !group ? (
-            <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 py-16 px-6 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 mb-5">
-                <Users className="h-7 w-7 text-stone-400" />
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <UtensilsCrossed className="h-5 w-5 text-blue-600" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl font-bold text-foreground">{metrics.dietaryCount}</p>
+            <p className="text-xs text-muted">Dietary requirements</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <LayoutGrid className="h-5 w-5 text-stone-600" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-2xl font-bold text-foreground">{metrics.unassignedTables}</p>
+            <p className="text-xs text-muted">Unassigned seating</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Dietary Summary Strip */}
+      {Object.keys(dietaryBreakdown).length > 0 && (
+        <div className="bg-amber-50/50 rounded-lg border border-amber-200/60 p-4">
+          <div className="flex items-start gap-3">
+            <UtensilsCrossed className="h-4 w-4 text-amber-700 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-amber-900 mb-2">Dietary Summary:</p>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(dietaryBreakdown).map(([label, count]) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-white text-stone-700 border border-amber-200"
+                  >
+                    <span className="font-semibold">{label}:</span>
+                    <span>{count}</span>
+                  </span>
+                ))}
               </div>
-              <h3 className="font-serif text-xl text-stone-900">No guests yet</h3>
-              <p className="mt-2 text-sm text-stone-500 max-w-sm">
-                Start building your guest list with the people you want to celebrate with.
-              </p>
-              <Button size="sm" className="mt-5" onClick={handleOpenCreate}>
-                <UserPlus className="h-4 w-4 mr-1.5" />
-                Add First Guest
-              </Button>
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface py-12 px-6 text-center">
-              <p className="text-sm text-muted">No guests match your filters.</p>
-              <p className="mt-1 text-xs text-muted">
-                Try adjusting your search or filters to find who you&#39;re looking for.
-              </p>
+          </div>
+        </div>
+      )}
+
+      {/* Unified Filters */}
+      <GuestFilters
+        search={search}
+        onSearchChange={setSearch}
+        rsvpStatus={rsvpStatus}
+        onRsvpStatusChange={setRsvpStatus}
+        side={side}
+        onSideChange={setSide}
+        group={group}
+        onGroupChange={setGroup}
+        groups={groups}
+        summary={summary}
+        guests={filteredGuests}
+        slug={activeWedding?.slug}
+        onImportClick={() => setImportOpen(true)}
+        tableFilter={tableFilter}
+        onTableFilterChange={setTableFilter}
+        tables={tables}
+      />
+
+      {/* Unified Master Table */}
+      {filteredGuests.length === 0 ? (
+        guests?.length === 0 && !search && !rsvpStatus && !side && !group && !tableFilter ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-300 bg-white/50 py-16 px-6 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 mb-5">
+              <Users className="h-7 w-7 text-stone-400" />
             </div>
-          )
+            <h3 className="font-serif text-xl text-stone-900">No guests yet</h3>
+            <p className="mt-2 text-sm text-stone-500 max-w-sm">
+              Start building your guest list with the people you want to celebrate with.
+            </p>
+            <Button size="sm" className="mt-5" onClick={handleOpenCreate}>
+              <UserPlus className="h-4 w-4 mr-1.5" />
+              Add First Guest
+            </Button>
+          </div>
         ) : (
-          <GuestTable
-            guests={filteredGuests}
-            onEdit={handleOpenEdit}
-            onDelete={setDeleteTarget}
-            slug={weddingId}
-          />
-        )}
-      </div>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-surface py-12 px-6 text-center">
+            <p className="text-sm text-muted">No guests match your filters.</p>
+            <p className="mt-1 text-xs text-muted">
+              Try adjusting your search or filters to find who you&#39;re looking for.
+            </p>
+          </div>
+        )
+      ) : (
+        <GuestTable
+          guests={filteredGuests}
+          onEdit={handleOpenEdit}
+          onDelete={setDeleteTarget}
+          onStatusToggle={handleStatusToggle}
+          slug={activeWedding?.slug}
+          isUpdatingRsvp={submitRsvp.isPending}
+        />
+      )}
 
       <GuestDialog
         open={dialogOpen}

@@ -50,6 +50,7 @@ export default function WebsiteBuilderPage() {
   // Local state for optimistic preview updates
   const [localSettings, setLocalSettings] = useState<{
     theme: string;
+    backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;
@@ -85,8 +86,23 @@ export default function WebsiteBuilderPage() {
       const openingTransition = (sectionsData?._openingTransition as string) ?? 'none';
       const heroTextColor = (sectionsData?._heroTextColor as string) ?? (settings.heroBanner ? 'light' : 'dark');
 
+      // Map theme to default background color
+      const themeBackgroundMap: Record<string, string> = {
+        'warm-linen': '#F9F6F0',
+        'moody-plum': '#F5F2F7',
+        'dusty-rose': '#FAF0F2',
+        'coastal-slate': '#EDF3F7',
+        'midnight-editorial': '#0F1015',
+        // Legacy themes
+        'classic-ivory': '#FAF8F5',
+        'minimal-sage': '#EEF3EE',
+        'romantic-blush': '#FBF0F1',
+        'midnight-gold': '#0E1015',
+      };
+
       setLocalSettings({
         theme: settings.theme,
+        backgroundColor: themeBackgroundMap[settings.theme] ?? '#FAF9F7',
         primaryColor: settings.primaryColor,
         secondaryColor: settings.secondaryColor,
         font: settings.font,
@@ -120,6 +136,7 @@ export default function WebsiteBuilderPage() {
     (
       theme: string,
       settings: {
+        backgroundColor: string;
         primaryColor: string;
         secondaryColor: string;
         font: string;
@@ -133,11 +150,36 @@ export default function WebsiteBuilderPage() {
     ) => {
       setLocalSettings((prev) => {
         if (!prev) return null;
-        const newSettings = { ...prev, theme, ...settings };
+
+        // CRITICAL: Preserve user's uploaded hero banner
+        // Only apply template's heroBanner if user hasn't uploaded their own
+        const preservedHeroBanner = prev.heroBanner;
+        const shouldPreserveHeroBanner = preservedHeroBanner &&
+          !preservedHeroBanner.includes('/images/heroes/');
+
+        const newSettings = {
+          ...prev,
+          theme,
+          backgroundColor: settings.backgroundColor,
+          primaryColor: settings.primaryColor,
+          secondaryColor: settings.secondaryColor,
+          font: settings.font,
+          navigationStyle: settings.navigationStyle,
+          dividerStyle: settings.dividerStyle,
+          dividerSize: settings.dividerSize,
+          layout: settings.layout,
+          // Preserve user's uploaded banner, or use template default
+          heroBanner: shouldPreserveHeroBanner ? preservedHeroBanner : settings.heroBanner,
+        };
+
         // Apply heroTextColor from template if provided
         if (settings.heroTextColor) {
           newSettings.heroTextColor = settings.heroTextColor;
+        } else {
+          // Default to 'dark' for light backgrounds, 'light' for dark backgrounds
+          newSettings.heroTextColor = settings.backgroundColor === '#0F1015' ? 'light' : 'dark';
         }
+
         return newSettings;
       });
       setHasUnsavedChanges(true);
@@ -246,7 +288,7 @@ export default function WebsiteBuilderPage() {
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
+      const { openingTransition, heroTextColor, backgroundColor, ...settingsToSave } = localSettings;
       await updateSettings.mutateAsync({
         ...settingsToSave,
         sections: {
@@ -287,7 +329,7 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
+        const { openingTransition, heroTextColor, backgroundColor, ...settingsToSave } = localSettings;
         await updateSettings.mutateAsync({
           ...settingsToSave,
           sections: {

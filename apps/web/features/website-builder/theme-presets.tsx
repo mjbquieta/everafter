@@ -1,6 +1,7 @@
 'use client';
 
 interface TemplateSettings {
+  backgroundColor: string;
   primaryColor: string;
   secondaryColor: string;
   font: string;
@@ -17,19 +18,28 @@ interface TemplatePresetsProps {
   onChange: (theme: string, settings: TemplateSettings) => void;
 }
 
-const presets: (TemplateSettings & {
+const presets: {
   id: string;
   label: string;
   backgroundColor: string;
   palette: string[];
-})[] = [
+  primaryColor: string;
+  secondaryColor: string;
+  font: string;
+  heroBanner: string;
+  navigationStyle: string;
+  dividerStyle: string;
+  dividerSize: string;
+  layout: string;
+  heroTextColor?: string;
+}[] = [
   {
-    id: 'classic-ivory',
-    label: 'Classic Ivory',
-    backgroundColor: '#FAF9F7',
-    palette: ['#FFFFFF', '#8B4A52', '#D4A373', '#C5A059'],
-    primaryColor: '#8B4A52',
-    secondaryColor: '#D4A373',
+    id: 'warm-linen',
+    label: 'Warm Linen',
+    backgroundColor: '#F9F6F0',
+    palette: ['#F9F6F0', '#8C7355', '#C2A67E', '#E8DCC8'],
+    primaryColor: '#8C7355',
+    secondaryColor: '#C2A67E',
     font: 'Playfair',
     heroBanner: '/images/heroes/hero-1.jpeg',
     navigationStyle: 'center',
@@ -38,26 +48,26 @@ const presets: (TemplateSettings & {
     layout: 'classic',
   },
   {
-    id: 'minimal-sage',
-    label: 'Minimal Sage',
-    backgroundColor: '#F4F7F5',
-    palette: ['#FFFFFF', '#3E5641', '#8FA89B', '#6B8E23'],
-    primaryColor: '#3E5641',
-    secondaryColor: '#8FA89B',
-    font: 'Lora',
+    id: 'moody-plum',
+    label: 'Moody Plum',
+    backgroundColor: '#F5F2F7',
+    palette: ['#F5F2F7', '#4A2E4B', '#9B7E9F', '#D4C5D6'],
+    primaryColor: '#4A2E4B',
+    secondaryColor: '#9B7E9F',
+    font: 'Playfair',
     heroBanner: '/images/heroes/hero-2.jpeg',
     navigationStyle: 'center',
-    dividerStyle: 'minimal',
-    dividerSize: 'small',
+    dividerStyle: 'ornate',
+    dividerSize: 'medium',
     layout: 'classic',
   },
   {
-    id: 'romantic-blush',
-    label: 'Romantic Blush',
-    backgroundColor: '#FAF4F4',
-    palette: ['#FFFFFF', '#A25862', '#E8C5C8', '#C47C85'],
-    primaryColor: '#A25862',
-    secondaryColor: '#E8C5C8',
+    id: 'dusty-rose',
+    label: 'Dusty Rose',
+    backgroundColor: '#FAF0F2',
+    palette: ['#FAF0F2', '#9E4759', '#D99BA5', '#F2D5DA'],
+    primaryColor: '#9E4759',
+    secondaryColor: '#D99BA5',
     font: 'Playfair',
     heroBanner: '/images/heroes/hero-4.jpeg',
     navigationStyle: 'center',
@@ -66,12 +76,26 @@ const presets: (TemplateSettings & {
     layout: 'classic',
   },
   {
-    id: 'midnight-gold',
-    label: 'Midnight Gold',
-    backgroundColor: '#0E1015',
-    palette: ['#0E1015', '#1F2232', '#2C3048', '#D4AF37'],
-    primaryColor: '#D4AF37',
-    secondaryColor: '#2C3048',
+    id: 'coastal-slate',
+    label: 'Coastal Slate',
+    backgroundColor: '#EDF3F7',
+    palette: ['#EDF3F7', '#2C4251', '#71899C', '#C5D4DD'],
+    primaryColor: '#2C4251',
+    secondaryColor: '#71899C',
+    font: 'Lora',
+    heroBanner: '/images/heroes/hero-5.jpeg',
+    navigationStyle: 'center',
+    dividerStyle: 'minimal',
+    dividerSize: 'small',
+    layout: 'classic',
+  },
+  {
+    id: 'midnight-editorial',
+    label: 'Midnight Editorial',
+    backgroundColor: '#0F1015',
+    palette: ['#0F1015', '#FFFFFF', '#D4AF37', '#8B7355'],
+    primaryColor: '#FFFFFF',
+    secondaryColor: '#D4AF37',
     font: 'Playfair',
     heroBanner: '/images/heroes/hero-3.jpeg',
     navigationStyle: 'center',
@@ -93,7 +117,7 @@ export function TemplatePresets({ activeTheme, onChange }: TemplatePresetsProps)
           <button
             key={preset.id}
             onClick={() => {
-              const { id: _, label: __, backgroundColor: ___, palette: ____, ...settings } = preset;
+              const { id: _, label: __, palette: ___, ...settings } = preset;
               onChange(preset.id, settings);
             }}
             className={`rounded-xl border-2 overflow-hidden text-left transition-all ${
@@ -111,7 +135,7 @@ export function TemplatePresets({ activeTheme, onChange }: TemplatePresetsProps)
               <p
                 className="font-serif text-[11px] font-medium tracking-tight text-center mb-2"
                 style={{
-                  color: preset.id === 'midnight-gold' ? '#F0E8D8' : '#2B2726'
+                  color: preset.id === 'midnight-editorial' ? '#F5F3EF' : '#2B2726'
                 }}
               >
                 Milagros & Roberto

@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Globe,
   Users,
-  Mail,
   DollarSign,
   CheckSquare,
   Image,
@@ -21,8 +20,7 @@ import { useChecklistItems } from '@/lib/hooks/use-dashboard';
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '' },
   { label: 'Wedding Website', icon: Globe, path: '/website' },
-  { label: 'Guests', icon: Users, path: '/guests' },
-  { label: 'RSVP', icon: Mail, path: '/rsvp' },
+  { label: 'Guests & RSVP', icon: Users, path: '/guests' },
   { label: 'Budget', icon: DollarSign, path: '/budget' },
   { label: 'Checklist', icon: CheckSquare, path: '/checklist' },
   { label: 'Gallery', icon: Image, path: '/gallery' },

@@ -1,51 +1,86 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { MoreHorizontal, Pencil, Trash2, UtensilsCrossed, Link2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, UtensilsCrossed, Link2, Check, X, Clock } from 'lucide-react';
 import { toast } from 'sonner';
-import type { GuestResponse } from '@everafter/types';
+import type { GuestResponse, RSVPStatus } from '@everafter/types';
 
 interface GuestTableProps {
   guests: GuestResponse[];
   onEdit: (guest: GuestResponse) => void;
   onDelete: (guest: GuestResponse) => void;
+  onStatusToggle: (guest: GuestResponse, status: RSVPStatus) => void;
+  isUpdatingRsvp: boolean;
   slug?: string;
 }
 
-const rsvpConfig: Record<string, { label: string; className: string }> = {
-  ACCEPTED: { label: 'Accepted', className: 'bg-success/10 text-success' },
-  DECLINED: { label: 'Declined', className: 'bg-error/10 text-error' },
-  PENDING: { label: 'Pending', className: 'bg-warning/10 text-warning' },
-};
+function RsvpStatusCell({
+  guest,
+  onStatusToggle,
+  isUpdating,
+}: {
+  guest: GuestResponse;
+  onStatusToggle: (status: RSVPStatus) => void;
+  isUpdating: boolean;
+}) {
+  const status = guest.rsvp?.status || 'PENDING';
 
-function RsvpBadge({ status }: { status: string }) {
-  const cfg = rsvpConfig[status] ?? { label: 'No RSVP', className: 'bg-border/40 text-muted' };
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${cfg.className}`}
-    >
-      {cfg.label}
-    </span>
+    <div className="flex items-center gap-2">
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+          status === 'ACCEPTED'
+            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+            : status === 'DECLINED'
+              ? 'bg-stone-100 text-stone-600 border border-stone-200'
+              : 'bg-amber-50 text-amber-700 border border-amber-200'
+        }`}
+      >
+        {status === 'ACCEPTED' ? (
+          <Check className="h-3 w-3" />
+        ) : status === 'DECLINED' ? (
+          <X className="h-3 w-3" />
+        ) : (
+          <Clock className="h-3 w-3" />
+        )}
+        {status === 'ACCEPTED' ? 'Attending' : status.charAt(0) + status.slice(1).toLowerCase()}
+      </span>
+      <div className="flex items-center gap-0.5">
+        {status !== 'ACCEPTED' && (
+          <button
+            onClick={() => onStatusToggle('ACCEPTED')}
+            disabled={isUpdating}
+            className="p-1 rounded hover:bg-emerald-50 text-emerald-600 transition-colors disabled:opacity-50"
+            title="Mark as Attending"
+          >
+            <Check className="h-3.5 w-3.5" />
+          </button>
+        )}
+        {status !== 'DECLINED' && (
+          <button
+            onClick={() => onStatusToggle('DECLINED')}
+            disabled={isUpdating}
+            className="p-1 rounded hover:bg-stone-100 text-stone-600 transition-colors disabled:opacity-50"
+            title="Mark as Declined"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+        {status !== 'PENDING' && (
+          <button
+            onClick={() => onStatusToggle('PENDING')}
+            disabled={isUpdating}
+            className="p-1 rounded hover:bg-amber-50 text-amber-600 transition-colors disabled:opacity-50"
+            title="Mark as Pending"
+          >
+            <Clock className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
-function SideBadge({ side }: { side: string | null }) {
-  if (!side) return <span className="text-muted">—</span>;
-  return (
-    <span className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-foreground">
-      {side}
-    </span>
-  );
-}
-
-function GroupBadge({ group }: { group: string | null }) {
-  if (!group) return <span className="text-muted">—</span>;
-  return (
-    <span className="inline-flex items-center rounded-full bg-primary/8 px-2 py-0.5 text-[11px] font-medium text-primary">
-      {group}
-    </span>
-  );
-}
 
 function ActionsMenu({
   guest,
@@ -134,10 +169,10 @@ function ActionsMenu({
   );
 }
 
-export function GuestTable({ guests, onEdit, onDelete, slug }: GuestTableProps) {
-  const handleCopyLink = async (guestId: string) => {
+export function GuestTable({ guests, onEdit, onDelete, onStatusToggle, isUpdatingRsvp, slug }: GuestTableProps) {
+  const handleCopyLink = async () => {
     if (!slug) return;
-    const url = `${window.location.origin}/${slug}?guest=${guestId}`;
+    const url = `${window.location.origin}/${slug}#rsvp`;
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
@@ -161,142 +196,211 @@ export function GuestTable({ guests, onEdit, onDelete, slug }: GuestTableProps) 
   return (
     <>
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto rounded-lg border border-border">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-border bg-white">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-background">
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Name
+            <tr className="border-b border-border bg-stone-50">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                Guest & Contact
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Contact
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                Side & Group
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Side
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Group
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
                 Table
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                RSVP
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                Party Size
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Companions
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                RSVP Status
               </th>
-              <th className="px-4 py-3 text-left font-medium text-muted">
-                Meal
+              <th className="px-4 py-3 text-left text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                Meal / Dietary
               </th>
-              <th className="px-4 py-3 text-right font-medium text-muted">
-                <span className="sr-only">Actions</span>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                Actions
               </th>
             </tr>
           </thead>
-          <tbody>
-            {guests.map((guest) => (
-              <tr
-                key={guest.id}
-                className="border-b border-border last:border-0 hover:bg-primary/[0.02] transition-colors"
-              >
-                <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
-                  {guest.firstName} {guest.lastName}
-                </td>
-                <td className="px-4 py-3 text-muted">
-                  <div className="space-y-0.5">
+          <tbody className="divide-y divide-border">
+            {guests.map((guest) => {
+              const partySize = guest.rsvp ? 1 + (guest.rsvp.companionCount || 0) : 1;
+              const mealInfo = guest.rsvp?.mealPreference || guest.mealPreference;
+              const dietaryNotes = guest.rsvp?.notes || guest.notes;
+              const displayMeal = mealInfo || dietaryNotes;
+
+              return (
+                <tr
+                  key={guest.id}
+                  className="hover:bg-stone-50 transition-colors"
+                >
+                  <td className="px-4 py-3">
+                    <p className="font-medium text-foreground whitespace-nowrap">
+                      {guest.firstName} {guest.lastName}
+                    </p>
                     {guest.email && (
-                      <p className="truncate max-w-[180px]">{guest.email}</p>
+                      <p className="text-xs text-muted mt-0.5 truncate max-w-[200px]">
+                        {guest.email}
+                      </p>
                     )}
-                    {guest.phone && <p>{guest.phone}</p>}
-                    {!guest.email && !guest.phone && '—'}
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <SideBadge side={guest.side} />
-                </td>
-                <td className="px-4 py-3">
-                  <GroupBadge group={guest.group} />
-                </td>
-                <td className="px-4 py-3 text-muted">
-                  {guest.tableNumber ?? '—'}
-                </td>
-                <td className="px-4 py-3">
-                  <RsvpBadge status={guest.rsvp?.status ?? 'NO_RSVP'} />
-                </td>
-                <td className="px-4 py-3 text-muted">
-                  {guest.rsvp ? guest.rsvp.companionCount : '—'}
-                </td>
-                <td className="px-4 py-3">
-                  {guest.mealPreference ? (
-                    <span
-                      className="inline-flex items-center gap-1 text-xs text-muted"
-                      title={guest.mealPreference}
-                    >
-                      <UtensilsCrossed className="h-3.5 w-3.5" />
-                      <span className="truncate max-w-[80px]">
-                        {guest.mealPreference}
+                    {guest.phone && (
+                      <p className="text-xs text-muted mt-0.5">{guest.phone}</p>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col gap-1">
+                      {guest.side && (
+                        <span className="text-sm text-foreground">{guest.side}</span>
+                      )}
+                      {guest.group && (
+                        <span className="text-xs text-muted">· {guest.group}</span>
+                      )}
+                      {!guest.side && !guest.group && <span className="text-muted">—</span>}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {guest.tableNumber ? (
+                      <span className="inline-flex items-center rounded-md border border-border bg-stone-50 px-2 py-1 text-xs font-medium text-foreground">
+                        {guest.tableNumber}
                       </span>
-                    </span>
-                  ) : (
-                    <span className="text-muted">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <ActionsMenu
-                    guest={guest}
-                    onEdit={() => onEdit(guest)}
-                    onDelete={() => onDelete(guest)}
-                    onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
-                  />
-                </td>
-              </tr>
-            ))}
+                    ) : (
+                      <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+                        Unassigned
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm text-foreground">{partySize}</span>
+                    {guest.rsvp && guest.rsvp.companionCount > 0 && (
+                      <span className="text-xs text-muted ml-1">
+                        (+{guest.rsvp.companionCount})
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <RsvpStatusCell
+                      guest={guest}
+                      onStatusToggle={(status) => onStatusToggle(guest, status)}
+                      isUpdating={isUpdatingRsvp}
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    {displayMeal ? (
+                      <div className="max-w-xs">
+                        {mealInfo && (
+                          <p className="text-sm text-foreground truncate">{mealInfo}</p>
+                        )}
+                        {dietaryNotes && (
+                          <p className="text-xs text-muted mt-0.5 truncate" title={dietaryNotes}>
+                            {dietaryNotes}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <ActionsMenu
+                      guest={guest}
+                      onEdit={() => onEdit(guest)}
+                      onDelete={() => onDelete(guest)}
+                      onCopyLink={slug ? handleCopyLink : undefined}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
-        {guests.map((guest) => (
-          <div
-            key={guest.id}
-            className="rounded-lg border border-border bg-surface p-4"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-medium text-foreground">
-                  {guest.firstName} {guest.lastName}
-                </p>
-                {guest.email && (
-                  <p className="text-xs text-muted mt-0.5">{guest.email}</p>
+        {guests.map((guest) => {
+          const partySize = guest.rsvp ? 1 + (guest.rsvp.companionCount || 0) : 1;
+          const mealInfo = guest.rsvp?.mealPreference || guest.mealPreference;
+          const dietaryNotes = guest.rsvp?.notes || guest.notes;
+
+          return (
+            <div
+              key={guest.id}
+              className="rounded-lg border border-border bg-white p-4"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="font-medium text-foreground">
+                    {guest.firstName} {guest.lastName}
+                  </p>
+                  {guest.email && (
+                    <p className="text-xs text-muted mt-0.5">{guest.email}</p>
+                  )}
+                  {guest.phone && (
+                    <p className="text-xs text-muted mt-0.5">{guest.phone}</p>
+                  )}
+                </div>
+                <ActionsMenu
+                  guest={guest}
+                  onEdit={() => onEdit(guest)}
+                  onDelete={() => onDelete(guest)}
+                  onCopyLink={slug ? handleCopyLink : undefined}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted">Side & Group:</span>
+                  <span className="text-foreground">
+                    {guest.side || '—'}
+                    {guest.group && ` · ${guest.group}`}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted">Table:</span>
+                  {guest.tableNumber ? (
+                    <span className="inline-flex items-center rounded-md border border-border bg-stone-50 px-2 py-0.5 text-xs font-medium">
+                      {guest.tableNumber}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                      Unassigned
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted">Party Size:</span>
+                  <span className="text-foreground">
+                    {partySize}
+                    {guest.rsvp && guest.rsvp.companionCount > 0 && ` (+${guest.rsvp.companionCount})`}
+                  </span>
+                </div>
+
+                <div className="pt-2">
+                  <RsvpStatusCell
+                    guest={guest}
+                    onStatusToggle={(status) => onStatusToggle(guest, status)}
+                    isUpdating={isUpdatingRsvp}
+                  />
+                </div>
+
+                {(mealInfo || dietaryNotes) && (
+                  <div className="pt-2 border-t border-border">
+                    <p className="text-xs text-muted mb-1">Meal / Dietary:</p>
+                    {mealInfo && (
+                      <p className="text-sm text-foreground">{mealInfo}</p>
+                    )}
+                    {dietaryNotes && (
+                      <p className="text-xs text-muted mt-1">{dietaryNotes}</p>
+                    )}
+                  </div>
                 )}
               </div>
-              <ActionsMenu
-                guest={guest}
-                onEdit={() => onEdit(guest)}
-                onDelete={() => onDelete(guest)}
-                onCopyLink={slug ? () => handleCopyLink(guest.id) : undefined}
-              />
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <RsvpBadge status={guest.rsvp?.status ?? 'NO_RSVP'} />
-              <SideBadge side={guest.side} />
-              <GroupBadge group={guest.group} />
-              {guest.tableNumber && (
-                <span className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[11px] text-muted">
-                  {guest.tableNumber}
-                </span>
-              )}
-            </div>
-            {guest.rsvp && guest.rsvp.companionCount > 0 && (
-              <p className="mt-2 text-xs text-muted">
-                +{guest.rsvp.companionCount} companion
-                {guest.rsvp.companionCount > 1 ? 's' : ''}
-              </p>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

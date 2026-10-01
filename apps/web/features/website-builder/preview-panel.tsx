@@ -16,6 +16,7 @@ import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral
 interface PreviewPanelProps {
   slug: string;
   settings: {
+    backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;
@@ -90,8 +91,8 @@ export function PreviewPanel({
   const cssVars = {
     '--wedding-primary': settings.primaryColor,
     '--wedding-secondary': settings.secondaryColor,
-    '--wedding-background': '#FAF9F7',
-    '--wedding-foreground': '#2B2726',
+    '--wedding-background': settings.backgroundColor,
+    '--wedding-foreground': settings.backgroundColor === '#0F1015' ? '#F5F3EF' : '#2B2726',
     '--wedding-font': fontMap[settings.font] ?? fontMap.Inter,
   } as React.CSSProperties;
 

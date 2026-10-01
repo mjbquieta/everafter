@@ -3,14 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
-  Mail,
-  Music,
-  Palette,
-  Users,
-  Wallet,
-  CheckSquare,
   ArrowRight,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -18,97 +11,74 @@ import {
 } from 'lucide-react';
 import { Navbar } from '@/components/marketing/navbar';
 import { Footer } from '@/components/marketing/footer';
+import { AsymmetricHero } from '@/components/marketing/asymmetric-hero';
+import { EditorialStatement } from '@/components/marketing/editorial-statement';
+import { FeatureShowcaseGrid } from '@/components/marketing/feature-showcase-grid';
 
 /* ─── Theme Showcase Data ────────────────────────────────────────────────────── */
 const themes = [
   {
-    name: 'Classic Ivory',
+    name: 'Warm Linen',
     couple: 'Mark & Issa',
     date: 'December 14, 2025',
     venue: 'Manila Cathedral',
-    description: 'Timeless serif typography paired with warm ivory tones and gilded accents.',
-    primary: '#8B5E5E',
-    secondary: '#D8B4A0',
-    bg: '#FAF9F7',
+    description: 'Classic serif typography paired with warm beige canvas and earthy terracotta accents.',
+    primary: '#8C7355',
+    secondary: '#E8DCC8',
+    bg: '#F9F6F0',
     fg: '#2B2726',
-    accent: '#C9A86A',
+    accent: '#C2A67E',
   },
   {
-    name: 'Minimal Sage',
+    name: 'Moody Plum',
     couple: 'Aria & Lucas',
     date: 'March 22, 2026',
     venue: 'The Glass Garden',
-    description: 'Modern organic botanical palette with clean Swiss layouts and calm negative space.',
-    primary: '#5A7A6A',
-    secondary: '#A8C5B8',
-    bg: '#F5F7F5',
-    fg: '#1A2E22',
-    accent: '#8BAF7E',
+    description: 'Poetic editorial serif on lavender-tinged canvas with deep violet and mauve.',
+    primary: '#4A2E4B',
+    secondary: '#D4C5D6',
+    bg: '#F5F2F7',
+    fg: '#1A1A1A',
+    accent: '#9B7E9F',
   },
   {
-    name: 'Romantic Blush',
+    name: 'Dusty Rose',
     couple: 'Sofia & James',
     date: 'June 8, 2026',
     venue: 'Villa Rosa Estate',
-    description: 'Soft floral petal undertones and delicate cursive script.',
-    primary: '#B5656B',
-    secondary: '#F2D5D8',
-    bg: '#FDF6F7',
+    description: 'Romantic serif with soft italics on blush pink canvas and berry mauve highlights.',
+    primary: '#9E4759',
+    secondary: '#F2D5DA',
+    bg: '#FAF0F2',
     fg: '#3A1F22',
-    accent: '#D4919A',
+    accent: '#D99BA5',
   },
   {
-    name: 'Midnight Gold',
+    name: 'Coastal Slate',
+    couple: 'James & Clara',
+    date: 'August 18, 2026',
+    venue: 'Seaside Chapel',
+    description: 'Clean modern serif on coastal blue canvas with deep slate and soft azure tones.',
+    primary: '#2C4251',
+    secondary: '#C5D4DD',
+    bg: '#EDF3F7',
+    fg: '#1A2A33',
+    accent: '#71899C',
+  },
+  {
+    name: 'Midnight Editorial',
     couple: 'Elena & Daniel',
     date: 'October 5, 2026',
     venue: 'The Grand Ballroom',
-    description: 'Dramatic deep-charcoal canvas illuminated by luminous champagne accents.',
-    primary: '#1A1A2E',
-    secondary: '#2D2D44',
-    bg: '#0F0F1A',
-    fg: '#F0E8D8',
-    accent: '#C9A86A',
+    description: 'Dramatic obsidian charcoal canvas with crisp white typography and champagne gold accents.',
+    primary: '#FFFFFF',
+    secondary: '#D4AF37',
+    bg: '#0F1015',
+    fg: '#F5F3EF',
+    accent: '#D4AF37',
   },
 ];
 
-const features = [
-  {
-    icon: Mail,
-    title: 'Tactile Opening Experience',
-    description:
-      'Interactive wax seal and folded envelope opening animation that greets guests with tactile charm.',
-  },
-  {
-    icon: Music,
-    title: 'Ambient Ceremony Music',
-    description:
-      'Curated classical and acoustic audio presets, or custom MP3 uploads with interactive auto-play.',
-  },
-  {
-    icon: Palette,
-    title: 'Attire & Palette Guide',
-    description:
-      'Provide guests with tailored dress codes and custom-named color swatches like Dusty Blue and Rosewood.',
-  },
-  {
-    icon: Users,
-    title: 'Smart Guest & RSVP Suite',
-    description:
-      'Track party sizes, dietary restrictions, and table allocations in real-time.',
-  },
-  {
-    icon: Wallet,
-    title: 'Budget & Currency Management',
-    description:
-      'Comprehensive expense tracking with multi-currency support, including Philippine Pesos (₱).',
-  },
-  {
-    icon: CheckSquare,
-    title: 'Milestone Checklist',
-    description:
-      'Urgency badges and contextual progress tracking to keep planning calm and organized.',
-  },
-];
 
 const faqs = [
   {
@@ -308,109 +278,132 @@ function ThemeCarousel() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Theme Tabs */}
-      <div className="flex items-center justify-center gap-4 mb-12 flex-wrap">
-        {themes.map((theme, i) => (
-          <button
-            key={theme.name}
-            onClick={() => {
-              setActiveIndex(i);
-              setIsPaused(true);
-            }}
-            className={`group flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
-              activeIndex === i
-                ? 'bg-stone-900 text-white'
-                : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-400'
-            }`}
-          >
-            <span className="text-xs font-sans font-medium">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <span className="text-xs font-serif hidden sm:inline">{theme.name}</span>
-          </button>
-        ))}
-      </div>
+      {/* Asymmetric split layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 items-center">
+        {/* Left: Editorial theme information (vertically centered on desktop) */}
+        <div className="lg:col-span-5 flex flex-col justify-center space-y-8">
+          <div>
+            <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500 mb-6">
+              THEME SELECTOR
+            </p>
 
-      {/* Carousel Content */}
-      <div className="flex flex-col items-center gap-8 lg:flex-row lg:gap-16">
-        {/* Mockups */}
-        <div className="relative flex-1 max-w-2xl w-full">
-          <div className="relative transition-all duration-500 ease-out">
-            <DesktopMockup theme={activeTheme} />
-            {/* Mobile floating beside desktop */}
-            <div className="absolute -bottom-6 sm:-bottom-8 right-6 sm:right-12 z-10 transition-all duration-500">
-              <MobileMockup theme={activeTheme} />
+            {/* Theme tabs - vertical on desktop */}
+            <div className="space-y-3">
+              {themes.map((theme, i) => (
+                <button
+                  key={theme.name}
+                  onClick={() => {
+                    setActiveIndex(i);
+                    setIsPaused(true);
+                  }}
+                  className={`group w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all text-left ${
+                    activeIndex === i
+                      ? 'bg-stone-900 text-white shadow-lg'
+                      : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-400 hover:shadow-md'
+                  }`}
+                >
+                  <span className={`text-xs font-mono font-medium ${activeIndex === i ? 'text-white/60' : 'text-stone-400'}`}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-base font-serif flex-1">{theme.name}</span>
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Active theme details */}
+          <div className="transition-all duration-500 ease-out pt-6 border-t border-stone-200">
+            <h3 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4">
+              {activeTheme.name}
+            </h3>
+            <p className="text-base text-stone-600 leading-relaxed font-serif mb-6">
+              {activeTheme.description}
+            </p>
+
+            {/* Color swatches */}
+            <div className="mb-6">
+              <p className="font-mono text-[9px] tracking-wider text-stone-400 mb-3">COLOR PALETTE</p>
+              <div className="flex items-center gap-3">
+                {[
+                  { color: activeTheme.bg, label: 'Background' },
+                  { color: activeTheme.primary, label: 'Primary' },
+                  { color: activeTheme.secondary, label: 'Secondary' },
+                  { color: activeTheme.accent, label: 'Accent' }
+                ].map(({ color, label }, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1.5">
+                    <div
+                      className="h-10 w-10 rounded-full border-2 border-stone-200 shadow-sm"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                    <span className="font-mono text-[8px] text-stone-400 uppercase">{label.slice(0, 3)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-6 py-3 rounded-full text-sm font-sans font-medium transition-colors w-full sm:w-auto"
+            >
+              Use This Theme
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
 
-        {/* Theme Info */}
-        <div className="flex-shrink-0 text-center lg:text-left lg:max-w-[320px]">
-          <div className="transition-all duration-500 ease-out">
-            <h3 className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-stone-900">
-              {activeTheme.name}
-            </h3>
-            <p className="mt-3 text-base text-stone-600 leading-relaxed font-serif">
-              {activeTheme.description}
-            </p>
-            {/* Color palette */}
-            <div className="mt-4 flex items-center gap-2 justify-center lg:justify-start">
-              {[activeTheme.bg, activeTheme.primary, activeTheme.secondary, activeTheme.accent].map((color, i) => (
-                <div
+        {/* Right: Large overlapping dual-device showcase */}
+        <div className="lg:col-span-7">
+          <div className="relative">
+            {/* Desktop mockup */}
+            <div className="relative transition-all duration-500 ease-out">
+              <DesktopMockup theme={activeTheme} />
+
+              {/* Mobile mockup - overlapping at corner */}
+              <div className="absolute -bottom-8 sm:-bottom-12 -right-6 sm:-right-12 z-10 transition-all duration-500 rotate-[2deg] hover:rotate-0">
+                <MobileMockup theme={activeTheme} />
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation controls */}
+          <div className="flex items-center justify-center gap-4 mt-16 pt-8 border-t border-stone-200/60">
+            <button
+              onClick={handlePrevious}
+              className="w-11 h-11 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-all hover:shadow-md"
+              aria-label="Previous theme"
+            >
+              <ChevronLeft className="h-5 w-5 text-stone-700" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              {themes.map((_, i) => (
+                <button
                   key={i}
-                  className="h-6 w-6 rounded-full border border-stone-200"
-                  style={{ backgroundColor: color }}
-                  title={color}
+                  onClick={() => {
+                    setActiveIndex(i);
+                    setIsPaused(true);
+                  }}
+                  className={`transition-all ${
+                    activeIndex === i
+                      ? 'w-10 h-2.5 bg-stone-900'
+                      : 'w-2.5 h-2.5 bg-stone-300 hover:bg-stone-400'
+                  } rounded-full`}
+                  aria-label={`Go to theme ${i + 1}`}
                 />
               ))}
             </div>
-            {/* CTA */}
-            <div className="mt-6">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-6 py-2.5 rounded-full text-sm font-sans font-medium transition-colors"
-              >
-                Use This Theme
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+
+            <button
+              onClick={handleNext}
+              className="w-11 h-11 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-all hover:shadow-md"
+              aria-label="Next theme"
+            >
+              <ChevronRight className="h-5 w-5 text-stone-700" />
+            </button>
           </div>
         </div>
-      </div>
-
-      {/* Navigation Arrows */}
-      <div className="flex items-center justify-center gap-3 mt-10">
-        <button
-          onClick={handlePrevious}
-          className="w-10 h-10 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-colors"
-          aria-label="Previous theme"
-        >
-          <ChevronLeft className="h-5 w-5 text-stone-700" />
-        </button>
-        <div className="flex items-center gap-1.5">
-          {themes.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setActiveIndex(i);
-                setIsPaused(true);
-              }}
-              className={`transition-all ${
-                activeIndex === i
-                  ? 'w-8 h-2 bg-stone-900'
-                  : 'w-2 h-2 bg-stone-300 hover:bg-stone-400'
-              } rounded-full`}
-              aria-label={`Go to theme ${i + 1}`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={handleNext}
-          className="w-10 h-10 rounded-full border border-stone-300 hover:border-stone-900 bg-white/80 backdrop-blur-sm flex items-center justify-center transition-colors"
-          aria-label="Next theme"
-        >
-          <ChevronRight className="h-5 w-5 text-stone-700" />
-        </button>
       </div>
     </div>
   );
@@ -423,64 +416,23 @@ export default function HomePage() {
     <div className="min-h-screen" style={{ backgroundColor: '#FAF9F7' }}>
       <Navbar />
 
-      {/* ─── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('/hero-landing.jpg')" }}
-        />
+      {/* ─── Asymmetric Hero ────────────────────────────────────────────────── */}
+      <AsymmetricHero />
 
-        <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-24 md:pb-32 md:pt-36">
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="font-sans text-sm tracking-[0.25em] uppercase text-stone-500 mb-6">
-              The Modern Wedding Workspace & Invitation Suite
-            </p>
-            <h1 className="text-5xl sm:text-7xl font-serif font-normal leading-[1.1] tracking-tight text-stone-900">
-              Plan with intention. Invite with <span className="italic">elegance.</span>
-            </h1>
-            <p className="mx-auto mt-8 max-w-2xl text-lg sm:text-xl text-stone-600 leading-relaxed font-serif">
-              EverAfter unites bespoke digital wedding stationery, ambient ceremony music, and thoughtful planning tools into one refined canvas.
-            </p>
-            <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-8 py-3.5 rounded-full text-base font-sans font-medium transition-colors"
-              >
-                Begin Your Story Free
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <a
-                href="#themes"
-                className="inline-flex items-center justify-center gap-2 border border-stone-300 text-stone-700 hover:bg-stone-100 rounded-full px-8 py-3.5 text-base font-sans font-medium transition-colors"
-              >
-                Explore Stationery Themes
-                <ChevronDown className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ─── Editorial Philosophy Statement ──────────────────────────────── */}
+      <EditorialStatement />
 
-      {/* ─── Metrics Bar ──────────────────────────────────────────────────── */}
-      <div className="border-y border-stone-200/60 bg-[#FDFCFA] py-8">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <p className="text-sm sm:text-base text-stone-700 font-serif">
-            Zero Subscription Fees · 5-Minute Setup · Custom Ambient Audio & RSVP Suite
-          </p>
-        </div>
-      </div>
-
-      {/* ─── Theme Showcase ──────────────────────────────────────────────── */}
-      <section id="themes" className="py-24 md:py-32">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">
-              Curated Stationery Themes
+      {/* ─── Theme Showcase (Asymmetric Split) ───────────────────────────── */}
+      <section id="themes" className="border-t border-stone-200/60 bg-white/30 py-24 md:py-32">
+        <div className="max-w-6xl xl:max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="mb-16 max-w-2xl">
+            <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500">
+              CURATED STATIONERY THEMES
             </p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
-              Bespoke templates for every vision
+            <h2 className="mt-4 text-4xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
+              Bespoke templates for every <span className="italic">vision</span>
             </h2>
-            <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif max-w-xl mx-auto">
+            <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif">
               Each theme offers distinct editorial personality with customizable colors, typography, and layout to reflect your unique love story.
             </p>
           </div>
@@ -489,46 +441,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Features ──────────────────────────────────────────────────────── */}
-      <section id="features" className="border-t border-stone-200/60 bg-white/40 py-24 md:py-32">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">
-              Luxury Differentiators
-            </p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
-              Premium features that delight
-            </h2>
-            <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif max-w-xl mx-auto">
-              Thoughtfully designed tools that elevate your wedding planning from spreadsheets to stationery.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="group rounded-2xl border border-stone-200/80 bg-white p-8 transition-all hover:shadow-lg hover:shadow-stone-900/5 hover:border-stone-300"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 transition-colors group-hover:bg-stone-200">
-                  <feature.icon className="h-6 w-6 text-stone-700" />
-                </div>
-                <h3 className="mt-6 font-serif text-xl sm:text-2xl font-medium tracking-tight text-stone-900">{feature.title}</h3>
-                <p className="mt-3 text-base leading-relaxed text-stone-600 font-serif">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ─── Asymmetric Feature Showcase Grid ────────────────────────────── */}
+      <FeatureShowcaseGrid />
 
       {/* ─── How it Works ────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-32">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">
-              How It Works
+      <section className="border-t border-stone-200/60 py-24 md:py-32">
+        <div className="max-w-6xl xl:max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="mb-16 max-w-2xl">
+            <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500">
+              HOW IT WORKS
             </p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
+            <h2 className="mt-4 text-4xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
               Three steps to your perfect wedding
             </h2>
           </div>
@@ -551,71 +474,80 @@ export default function HomePage() {
                 description: 'Publish your wedding website, collect RSVPs, and enjoy the countdown to your big day.',
               },
             ].map(({ step, title, description }) => (
-              <div key={step} className="text-center">
-                <span className="inline-block font-serif text-5xl font-medium text-stone-300">{step}</span>
-                <h3 className="mt-4 font-serif text-xl sm:text-2xl font-medium tracking-tight text-stone-900">{title}</h3>
-                <p className="mt-3 text-base text-stone-600 leading-relaxed font-serif">{description}</p>
+              <div key={step} className="border-l-2 border-stone-200 pl-8">
+                <span className="inline-block font-mono text-sm text-stone-400 tracking-wider mb-4">{step}</span>
+                <h3 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-3">{title}</h3>
+                <p className="text-base text-stone-600 leading-relaxed font-serif">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Pricing ─────────────────────────────────────────────────────── */}
-      <section id="pricing" className="border-t border-stone-200/60 bg-white/40 py-24 md:py-32">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">
-              Pricing
-            </p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
-              Free to get started
-            </h2>
-            <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif max-w-xl mx-auto">
-              Everything you need to plan your wedding, at no cost. Premium features coming soon.
-            </p>
-          </div>
+      {/* ─── Pricing (Asymmetric Composition) ─────────────────────────────── */}
+      <section id="pricing" className="border-t border-stone-200/60 bg-white/30 py-24 md:py-32">
+        <div className="max-w-6xl xl:max-w-7xl mx-auto px-6 lg:px-8">
+          {/* Asymmetric 12-column layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            {/* Left Column: Editorial messaging (5 cols) - vertically centered */}
+            <div className="lg:col-span-5 flex flex-col justify-center space-y-6">
+              <p className="text-xs tracking-[0.25em] uppercase text-stone-400 font-sans">
+                HONEST & TRANSPARENT
+              </p>
+              <h2 className="font-serif text-3xl sm:text-4xl text-stone-900 leading-[1.2]">
+                Everything you need to celebrate, completely <span className="italic">free.</span>
+              </h2>
+              <p className="text-base sm:text-lg text-stone-600 leading-relaxed font-serif">
+                No hidden tiers, no paywalls on guest counts, and no watermarks on your love story. Enjoy unlimited guests, custom stationery, and RSVP tracking at zero cost.
+              </p>
+            </div>
 
-          <div className="mx-auto mt-14 max-w-md">
-            <div className="rounded-2xl border border-stone-200/80 bg-white p-10 shadow-sm text-center">
-              <p className="font-sans text-sm tracking-[0.2em] uppercase text-stone-500">Starter</p>
-              <p className="mt-5 font-serif text-6xl font-medium tracking-tight text-stone-900">Free</p>
-              <p className="mt-3 text-base text-stone-600 font-serif">Forever. No credit card needed.</p>
-              <div className="my-10 h-px bg-stone-100" />
-              <ul className="space-y-4 text-left text-base text-stone-700">
-                {[
-                  'Wedding dashboard & checklist',
-                  'Guest management & RSVP',
-                  'Budget & expense tracking',
-                  'Custom wedding website',
-                  'Ambient music & opening animation',
-                  'Dress code color swatches',
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-stone-100">
-                      <Check className="h-3.5 w-3.5 text-stone-700" />
-                    </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="mt-10 inline-flex h-12 w-full items-center justify-center rounded-full bg-stone-900 text-base font-medium text-white transition-colors hover:bg-stone-800"
-              >
-                Get Started Free
-              </Link>
+            {/* Right Column: Pricing ticket card (7 cols) */}
+            <div className="lg:col-span-7">
+              <div className="bg-white border border-stone-200 p-6 sm:p-8 rounded-2xl shadow-sm">
+                <div className="flex items-baseline justify-between mb-5">
+                  <p className="font-sans text-sm tracking-[0.2em] uppercase text-stone-500">Starter</p>
+                  <p className="font-serif text-5xl sm:text-6xl font-medium tracking-tight text-stone-900">Free</p>
+                </div>
+                <p className="text-base text-stone-600 font-serif mb-6">
+                  Forever. No credit card needed.
+                </p>
+                <div className="mb-6 h-px bg-stone-100" />
+                <ul className="space-y-3.5 text-base text-stone-700 mb-8">
+                  {[
+                    'Wedding dashboard & checklist',
+                    'Guest management & RSVP',
+                    'Budget & expense tracking',
+                    'Custom wedding website',
+                    'Ambient music & opening animation',
+                    'Dress code color swatches',
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-stone-100 flex-shrink-0">
+                        <Check className="h-3.5 w-3.5 text-stone-700" />
+                      </div>
+                      <span className="font-serif">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/register"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-full bg-stone-900 text-base font-medium text-white transition-colors hover:bg-stone-800 font-sans"
+                >
+                  Get Started Free
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── FAQ ───────────────────────────────────────────────────────────── */}
-      <section id="faq" className="py-24 md:py-32">
-        <div className="mx-auto max-w-3xl px-6">
-          <div className="text-center mb-16">
-            <p className="font-sans text-xs sm:text-sm tracking-[0.2em] uppercase text-stone-500">FAQ</p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
+      <section id="faq" className="border-t border-stone-200/60 py-24 md:py-32">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+          <div className="mb-16 max-w-2xl">
+            <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500">FAQ</p>
+            <h2 className="mt-4 text-4xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
               Frequently asked questions
             </h2>
           </div>
@@ -636,31 +568,33 @@ export default function HomePage() {
 
       {/* ─── Final CTA ─────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-t border-stone-200/60">
-        <div className="relative py-24 md:py-32 bg-gradient-to-b from-white/40 to-transparent">
-          <div className="mx-auto max-w-3xl px-6 text-center">
-            <p className="font-sans text-sm tracking-[0.25em] uppercase text-stone-500 mb-5">
-              Ready?
-            </p>
-            <h2 className="text-3xl sm:text-5xl font-serif font-normal tracking-tight text-stone-900">
-              Your love story deserves a beautiful beginning
-            </h2>
-            <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif">
-              Create your free wedding workspace and personalized wedding website today.
-            </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-8 py-3.5 rounded-full text-base font-sans font-medium transition-colors"
-              >
-                Start Planning Free
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center gap-2 border border-stone-300 text-stone-700 hover:bg-stone-100 rounded-full px-8 py-3.5 text-base font-sans font-medium transition-colors"
-              >
-                Sign In
-              </Link>
+        <div className="relative py-24 md:py-32 bg-gradient-to-b from-white/30 to-transparent">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            <div className="text-center">
+              <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500 mb-6">
+                READY?
+              </p>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-serif font-normal tracking-tight text-stone-900 leading-[1.1]">
+                Your love story deserves a beautiful <span className="italic">beginning</span>
+              </h2>
+              <p className="mt-8 text-base sm:text-lg text-stone-600 leading-relaxed font-serif max-w-2xl mx-auto">
+                Create your free wedding workspace and personalized wedding website today.
+              </p>
+              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white hover:bg-stone-800 px-8 py-3.5 rounded-full text-base font-sans font-medium transition-colors"
+                >
+                  Start Planning Free
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center gap-2 border border-stone-300 text-stone-700 hover:bg-stone-100 rounded-full px-8 py-3.5 text-base font-sans font-medium transition-colors"
+                >
+                  Sign In
+                </Link>
+              </div>
             </div>
           </div>
         </div>
