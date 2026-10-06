@@ -27,6 +27,9 @@ export function resolveUploadUrl(path: string | null | undefined): string | null
   if (!path) return null;
   if (path.startsWith('http')) return path;
   if (path.startsWith('/images/')) return path;
+  // For uploads, use relative URLs to avoid SSR/client hydration mismatch
+  if (path.startsWith('/uploads/')) return path;
+  if (path.startsWith('uploads/')) return `/${path}`;
   return API_URL.replace('/api/v1', '') + path;
 }
 
@@ -151,9 +154,17 @@ export async function apiUpload<T>(
   path: string,
   file: File,
   fieldName = 'file',
+  additionalFields?: Record<string, string>,
 ): Promise<T> {
   const formData = new FormData();
   formData.append(fieldName, file);
+
+  // Append additional fields if provided
+  if (additionalFields) {
+    Object.entries(additionalFields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+  }
 
   const headers: Record<string, string> = {};
 

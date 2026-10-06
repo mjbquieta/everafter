@@ -44,4 +44,9 @@ export class PublicController {
   ) {
     return this.publicService.submitRsvp(slug, dto);
   }
+
+  @Get(':slug/gallery')
+  getGalleryPhotos(@Param('slug') slug: string) {
+    return this.publicService.getGalleryPhotos(slug);
+  }
 }
