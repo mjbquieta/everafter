@@ -10,3 +10,5 @@ export { LayoutPicker } from './layout-picker';
 export { AudioSettings } from './audio-settings';
 export { OpeningTransitionPicker } from './opening-transition-picker';
 export { HeroTextColorPicker } from './hero-text-color-picker';
+export { LayoutSelector } from './layout-selector';
+export type { WebsiteLayout } from './layout-selector';

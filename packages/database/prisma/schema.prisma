@@ -154,6 +154,7 @@ model WebsiteSettings {
   id                     String  @id @default(uuid())
   weddingId              String  @unique @map("wedding_id")
   theme                  String  @default("classic")
+  backgroundColor        String  @default("#FAF9F7") @map("background_color")
   primaryColor           String  @default("#8B5E5E") @map("primary_color")
   secondaryColor         String  @default("#D8B4A0") @map("secondary_color")
   font                   String  @default("Inter")
@@ -168,6 +169,7 @@ model WebsiteSettings {
   footerText             String? @map("footer_text")
   enableBackgroundMusic  Boolean @default(false) @map("enable_background_music")
   audioUrl               String? @map("audio_url")
+  openingTransition      String  @default("none") @map("opening_transition")
 
   wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
 

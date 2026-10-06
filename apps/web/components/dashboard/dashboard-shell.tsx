@@ -6,7 +6,7 @@ import { Topbar } from './topbar';
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden print:block print:h-auto print:overflow-visible">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground print:block print:h-auto print:overflow-visible">
       <div className="print:hidden">
         <Sidebar />
       </div>

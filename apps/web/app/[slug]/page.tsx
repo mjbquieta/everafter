@@ -49,6 +49,7 @@ interface PublicWeddingData {
   };
   settings: {
     theme: string;
+    backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;

@@ -528,6 +528,7 @@ export interface PlannerClientResponse {
 
 export interface UpdateWebsiteSettingsRequest {
   theme?: string;
+  backgroundColor?: string;
   primaryColor?: string;
   secondaryColor?: string;
   font?: string;
@@ -540,12 +541,16 @@ export interface UpdateWebsiteSettingsRequest {
   animations?: boolean;
   sections?: Record<string, boolean> | null;
   footerText?: string | null;
+  enableBackgroundMusic?: boolean;
+  audioUrl?: string | null;
+  openingTransition?: string;
 }
 
 export interface WebsiteSettingsResponse {
   id: string;
   weddingId: string;
   theme: string;
+  backgroundColor: string;
   primaryColor: string;
   secondaryColor: string;
   font: string;
@@ -560,4 +565,5 @@ export interface WebsiteSettingsResponse {
   footerText: string | null;
   enableBackgroundMusic: boolean;
   audioUrl: string | null;
+  openingTransition: string;
 }

@@ -95,13 +95,20 @@ export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md ${
         mobileMenuOpen
-          ? 'bg-[#FAF9F7]'
+          ? 'shadow-sm'
           : isScrolled
-            ? 'bg-white/90 backdrop-blur-md shadow-sm'
-            : 'bg-transparent'
+            ? 'shadow-sm'
+            : ''
       }`}
+      style={{
+        backgroundColor: mobileMenuOpen
+          ? 'var(--wedding-background)'
+          : isScrolled
+            ? 'color-mix(in srgb, var(--wedding-background) 90%, transparent)'
+            : 'transparent'
+      }}
     >
       <div className={`mx-auto max-w-5xl flex items-center px-6 h-16 ${layout === 'center' ? 'justify-center' : 'justify-between'}`}>
         {layout === 'left' && (
@@ -179,12 +186,19 @@ function MobileMenu({
 
       {/* Full-screen overlay */}
       {open && (
-        <div className="fixed inset-0 z-[9999] bg-[#FAF9F7] flex flex-col">
+        <div
+          className="fixed inset-0 z-[9999] flex flex-col"
+          style={{ backgroundColor: 'var(--wedding-background)' }}
+        >
           {/* Close button */}
-          <div className="flex items-center justify-end px-6 h-16 shrink-0 border-b border-stone-200/50">
+          <div
+            className="flex items-center justify-end px-6 h-16 shrink-0"
+            style={{ borderBottom: '1px solid color-mix(in srgb, var(--wedding-foreground) 10%, transparent)' }}
+          >
             <button
               onClick={() => setOpen(false)}
-              className="p-2 text-stone-800 hover:text-stone-500 transition-colors"
+              className="p-2 transition-opacity hover:opacity-60"
+              style={{ color: 'var(--wedding-foreground)' }}
               aria-label="Close menu"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -200,9 +214,9 @@ function MobileMenu({
               <button
                 key={id}
                 onClick={() => handleNav(id)}
-                className="font-serif text-2xl tracking-wide transition-colors hover:text-stone-500"
+                className="font-serif text-2xl tracking-wide transition-opacity hover:opacity-60"
                 style={{
-                  color: activeSection === id ? 'var(--wedding-primary)' : '#292524',
+                  color: activeSection === id ? 'var(--wedding-primary)' : 'var(--wedding-foreground)',
                 }}
               >
                 {label}
@@ -212,7 +226,10 @@ function MobileMenu({
 
           {/* Couple names at bottom */}
           <div className="shrink-0 pb-10 text-center">
-            <p className="font-serif text-sm tracking-wide text-stone-400">
+            <p
+              className="font-serif text-sm tracking-wide"
+              style={{ color: 'color-mix(in srgb, var(--wedding-foreground) 60%, transparent)' }}
+            >
               {coupleNames}
             </p>
           </div>

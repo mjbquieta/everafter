@@ -34,6 +34,7 @@ export interface PublicWeddingData {
   };
   settings: {
     theme: string;
+    backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;
@@ -48,6 +49,7 @@ export interface PublicWeddingData {
     footerText: string | null;
     enableBackgroundMusic: boolean;
     audioUrl: string | null;
+    openingTransition: string;
   };
 }
 
@@ -138,6 +140,7 @@ export class PublicService {
       },
       settings: {
         theme: wedding.websiteSettings?.theme ?? 'classic',
+        backgroundColor: wedding.websiteSettings?.backgroundColor ?? '#FAF9F7',
         primaryColor: wedding.websiteSettings?.primaryColor ?? '#8B5E5E',
         secondaryColor: wedding.websiteSettings?.secondaryColor ?? '#D8B4A0',
         font: wedding.websiteSettings?.font ?? 'Inter',
@@ -154,6 +157,7 @@ export class PublicService {
         footerText: wedding.websiteSettings?.footerText ?? null,
         enableBackgroundMusic: wedding.websiteSettings?.enableBackgroundMusic ?? false,
         audioUrl: wedding.websiteSettings?.audioUrl ?? null,
+        openingTransition: wedding.websiteSettings?.openingTransition ?? 'none',
       },
     };
   }

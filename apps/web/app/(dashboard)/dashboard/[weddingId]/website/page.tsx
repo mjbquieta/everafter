@@ -21,10 +21,8 @@ import {
   FontPicker,
   SectionToggles,
   PreviewPanel,
-  NavLayoutPicker,
   DividerPicker,
   HeroBannerPicker,
-  LayoutPicker,
   AudioSettings,
   OpeningTransitionPicker,
   HeroTextColorPicker,
@@ -42,7 +40,7 @@ export default function WebsiteBuilderPage() {
   const { data: profile, isLoading: profileLoading } =
     useWeddingProfile(weddingId);
   const { data: guestSummary } = useDashboardGuestSummary(weddingId);
-  const updateSettings = useUpdateWebsiteSettings(weddingId);
+  const updateSettings = useUpdateWebsiteSettings(weddingId, activeWedding?.slug);
   const updateSlug = useUpdateSlug(weddingId);
   const publishWebsite = usePublishWebsite(weddingId);
   const unpublishWebsite = useUnpublishWebsite(weddingId);
@@ -288,9 +286,10 @@ export default function WebsiteBuilderPage() {
   const handleSave = async () => {
     if (!localSettings) return;
     try {
-      const { openingTransition, heroTextColor, backgroundColor, ...settingsToSave } = localSettings;
+      const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
       await updateSettings.mutateAsync({
         ...settingsToSave,
+        openingTransition,
         sections: {
           ...sections,
           _order: sectionOrder,
@@ -329,9 +328,10 @@ export default function WebsiteBuilderPage() {
     try {
       // Save any unsaved changes first
       if (hasUnsavedChanges && localSettings) {
-        const { openingTransition, heroTextColor, backgroundColor, ...settingsToSave } = localSettings;
+        const { openingTransition, heroTextColor, ...settingsToSave } = localSettings;
         await updateSettings.mutateAsync({
           ...settingsToSave,
+          openingTransition,
           sections: {
             ...sections,
             _order: sectionOrder,
@@ -467,11 +467,6 @@ export default function WebsiteBuilderPage() {
           onChange={handleThemeChange}
         />
 
-        <LayoutPicker
-          value={localSettings.layout as 'classic' | 'magazine' | 'editorial'}
-          onChange={handleLayoutChange}
-        />
-
         <HeroBannerPicker
           weddingId={weddingId}
           heroBanner={localSettings.heroBanner}
@@ -504,11 +499,6 @@ export default function WebsiteBuilderPage() {
           onChange={handleSectionToggle}
           order={sectionOrder}
           onReorder={handleReorder}
-        />
-
-        <NavLayoutPicker
-          value={localSettings.navigationStyle as 'left' | 'center' | 'right'}
-          onChange={handleNavLayoutChange}
         />
 
         <DividerPicker

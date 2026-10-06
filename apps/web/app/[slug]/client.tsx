@@ -60,6 +60,7 @@ interface PublicWeddingData {
   };
   settings: {
     theme: string;
+    backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
     font: string;
@@ -116,8 +117,8 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
   const sec = settings.sections as Record<string, unknown> | null;
   const sectionOn = (key: string) => (sec?.[key] as boolean) ?? true;
 
-  // Extract opening transition from sections (stored as _openingTransition)
-  const openingTransition = (sec?._openingTransition as string) ?? 'none';
+  // Extract opening transition from settings (with fallback to sections for backward compatibility)
+  const openingTransition = settings.openingTransition || (sec?._openingTransition as string) || 'none';
 
   // Extract hero text color from sections (stored as _heroTextColor)
   const heroTextColor = (sec?._heroTextColor as 'light' | 'dark') ?? (settings.heroBanner ? 'light' : 'dark');
@@ -158,8 +159,8 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
   const cssVars = {
     '--wedding-primary': settings.primaryColor,
     '--wedding-secondary': settings.secondaryColor,
-    '--wedding-background': '#FAF9F7',
-    '--wedding-foreground': '#2B2726',
+    '--wedding-background': settings.backgroundColor,
+    '--wedding-foreground': settings.backgroundColor === '#0F1015' ? '#F5F3EF' : '#2B2726',
     '--wedding-font': fontMap[settings.font] ?? fontMap.Inter,
   } as React.CSSProperties;
 

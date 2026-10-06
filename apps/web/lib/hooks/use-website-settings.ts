@@ -22,7 +22,7 @@ export function useWebsiteSettings(weddingId: string) {
   });
 }
 
-export function useUpdateWebsiteSettings(weddingId: string) {
+export function useUpdateWebsiteSettings(weddingId: string, slug?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -34,8 +34,21 @@ export function useUpdateWebsiteSettings(weddingId: string) {
           body: JSON.stringify(data),
         },
       ),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.setQueryData(websiteKeys.settings(weddingId), data);
+
+      // Revalidate the public wedding page cache
+      if (slug) {
+        try {
+          await fetch('/api/revalidate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug }),
+          });
+        } catch (error) {
+          console.error('Failed to revalidate cache:', error);
+        }
+      }
     },
   });
 }

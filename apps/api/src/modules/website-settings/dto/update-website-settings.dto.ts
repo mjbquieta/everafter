@@ -7,6 +7,10 @@ export class UpdateWebsiteSettingsDto {
 
   @IsOptional()
   @IsString()
+  backgroundColor?: string;
+
+  @IsOptional()
+  @IsString()
   primaryColor?: string;
 
   @IsOptional()
@@ -59,4 +63,8 @@ export class UpdateWebsiteSettingsDto {
   @IsOptional()
   @IsString()
   audioUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  openingTransition?: string;
 }

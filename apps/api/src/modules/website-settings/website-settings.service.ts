@@ -24,6 +24,7 @@ export class WebsiteSettingsService {
   ): Promise<WebsiteSettingsResponse> {
     const data: Record<string, unknown> = {};
     if (dto.theme !== undefined) data.theme = dto.theme;
+    if (dto.backgroundColor !== undefined) data.backgroundColor = dto.backgroundColor;
     if (dto.primaryColor !== undefined) data.primaryColor = dto.primaryColor;
     if (dto.secondaryColor !== undefined) data.secondaryColor = dto.secondaryColor;
     if (dto.font !== undefined) data.font = dto.font;
@@ -40,6 +41,7 @@ export class WebsiteSettingsService {
     if (dto.footerText !== undefined) data.footerText = dto.footerText;
     if (dto.enableBackgroundMusic !== undefined) data.enableBackgroundMusic = dto.enableBackgroundMusic;
     if (dto.audioUrl !== undefined) data.audioUrl = dto.audioUrl;
+    if (dto.openingTransition !== undefined) data.openingTransition = dto.openingTransition;
 
     const settings = await this.prisma.websiteSettings.upsert({
       where: { weddingId },
@@ -55,6 +57,7 @@ export class WebsiteSettingsService {
       id: settings.id,
       weddingId: settings.weddingId,
       theme: settings.theme,
+      backgroundColor: settings.backgroundColor,
       primaryColor: settings.primaryColor,
       secondaryColor: settings.secondaryColor,
       font: settings.font,
@@ -71,6 +74,7 @@ export class WebsiteSettingsService {
       footerText: settings.footerText,
       enableBackgroundMusic: settings.enableBackgroundMusic,
       audioUrl: settings.audioUrl,
+      openingTransition: settings.openingTransition,
     };
   }
 }
