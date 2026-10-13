@@ -51,6 +51,7 @@ export interface PublicWeddingData {
     audioUrl: string | null;
     openingTransition: string;
   };
+  websitePhotos: Array<{ id: string; url: string; caption?: string }>;
 }
 
 export interface PublicGuestSearchResult {
@@ -104,6 +105,33 @@ export class PublicService {
     ) {
       throw new NotFoundException('Wedding not found');
     }
+
+    // Fetch gallery photos for website use
+    const albums = await this.prisma.galleryAlbum.findMany({
+      where: { weddingId: wedding.id },
+      include: {
+        photos: {
+          orderBy: { sortOrder: 'asc' },
+        },
+      },
+    });
+
+    // Collect all photos from all albums
+    const allPhotos = albums.flatMap((album) => album.photos);
+
+    // Filter only visible photos (check for [visible:true] in caption)
+    const visiblePhotos = allPhotos.filter((photo) => {
+      if (!photo.caption) return true; // Default to visible if no caption
+      const match = photo.caption.match(/\[visible:(true|false)\]/);
+      return match ? match[1] === 'true' : true;
+    });
+
+    // Map to website photo format
+    const websitePhotos = visiblePhotos.map((photo) => ({
+      id: photo.id,
+      url: photo.storageKey,
+      caption: photo.caption?.replace(/\[visible:(true|false)\]\s*/g, '').trim() || undefined,
+    }));
 
     return {
       wedding: {
@@ -159,6 +187,7 @@ export class PublicService {
         audioUrl: wedding.websiteSettings?.audioUrl ?? null,
         openingTransition: wedding.websiteSettings?.openingTransition ?? 'none',
       },
+      websitePhotos,
     };
   }
 

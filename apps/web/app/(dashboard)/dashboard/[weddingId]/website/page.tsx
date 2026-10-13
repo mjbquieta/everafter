@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Globe, CircleDot, Save, Check, AlertCircle, MailCheck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,17 +22,20 @@ import {
   SectionToggles,
   PreviewPanel,
   DividerPicker,
-  HeroBannerPicker,
   AudioSettings,
   OpeningTransitionPicker,
   HeroTextColorPicker,
+  PhotoSlotAllocator,
 } from '@/features/website-builder';
+import { useGalleryPhotos } from '@/lib/hooks/use-gallery';
 import { DEFAULT_SECTION_ORDER } from '@/features/website-builder/section-toggles';
 import { ApiError } from '@/lib/api-client';
+import { getTemplateBlueprint } from '@/features/website-builder/template-blueprints';
 
 export default function WebsiteBuilderPage() {
   const params = useParams<{ weddingId: string }>();
   const weddingId = params.weddingId;
+  const router = useRouter();
   const { activeWedding } = useWeddingContext();
 
   const { data: settings, isLoading: settingsLoading } =
@@ -40,6 +43,7 @@ export default function WebsiteBuilderPage() {
   const { data: profile, isLoading: profileLoading } =
     useWeddingProfile(weddingId);
   const { data: guestSummary } = useDashboardGuestSummary(weddingId);
+  const { data: galleryData } = useGalleryPhotos(weddingId);
   const updateSettings = useUpdateWebsiteSettings(weddingId, activeWedding?.slug);
   const updateSlug = useUpdateSlug(weddingId);
   const publishWebsite = usePublishWebsite(weddingId);
@@ -73,6 +77,7 @@ export default function WebsiteBuilderPage() {
   });
 
   const [sectionOrder, setSectionOrder] = useState<string[]>(DEFAULT_SECTION_ORDER);
+  const [layoutSlots, setLayoutSlots] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [slugValue, setSlugValue] = useState('');
   const [slugError, setSlugError] = useState('');
@@ -115,10 +120,13 @@ export default function WebsiteBuilderPage() {
         heroTextColor,
       });
       if (settings.sections) {
-        const { _order, _openingTransition, _heroTextColor, ...toggles } = settings.sections as Record<string, unknown>;
+        const { _order, _openingTransition, _heroTextColor, _layoutSlots, ...toggles } = settings.sections as Record<string, unknown>;
         setSections((prev) => ({ ...prev, ...(toggles as Record<string, boolean>) }));
         if (Array.isArray(_order)) {
           setSectionOrder(_order as string[]);
+        }
+        if (_layoutSlots && typeof _layoutSlots === 'object') {
+          setLayoutSlots(_layoutSlots as Record<string, string>);
         }
       }
     }
@@ -129,6 +137,46 @@ export default function WebsiteBuilderPage() {
       setSlugValue(activeWedding.slug);
     }
   }, [activeWedding]);
+
+  // Auto-populate layout slots with first available photos if empty
+  useEffect(() => {
+    if (!localSettings?.theme || !galleryData?.photos) return;
+
+    const blueprint = getTemplateBlueprint(localSettings.theme);
+    if (!blueprint) return; // Not a template layout
+
+    const visiblePhotos = galleryData.photos.filter((p) => {
+      if (!p.caption) return true;
+      const match = p.caption.match(/\[visible:(true|false)\]/);
+      return match ? match[1] === 'true' : true;
+    });
+
+    if (visiblePhotos.length === 0) return;
+
+    // Check if we need to auto-populate any slots
+    const needsPopulation = blueprint.slots.some(slot => !layoutSlots[slot.id]);
+
+    if (needsPopulation) {
+      setLayoutSlots((prev) => {
+        const updated = { ...prev };
+        let photoIndex = 0;
+
+        // Only populate empty slots
+        blueprint.slots.forEach((slot) => {
+          if (!updated[slot.id] && visiblePhotos[photoIndex]) {
+            const photo = visiblePhotos[photoIndex];
+            updated[slot.id] = photo.storageKey.startsWith('/')
+              ? photo.storageKey
+              : `/uploads/${photo.storageKey}`;
+            photoIndex++;
+          }
+        });
+
+        return updated;
+      });
+      setHasUnsavedChanges(true);
+    }
+  }, [localSettings?.theme, galleryData?.photos, layoutSlots]);
 
   const handleThemeChange = useCallback(
     (
@@ -294,7 +342,8 @@ export default function WebsiteBuilderPage() {
           ...sections,
           _order: sectionOrder,
           _openingTransition: openingTransition,
-          _heroTextColor: heroTextColor
+          _heroTextColor: heroTextColor,
+          _layoutSlots: layoutSlots
         } as unknown as Record<string, boolean>
       });
       setHasUnsavedChanges(false);
@@ -336,7 +385,8 @@ export default function WebsiteBuilderPage() {
             ...sections,
             _order: sectionOrder,
             _openingTransition: openingTransition,
-            _heroTextColor: heroTextColor
+            _heroTextColor: heroTextColor,
+            _layoutSlots: layoutSlots
           } as unknown as Record<string, boolean>
         });
         setHasUnsavedChanges(false);
@@ -467,14 +517,34 @@ export default function WebsiteBuilderPage() {
           onChange={handleThemeChange}
         />
 
-        <HeroBannerPicker
-          weddingId={weddingId}
-          heroBanner={localSettings.heroBanner}
-          onUploaded={(url) => {
-            setLocalSettings((prev) =>
-              prev ? { ...prev, heroBanner: url } : null,
-            );
+        <PhotoSlotAllocator
+          templateId={localSettings.theme}
+          layoutSlots={layoutSlots}
+          availablePhotos={(galleryData?.photos || [])
+            .filter((p) => {
+              // Only include visible photos (check for [visible:true] tag)
+              if (!p.caption) return true;
+              const match = p.caption.match(/\[visible:(true|false)\]/);
+              return match ? match[1] === 'true' : true;
+            })
+            .map((p) => ({
+              id: p.id,
+              url: p.storageKey.startsWith('/') ? p.storageKey : `/uploads/${p.storageKey}`,
+              caption: p.caption,
+            }))}
+          onSlotUpdate={(slotId, photoUrl) => {
+            setLayoutSlots((prev) => {
+              const updated = { ...prev };
+              if (photoUrl === null) {
+                delete updated[slotId];
+              } else {
+                updated[slotId] = photoUrl;
+              }
+              return updated;
+            });
+            setHasUnsavedChanges(true);
           }}
+          onUploadClick={() => router.push(`/dashboard/${weddingId}/gallery`)}
         />
 
         <HeroTextColorPicker
@@ -567,6 +637,19 @@ export default function WebsiteBuilderPage() {
             }}
             sections={sections}
             sectionOrder={sectionOrder}
+            layoutSlots={layoutSlots}
+            websitePhotos={(galleryData?.photos || [])
+              .filter((p) => {
+                // Only include visible photos (check for [visible:true] tag)
+                if (!p.caption) return true;
+                const match = p.caption.match(/\[visible:(true|false)\]/);
+                return match ? match[1] === 'true' : true;
+              })
+              .map((p) => ({
+                id: p.id,
+                url: p.storageKey.startsWith('/') ? p.storageKey : `/uploads/${p.storageKey}`,
+                caption: p.caption ?? undefined,
+              }))}
           />
         )}
       </div>

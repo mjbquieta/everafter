@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@everafter/ui';
 import { Calendar, MapPin, Heart } from 'lucide-react';
 import type { WeddingResponse } from '@everafter/types';
+import { PhotoSlot } from '../photo-slot';
 
 interface Photo {
   id: string;
@@ -26,17 +26,40 @@ type WeddingData = WeddingResponse & {
 interface StorybookLayoutProps {
   wedding: WeddingData;
   photos: Photo[];
+  layoutSlots?: Record<string, string>;
+  showStory?: boolean;
+  showDetails?: boolean;
+  showSchedule?: boolean;
+  showFaq?: boolean;
+  showRsvp?: boolean;
+  proposalStory?: string | null;
+  loveStory?: string | null;
+  scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
+  faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
 }
 
 export function StorybookLayout({
   wedding,
   photos,
+  layoutSlots,
+  showStory = false,
+  showDetails = true,
+  showSchedule = false,
+  showFaq = false,
+  showRsvp = true,
+  proposalStory,
+  loveStory,
+  scheduleEvents,
+  faqItems,
   onRsvpClick,
 }: StorybookLayoutProps) {
-  const getPhoto = (index: number) => {
-    if (photos[index]) return photos[index].url;
-    if (photos.length > 0) return photos[index % photos.length].url;
+  const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
+    if (layoutSlots && layoutSlots[slotId]) {
+      return layoutSlots[slotId];
+    }
+    if (photos[fallbackIndex]) return photos[fallbackIndex].url;
+    if (photos.length > 0) return photos[fallbackIndex % photos.length].url;
     return '/images/placeholder-wedding.jpg';
   };
 
@@ -53,7 +76,7 @@ export function StorybookLayout({
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/40 to-white">
       {/* Romantic Header with Overlapping Cards */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24 max-w-6xl mx-auto">
+      <section id="home" className="relative px-4 md:px-8 py-16 md:py-24 max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-100 mb-6">
             <Heart className="h-8 w-8 text-rose-600 fill-rose-200" />
@@ -71,24 +94,24 @@ export function StorybookLayout({
 
         {/* Overlapping Photo Cards */}
         <div className="relative max-w-4xl mx-auto h-[400px] md:h-[500px]">
-          <div className="absolute top-0 left-[5%] w-[40%] md:w-[35%] aspect-[3/4] transform rotate-[-6deg]">
-            <img
-              src={getPhoto(0)}
-              alt="Photo 1"
+          <div className="absolute top-0 left-[5%] w-[40%] md:w-[35%] aspect-[4/5] transform rotate-[-6deg]">
+            <PhotoSlot
+              src={getPhoto('hero', 0)}
+              alt="Romantic Hero"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
             />
           </div>
-          <div className="absolute top-[15%] right-[8%] w-[45%] md:w-[38%] aspect-square transform rotate-[4deg]">
-            <img
-              src={getPhoto(1)}
-              alt="Photo 2"
+          <div className="absolute top-[15%] right-[8%] w-[45%] md:w-[38%] aspect-[3/4] transform rotate-[4deg]">
+            <PhotoSlot
+              src={getPhoto('story-left', 1)}
+              alt="Story Left"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
             />
           </div>
-          <div className="absolute bottom-[5%] left-[25%] w-[38%] md:w-[32%] aspect-[4/3] transform rotate-[-3deg]">
-            <img
-              src={getPhoto(2)}
-              alt="Photo 3"
+          <div className="absolute bottom-[5%] left-[25%] w-[38%] md:w-[32%] aspect-square transform rotate-[-3deg]">
+            <PhotoSlot
+              src={getPhoto('story-right', 2)}
+              alt="Story Right"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
             />
           </div>
@@ -96,23 +119,45 @@ export function StorybookLayout({
       </section>
 
       {/* Side-by-Side Story Vignette */}
-      <section className="px-4 md:px-8 py-16 md:py-20 bg-white/60">
+      {showStory && (proposalStory || loveStory) && (
+      <section id="story" className="px-4 md:px-8 py-16 md:py-20 bg-white/60">
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <img
-                src={getPhoto(3)}
-                alt="Story"
-                className="aspect-[4/5] w-full object-cover rounded-2xl shadow-lg"
-              />
-            </div>
-            <div className="order-1 md:order-2 space-y-4">
+            {layoutSlots?.detail && (
+              <div className="order-2 md:order-1">
+                <PhotoSlot
+                  src={getPhoto('detail', 3)}
+                  alt="Botanical Detail"
+                  className="aspect-[4/3] w-full object-cover rounded-2xl shadow-lg"
+                />
+              </div>
+            )}
+            <div className={`order-1 ${layoutSlots?.detail ? 'md:order-2' : 'md:col-span-2 text-center max-w-3xl mx-auto'} space-y-6`}>
               <h2 className="font-serif text-3xl md:text-4xl text-stone-900">
-                Our Love Story
+                Our Story
               </h2>
-              <p className="text-stone-600 leading-relaxed">
-                {wedding.story || 'From the moment we met, we knew there was something special. Our journey together has been filled with love, laughter, and countless beautiful memories. Join us as we celebrate the beginning of our forever.'}
-              </p>
+              {proposalStory && (
+                <div>
+                  <h3 className="font-serif text-xl text-rose-600 mb-3">
+                    The Proposal
+                  </h3>
+                  <p className="text-stone-600 leading-relaxed whitespace-pre-line">
+                    {proposalStory}
+                  </p>
+                </div>
+              )}
+              {loveStory && (
+                <div>
+                  {proposalStory && (
+                    <h3 className="font-serif text-xl text-rose-600 mb-3">
+                      Our Love Story
+                    </h3>
+                  )}
+                  <p className="text-stone-600 leading-relaxed whitespace-pre-line">
+                    {loveStory}
+                  </p>
+                </div>
+              )}
               {wedding.tagline && (
                 <p className="text-rose-600 italic border-l-2 border-rose-200 pl-4">
                   "{wedding.tagline}"
@@ -122,9 +167,54 @@ export function StorybookLayout({
           </div>
         </div>
       </section>
+      )}
+
+      {/* Schedule/Programme */}
+      {showSchedule && scheduleEvents && scheduleEvents.length > 0 && (
+        <section id="schedule" className="px-4 md:px-8 py-12 md:py-16">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="font-serif text-3xl text-stone-900 text-center mb-12">
+              Programme
+            </h2>
+            <div className="space-y-6 max-w-2xl mx-auto">
+              {scheduleEvents.map((event, idx) => (
+                <div key={idx} className="bg-white rounded-2xl border border-rose-100 p-6 shadow-sm">
+                  <p className="text-xs uppercase tracking-[0.2em] text-rose-600 mb-2">
+                    {event.time}
+                  </p>
+                  <h3 className="text-lg font-semibold text-stone-900 mb-1">{event.title}</h3>
+                  {event.description && (
+                    <p className="text-sm text-stone-600">{event.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      {showFaq && faqItems && faqItems.length > 0 && (
+        <section id="faq" className="px-4 md:px-8 py-12 md:py-16 bg-white/60">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-serif text-3xl text-center mb-12 text-stone-900">
+              Frequently Asked
+            </h2>
+            <div className="space-y-6">
+              {faqItems.map((item, idx) => (
+                <div key={idx} className="bg-white rounded-2xl border border-rose-100 p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-stone-900 mb-2">{item.question}</h3>
+                  <p className="text-stone-600 leading-relaxed">{item.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Event Details */}
-      <section className="px-4 md:px-8 py-16 md:py-20">
+      {showDetails && (
+      <section id="details" className="px-4 md:px-8 py-16 md:py-20">
         <div className="max-w-4xl mx-auto">
           <h2 className="font-serif text-3xl md:text-4xl text-stone-900 text-center mb-12">
             Celebration Details
@@ -154,13 +244,19 @@ export function StorybookLayout({
             </div>
           </div>
 
-          <div className="text-center mt-12">
-            <Button size="lg" onClick={onRsvpClick}>
+          {showRsvp && (
+          <div id="rsvp" className="text-center mt-12">
+            <button
+              onClick={onRsvpClick}
+              className="px-12 py-4 bg-rose-600 text-white hover:bg-rose-700 transition-colors font-sans text-sm font-semibold uppercase tracking-wider rounded-lg shadow-md"
+            >
               RSVP to Celebrate
-            </Button>
+            </button>
           </div>
+          )}
         </div>
       </section>
+      )}
     </div>
   );
 }

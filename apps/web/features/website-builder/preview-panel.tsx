@@ -10,12 +10,18 @@ import {
   LayoutWrapper,
   ScheduleSection,
   FaqSection,
+  MinimalistLayout,
+  AsymmetricLayout,
+  StorybookLayout,
+  PhotoFocusedLayout,
+  ClassicLayout,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
 interface PreviewPanelProps {
   slug: string;
   settings: {
+    theme: string;
     backgroundColor: string;
     primaryColor: string;
     secondaryColor: string;
@@ -52,6 +58,8 @@ interface PreviewPanelProps {
   };
   sections: Record<string, boolean>;
   sectionOrder?: string[];
+  layoutSlots?: Record<string, string>;
+  websitePhotos?: Array<{ id: string; url: string; caption?: string }>;
 }
 
 type Viewport = 'desktop' | 'tablet' | 'mobile';
@@ -76,6 +84,8 @@ export function PreviewPanel({
   wedding,
   sections,
   sectionOrder,
+  layoutSlots = {},
+  websitePhotos = [],
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<Viewport>('desktop');
   const [copied, setCopied] = useState(false);
@@ -95,6 +105,38 @@ export function PreviewPanel({
     '--wedding-foreground': settings.backgroundColor === '#0F1015' ? '#F5F3EF' : '#2B2726',
     '--wedding-font': fontMap[settings.font] ?? fontMap.Inter,
   } as React.CSSProperties;
+
+  // Check if we're using a template-specific layout
+  const isTemplateLayout = ['midnight-editorial', 'moody-plum', 'warm-linen', 'dusty-rose', 'coastal-slate'].includes(settings.theme);
+
+  // Helper to check if a section is enabled
+  const hasStory = !!(profile.proposalStory || profile.loveStory) && (sections.story ?? true);
+  const hasDetails = !!(
+    profile.ceremonyName || profile.ceremonyAddress || profile.ceremonyTime ||
+    profile.receptionName || profile.receptionAddress || profile.receptionTime ||
+    profile.dressCode
+  ) && (sections.details ?? true);
+  const hasSchedule = !!(profile.scheduleEvents?.length) && (sections.schedule ?? true);
+  const hasFaq = !!(profile.faqItems?.length) && (sections.faq ?? true);
+  const showRsvp = sections.rsvp ?? true;
+
+  // Prepare wedding data for template layouts
+  const weddingData = {
+    slug,
+    title: `${profile.brideName} & ${profile.groomName}`,
+    weddingDate: wedding.weddingDate,
+    timezone: wedding.timezone,
+    status: 'PUBLISHED',
+    bride: { name: profile.brideName ?? undefined },
+    groom: { name: profile.groomName ?? undefined },
+    venue: {
+      name: profile.ceremonyName ?? undefined,
+      address: profile.ceremonyAddress ?? undefined,
+    },
+    tagline: null,
+    story: profile.loveStory ?? undefined,
+    rsvpDeadline: null,
+  } as any;
 
   return (
     <div className="flex flex-col h-full">
@@ -157,129 +199,223 @@ export function PreviewPanel({
               fontFamily: 'var(--wedding-font)',
             }}
           >
-            {(sections.hero ?? true) && (
-              <div style={{ order: sectionOrder?.indexOf('hero') ?? 0 }}>
-              <HeroSection
-                brideName={profile.brideName}
-                groomName={profile.groomName}
-                weddingDate={wedding.weddingDate}
-                timezone={wedding.timezone}
-                hashtag={profile.weddingHashtag}
-                heroBanner={settings.heroBanner}
-                layout={settings.layout}
-                heroTextColor={settings.heroTextColor as 'light' | 'dark'}
-              />
-              </div>
-            )}
+            {/* Render template-specific layouts */}
+            {isTemplateLayout ? (
+              <>
+                {settings.theme === 'midnight-editorial' && (
+                  <MinimalistLayout
+                    wedding={weddingData}
+                    photos={websitePhotos}
+                    layoutSlots={layoutSlots}
+                    showStory={hasStory}
+                    showDetails={hasDetails}
+                    showSchedule={hasSchedule}
+                    showFaq={hasFaq}
+                    showRsvp={showRsvp}
+                    proposalStory={profile.proposalStory ?? undefined}
+                    loveStory={profile.loveStory ?? undefined}
+                    scheduleEvents={profile.scheduleEvents ?? undefined}
+                    faqItems={profile.faqItems ?? undefined}
+                    onRsvpClick={() => {}}
+                  />
+                )}
+                {settings.theme === 'moody-plum' && (
+                  <AsymmetricLayout
+                    wedding={weddingData}
+                    photos={websitePhotos}
+                    layoutSlots={layoutSlots}
+                    showStory={hasStory}
+                    showDetails={hasDetails}
+                    showSchedule={hasSchedule}
+                    showFaq={hasFaq}
+                    showRsvp={showRsvp}
+                    proposalStory={profile.proposalStory ?? undefined}
+                    loveStory={profile.loveStory ?? undefined}
+                    scheduleEvents={profile.scheduleEvents ?? undefined}
+                    faqItems={profile.faqItems ?? undefined}
+                    onRsvpClick={() => {}}
+                  />
+                )}
+                {settings.theme === 'warm-linen' && (
+                  <ClassicLayout
+                    wedding={weddingData}
+                    photos={websitePhotos}
+                    layoutSlots={layoutSlots}
+                    showStory={hasStory}
+                    showDetails={hasDetails}
+                    showSchedule={hasSchedule}
+                    showFaq={hasFaq}
+                    showRsvp={showRsvp}
+                    proposalStory={profile.proposalStory ?? undefined}
+                    loveStory={profile.loveStory ?? undefined}
+                    scheduleEvents={profile.scheduleEvents ?? undefined}
+                    faqItems={profile.faqItems ?? undefined}
+                    onRsvpClick={() => {}}
+                  />
+                )}
+                {settings.theme === 'dusty-rose' && (
+                  <StorybookLayout
+                    wedding={weddingData}
+                    photos={websitePhotos}
+                    layoutSlots={layoutSlots}
+                    showStory={hasStory}
+                    showDetails={hasDetails}
+                    showSchedule={hasSchedule}
+                    showFaq={hasFaq}
+                    showRsvp={showRsvp}
+                    proposalStory={profile.proposalStory ?? undefined}
+                    loveStory={profile.loveStory ?? undefined}
+                    scheduleEvents={profile.scheduleEvents ?? undefined}
+                    faqItems={profile.faqItems ?? undefined}
+                    onRsvpClick={() => {}}
+                  />
+                )}
+                {settings.theme === 'coastal-slate' && (
+                  <PhotoFocusedLayout
+                    wedding={weddingData}
+                    photos={websitePhotos}
+                    layoutSlots={layoutSlots}
+                    showStory={hasStory}
+                    showDetails={hasDetails}
+                    showSchedule={hasSchedule}
+                    showFaq={hasFaq}
+                    showRsvp={showRsvp}
+                    proposalStory={profile.proposalStory ?? undefined}
+                    loveStory={profile.loveStory ?? undefined}
+                    scheduleEvents={profile.scheduleEvents ?? undefined}
+                    faqItems={profile.faqItems ?? undefined}
+                    onRsvpClick={() => {}}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                {/* Legacy layout system for classic themes */}
+                {(sections.hero ?? true) && (
+                  <div style={{ order: sectionOrder?.indexOf('hero') ?? 0 }}>
+                  <HeroSection
+                    brideName={profile.brideName}
+                    groomName={profile.groomName}
+                    weddingDate={wedding.weddingDate}
+                    timezone={wedding.timezone}
+                    hashtag={profile.weddingHashtag}
+                    heroBanner={settings.heroBanner}
+                    layout={settings.layout}
+                    heroTextColor={settings.heroTextColor as 'light' | 'dark'}
+                  />
+                  </div>
+                )}
 
-            <div style={{ order: sectionOrder?.indexOf('content') ?? 1 }}>
-            <LayoutWrapper
-              layout={settings.layout}
-              dividerStyle={settings.dividerStyle as DividerStyle}
-              dividerSize={settings.dividerSize as DividerSize}
-              showStory={sections.story ?? true}
-              showDetails={sections.details ?? true}
-              storySection={
-                <StorySection
-                  proposalStory={profile.proposalStory}
-                  loveStory={profile.loveStory}
+                <div style={{ order: sectionOrder?.indexOf('content') ?? 1 }}>
+                <LayoutWrapper
                   layout={settings.layout}
+                  dividerStyle={settings.dividerStyle as DividerStyle}
+                  dividerSize={settings.dividerSize as DividerSize}
+                  showStory={sections.story ?? true}
+                  showDetails={sections.details ?? true}
+                  storySection={
+                    <StorySection
+                      proposalStory={profile.proposalStory}
+                      loveStory={profile.loveStory}
+                      layout={settings.layout}
+                    />
+                  }
+                  detailsSection={
+                    <DetailsSection
+                      ceremonyName={profile.ceremonyName}
+                      ceremonyAddress={profile.ceremonyAddress}
+                      ceremonyTime={profile.ceremonyTime}
+                      ceremonyImage={profile.ceremonyImage}
+                      receptionName={profile.receptionName}
+                      receptionAddress={profile.receptionAddress}
+                      receptionTime={profile.receptionTime}
+                      receptionImage={profile.receptionImage}
+                      weddingDate={wedding.weddingDate}
+                      dressCode={profile.dressCode}
+                      dressCodeColors={profile.dressCodeColors}
+                      primaryColor={settings.primaryColor}
+                      timezone={wedding.timezone}
+                      layout={settings.layout}
+                    />
+                  }
                 />
-              }
-              detailsSection={
-                <DetailsSection
-                  ceremonyName={profile.ceremonyName}
-                  ceremonyAddress={profile.ceremonyAddress}
-                  ceremonyTime={profile.ceremonyTime}
-                  ceremonyImage={profile.ceremonyImage}
-                  receptionName={profile.receptionName}
-                  receptionAddress={profile.receptionAddress}
-                  receptionTime={profile.receptionTime}
-                  receptionImage={profile.receptionImage}
-                  weddingDate={wedding.weddingDate}
-                  dressCode={profile.dressCode}
-                  dressCodeColors={profile.dressCodeColors}
-                  primaryColor={settings.primaryColor}
-                  timezone={wedding.timezone}
-                  layout={settings.layout}
-                />
-              }
-            />
-            </div>
-
-            {(sections.schedule ?? true) && !!profile.scheduleEvents?.length && (
-              <div style={{ order: sectionOrder?.indexOf('schedule') ?? 2 }}>
-              <ScheduleSection
-                events={profile.scheduleEvents}
-                layout={settings.layout}
-              />
-              </div>
-            )}
-
-            {(sections.faq ?? true) && !!profile.faqItems?.length && (
-              <div style={{ order: sectionOrder?.indexOf('faq') ?? 3 }}>
-              <FaqSection
-                items={profile.faqItems}
-                layout={settings.layout}
-              />
-              </div>
-            )}
-
-            {(sections.rsvp ?? true) && (
-              <div style={{ order: sectionOrder?.indexOf('rsvp') ?? 4 }}>
-              <div
-                id="rsvp"
-                className="px-4 md:px-8 py-16 md:py-24"
-              >
-                <div className={
-                  settings.layout === 'editorial'
-                    ? 'mx-auto max-w-lg'
-                    : settings.layout === 'magazine'
-                      ? 'mx-auto max-w-2xl'
-                      : 'mx-auto max-w-xl text-center'
-                }>
-                  {settings.layout === 'editorial' ? (
-                    <>
-                      <p
-                        className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
-                        style={{ color: 'var(--wedding-primary)' }}
-                      >
-                        RSVP
-                      </p>
-                      <h2
-                        className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
-                        style={{ color: 'var(--wedding-foreground)' }}
-                      >
-                        Will you attend?
-                      </h2>
-                    </>
-                  ) : settings.layout === 'magazine' ? (
-                    <>
-                      <h2
-                        className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
-                        style={{ color: 'var(--wedding-foreground)' }}
-                      >
-                        RSVP
-                      </h2>
-                      <div
-                        className="h-0.5 w-16 mb-6"
-                        style={{ backgroundColor: 'var(--wedding-primary)' }}
-                      />
-                    </>
-                  ) : (
-                    <h2
-                      className="text-3xl font-serif font-medium tracking-tight mb-3"
-                      style={{ color: 'var(--wedding-foreground)' }}
-                    >
-                      RSVP
-                    </h2>
-                  )}
-                  <p className="text-sm opacity-60">
-                    RSVP form is available on the live site
-                  </p>
                 </div>
-              </div>
-              </div>
+
+                {(sections.schedule ?? true) && !!profile.scheduleEvents?.length && (
+                  <div style={{ order: sectionOrder?.indexOf('schedule') ?? 2 }}>
+                  <ScheduleSection
+                    events={profile.scheduleEvents}
+                    layout={settings.layout}
+                  />
+                  </div>
+                )}
+
+                {(sections.faq ?? true) && !!profile.faqItems?.length && (
+                  <div style={{ order: sectionOrder?.indexOf('faq') ?? 3 }}>
+                  <FaqSection
+                    items={profile.faqItems}
+                    layout={settings.layout}
+                  />
+                  </div>
+                )}
+
+                {(sections.rsvp ?? true) && (
+                  <div style={{ order: sectionOrder?.indexOf('rsvp') ?? 4 }}>
+                  <div
+                    id="rsvp"
+                    className="px-4 md:px-8 py-16 md:py-24"
+                  >
+                    <div className={
+                      settings.layout === 'editorial'
+                        ? 'mx-auto max-w-lg'
+                        : settings.layout === 'magazine'
+                          ? 'mx-auto max-w-2xl'
+                          : 'mx-auto max-w-xl text-center'
+                    }>
+                      {settings.layout === 'editorial' ? (
+                        <>
+                          <p
+                            className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
+                            style={{ color: 'var(--wedding-primary)' }}
+                          >
+                            RSVP
+                          </p>
+                          <h2
+                            className="text-3xl md:text-4xl font-serif font-medium tracking-tight mb-3"
+                            style={{ color: 'var(--wedding-foreground)' }}
+                          >
+                            Will you attend?
+                          </h2>
+                        </>
+                      ) : settings.layout === 'magazine' ? (
+                        <>
+                          <h2
+                            className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4"
+                            style={{ color: 'var(--wedding-foreground)' }}
+                          >
+                            RSVP
+                          </h2>
+                          <div
+                            className="h-0.5 w-16 mb-6"
+                            style={{ backgroundColor: 'var(--wedding-primary)' }}
+                          />
+                        </>
+                      ) : (
+                        <h2
+                          className="text-3xl font-serif font-medium tracking-tight mb-3"
+                          style={{ color: 'var(--wedding-foreground)' }}
+                        >
+                          RSVP
+                        </h2>
+                      )}
+                      <p className="text-sm opacity-60">
+                        RSVP form is available on the live site
+                      </p>
+                    </div>
+                  </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

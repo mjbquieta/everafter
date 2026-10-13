@@ -15,6 +15,11 @@ import {
   FaqSection,
   AudioPlayer,
   OpeningExperience,
+  MinimalistLayout,
+  AsymmetricLayout,
+  StorybookLayout,
+  PhotoFocusedLayout,
+  ClassicLayout,
 } from '@/features/public-wedding';
 import type { DividerStyle, DividerSize } from '@/features/public-wedding/floral-divider';
 
@@ -77,6 +82,7 @@ interface PublicWeddingData {
     audioUrl: string | null;
     openingTransition: string;
   };
+  websitePhotos: Array<{ id: string; url: string; caption?: string }>;
 }
 
 const fontMap: Record<string, string> = {
@@ -87,9 +93,18 @@ const fontMap: Record<string, string> = {
 };
 
 export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
-  const { wedding, profile, settings } = data;
+  const { wedding, profile, settings, websitePhotos = [] } = data;
   const searchParams = useSearchParams();
   const [invitedGuest, setInvitedGuest] = useState<InvitedGuest | null>(null);
+
+  // Format website photo URLs for use in layouts
+  const formattedPhotos = useMemo(() => {
+    return websitePhotos.map(photo => ({
+      id: photo.id,
+      url: photo.url.startsWith('/') ? photo.url : `/uploads/${photo.url}`,
+      caption: photo.caption ?? undefined
+    }));
+  }, [websitePhotos]);
 
   const coupleNames = profile.brideName && profile.groomName
     ? `${profile.brideName} & ${profile.groomName}`
@@ -122,6 +137,9 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
 
   // Extract hero text color from sections (stored as _heroTextColor)
   const heroTextColor = (sec?._heroTextColor as 'light' | 'dark') ?? (settings.heroBanner ? 'light' : 'dark');
+
+  // Extract layout slots for template-specific layouts
+  const layoutSlots = (sec?._layoutSlots as Record<string, string>) || {};
 
   const DEFAULT_ORDER = ['hero', 'content', 'schedule', 'faq', 'rsvp'];
   const sectionOrder: string[] = Array.isArray(sec?._order)
@@ -188,7 +206,188 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
         layout={settings.navigationStyle as 'left' | 'center' | 'right'}
       />
 
-      <div style={{ order: orderOf('hero') }}>
+      {/* Template-specific full layouts */}
+      {/* Use template ID to determine which layout to render */}
+      {settings.theme === 'midnight-editorial' ? (
+        <MinimalistLayout
+          wedding={
+            {
+              ...wedding,
+              bride: { name: profile.brideName ?? undefined },
+              groom: { name: profile.groomName ?? undefined },
+              venue: {
+                name: profile.ceremonyName ?? undefined,
+                address: profile.ceremonyAddress ?? undefined,
+              },
+              tagline: null,
+              story: profile.loveStory ?? undefined,
+              rsvpDeadline: null,
+            } as any
+          }
+          photos={formattedPhotos}
+          layoutSlots={layoutSlots}
+          showStory={hasStory}
+          showDetails={hasDetails}
+          showSchedule={hasSchedule}
+          showFaq={hasFaq}
+          showRsvp={showRsvp}
+          proposalStory={profile.proposalStory ?? undefined}
+          loveStory={profile.loveStory ?? undefined}
+          scheduleEvents={profile.scheduleEvents ?? undefined}
+          faqItems={profile.faqItems ?? undefined}
+          onRsvpClick={() => {
+            const rsvpSection = document.getElementById('rsvp');
+            if (rsvpSection) {
+              rsvpSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        />
+      ) : ['moody-plum', 'warm-linen', 'dusty-rose', 'coastal-slate'].includes(settings.theme) ? (
+        <>
+          {settings.theme === 'moody-plum' && (
+            <AsymmetricLayout
+              wedding={
+                {
+                  ...wedding,
+                  bride: { name: profile.brideName ?? undefined },
+                  groom: { name: profile.groomName ?? undefined },
+                  venue: {
+                    name: profile.ceremonyName ?? undefined,
+                    address: profile.ceremonyAddress ?? undefined,
+                  },
+                  tagline: null,
+                  story: profile.loveStory ?? undefined,
+                  rsvpDeadline: null,
+                } as any
+              }
+              photos={formattedPhotos}
+              layoutSlots={layoutSlots}
+              showStory={hasStory}
+              showDetails={hasDetails}
+              showSchedule={hasSchedule}
+              showFaq={hasFaq}
+              showRsvp={showRsvp}
+              proposalStory={profile.proposalStory ?? undefined}
+              loveStory={profile.loveStory ?? undefined}
+              scheduleEvents={profile.scheduleEvents ?? undefined}
+              faqItems={profile.faqItems ?? undefined}
+              onRsvpClick={() => {
+                const rsvpSection = document.getElementById('rsvp');
+                if (rsvpSection) {
+                  rsvpSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
+          )}
+          {settings.theme === 'warm-linen' && (
+            <ClassicLayout
+              wedding={
+                {
+                  ...wedding,
+                  bride: { name: profile.brideName ?? undefined },
+                  groom: { name: profile.groomName ?? undefined },
+                  venue: {
+                    name: profile.ceremonyName ?? undefined,
+                    address: profile.ceremonyAddress ?? undefined,
+                  },
+                  tagline: null,
+                  story: profile.loveStory ?? undefined,
+                  rsvpDeadline: null,
+                } as any
+              }
+              photos={formattedPhotos}
+              layoutSlots={layoutSlots}
+              showStory={hasStory}
+              showDetails={hasDetails}
+              showSchedule={hasSchedule}
+              showFaq={hasFaq}
+              showRsvp={showRsvp}
+              proposalStory={profile.proposalStory ?? undefined}
+              loveStory={profile.loveStory ?? undefined}
+              scheduleEvents={profile.scheduleEvents ?? undefined}
+              faqItems={profile.faqItems ?? undefined}
+              onRsvpClick={() => {
+                const rsvpSection = document.getElementById('rsvp');
+                if (rsvpSection) {
+                  rsvpSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
+          )}
+          {settings.theme === 'dusty-rose' && (
+            <StorybookLayout
+              wedding={
+                {
+                  ...wedding,
+                  bride: { name: profile.brideName ?? undefined },
+                  groom: { name: profile.groomName ?? undefined },
+                  venue: {
+                    name: profile.ceremonyName ?? undefined,
+                    address: profile.ceremonyAddress ?? undefined,
+                  },
+                  tagline: null,
+                  story: profile.loveStory ?? undefined,
+                  rsvpDeadline: null,
+                } as any
+              }
+              photos={formattedPhotos}
+              layoutSlots={layoutSlots}
+              showStory={hasStory}
+              showDetails={hasDetails}
+              showSchedule={hasSchedule}
+              showFaq={hasFaq}
+              showRsvp={showRsvp}
+              proposalStory={profile.proposalStory ?? undefined}
+              loveStory={profile.loveStory ?? undefined}
+              scheduleEvents={profile.scheduleEvents ?? undefined}
+              faqItems={profile.faqItems ?? undefined}
+              onRsvpClick={() => {
+                const rsvpSection = document.getElementById('rsvp');
+                if (rsvpSection) {
+                  rsvpSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
+          )}
+          {settings.theme === 'coastal-slate' && (
+            <PhotoFocusedLayout
+              wedding={
+                {
+                  ...wedding,
+                  bride: { name: profile.brideName ?? undefined },
+                  groom: { name: profile.groomName ?? undefined },
+                  venue: {
+                    name: profile.ceremonyName ?? undefined,
+                    address: profile.ceremonyAddress ?? undefined,
+                  },
+                  tagline: null,
+                  story: profile.loveStory ?? undefined,
+                  rsvpDeadline: null,
+                } as any
+              }
+              photos={formattedPhotos}
+              layoutSlots={layoutSlots}
+              showStory={hasStory}
+              showDetails={hasDetails}
+              showSchedule={hasSchedule}
+              showFaq={hasFaq}
+              showRsvp={showRsvp}
+              proposalStory={profile.proposalStory ?? undefined}
+              loveStory={profile.loveStory ?? undefined}
+              scheduleEvents={profile.scheduleEvents ?? undefined}
+              faqItems={profile.faqItems ?? undefined}
+              onRsvpClick={() => {
+                const rsvpSection = document.getElementById('rsvp');
+                if (rsvpSection) {
+                  rsvpSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
+          )}
+        </>
+      ) : (
+        <>
+          <div style={{ order: orderOf('hero') }}>
         <MotionSection enabled={settings.animations}>
           <HeroSection
             brideName={profile.brideName}
@@ -268,6 +467,8 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
             <RsvpSection slug={wedding.slug} layout={settings.layout} invitedGuest={invitedGuest} />
           </MotionSection>
         </div>
+      )}
+        </>
       )}
 
       {/* Footer */}

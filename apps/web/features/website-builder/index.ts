@@ -12,3 +12,7 @@ export { OpeningTransitionPicker } from './opening-transition-picker';
 export { HeroTextColorPicker } from './hero-text-color-picker';
 export { LayoutSelector } from './layout-selector';
 export type { WebsiteLayout } from './layout-selector';
+export { TemplateSkeleton } from './template-skeleton';
+export { PhotoSlotAllocator } from './photo-slot-allocator';
+export { getTemplateBlueprint, TEMPLATE_BLUEPRINTS } from './template-blueprints';
+export type { PhotoSlot, TemplateBlueprint } from './template-blueprints';

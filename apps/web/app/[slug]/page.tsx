@@ -66,6 +66,7 @@ interface PublicWeddingData {
     audioUrl: string | null;
     openingTransition: string;
   };
+  websitePhotos: Array<{ id: string; url: string; caption?: string }>;
 }
 
 async function fetchWeddingData(
