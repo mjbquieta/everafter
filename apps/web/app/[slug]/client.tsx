@@ -202,7 +202,12 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
       <NavigationBar
         items={navItems}
         coupleNames={coupleNames}
-        hasBanner={!!settings.heroBanner}
+        hasBanner={
+          // Template layouts have built-in hero sections, not separate banners
+          ['midnight-editorial', 'moody-plum', 'warm-linen', 'dusty-rose', 'coastal-slate'].includes(settings.theme)
+            ? false
+            : !!settings.heroBanner
+        }
         layout={settings.navigationStyle as 'left' | 'center' | 'right'}
       />
 

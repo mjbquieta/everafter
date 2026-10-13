@@ -37,6 +37,8 @@ interface ClassicLayoutProps {
   scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
+  onPhotoSlotClick?: (slotId: string) => void;
+  isPreview?: boolean;
 }
 
 export function ClassicLayout({
@@ -53,6 +55,8 @@ export function ClassicLayout({
   scheduleEvents,
   faqItems,
   onRsvpClick,
+  onPhotoSlotClick,
+  isPreview = false,
 }: ClassicLayoutProps) {
   const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
     if (layoutSlots && layoutSlots[slotId]) {
@@ -123,6 +127,8 @@ export function ClassicLayout({
             src={getPhoto('hero', 0)}
             alt="Wedding Portrait"
             className="aspect-[3/4] w-full object-cover rounded-lg shadow-lg"
+            onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+            isPreview={isPreview}
           />
         </div>
 
@@ -133,6 +139,8 @@ export function ClassicLayout({
               src={getPhoto('vignette', 1)}
               alt="Vignette"
               className="aspect-square w-full object-cover rounded-full shadow-md"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('vignette') : undefined}
+              isPreview={isPreview}
             />
           </div>
         )}

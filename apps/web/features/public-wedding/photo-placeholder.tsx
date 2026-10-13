@@ -2,11 +2,15 @@
 
 interface PhotoPlaceholderProps {
   className?: string;
+  onClick?: () => void;
 }
 
-export function PhotoPlaceholder({ className = '' }: PhotoPlaceholderProps) {
+export function PhotoPlaceholder({ className = '', onClick }: PhotoPlaceholderProps) {
   return (
-    <div className={`flex items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 ${className}`}>
+    <div
+      className={`flex items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 ${className} ${onClick ? 'cursor-pointer hover:from-stone-200 hover:to-stone-300 transition-colors' : ''}`}
+      onClick={onClick}
+    >
       <svg
         className="w-16 h-16 md:w-24 md:h-24 text-stone-300"
         fill="none"

@@ -60,6 +60,7 @@ interface PreviewPanelProps {
   sectionOrder?: string[];
   layoutSlots?: Record<string, string>;
   websitePhotos?: Array<{ id: string; url: string; caption?: string }>;
+  onPhotoSlotUpdate?: (slotId: string, photoUrl: string) => void;
 }
 
 type Viewport = 'desktop' | 'tablet' | 'mobile';
@@ -86,9 +87,11 @@ export function PreviewPanel({
   sectionOrder,
   layoutSlots = {},
   websitePhotos = [],
+  onPhotoSlotUpdate,
 }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<Viewport>('desktop');
   const [copied, setCopied] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const publicUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/${slug}`;
 
@@ -96,6 +99,17 @@ export function PreviewPanel({
     await navigator.clipboard.writeText(publicUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handlePhotoSlotClick = (slotId: string) => {
+    setSelectedSlot(slotId);
+  };
+
+  const handlePhotoSelect = (photoUrl: string) => {
+    if (selectedSlot && onPhotoSlotUpdate) {
+      onPhotoSlotUpdate(selectedSlot, photoUrl);
+      setSelectedSlot(null);
+    }
   };
 
   const cssVars = {
@@ -217,6 +231,8 @@ export function PreviewPanel({
                     scheduleEvents={profile.scheduleEvents ?? undefined}
                     faqItems={profile.faqItems ?? undefined}
                     onRsvpClick={() => {}}
+                    onPhotoSlotClick={handlePhotoSlotClick}
+                    isPreview={true}
                   />
                 )}
                 {settings.theme === 'moody-plum' && (
@@ -234,6 +250,8 @@ export function PreviewPanel({
                     scheduleEvents={profile.scheduleEvents ?? undefined}
                     faqItems={profile.faqItems ?? undefined}
                     onRsvpClick={() => {}}
+                    onPhotoSlotClick={handlePhotoSlotClick}
+                    isPreview={true}
                   />
                 )}
                 {settings.theme === 'warm-linen' && (
@@ -251,6 +269,8 @@ export function PreviewPanel({
                     scheduleEvents={profile.scheduleEvents ?? undefined}
                     faqItems={profile.faqItems ?? undefined}
                     onRsvpClick={() => {}}
+                    onPhotoSlotClick={handlePhotoSlotClick}
+                    isPreview={true}
                   />
                 )}
                 {settings.theme === 'dusty-rose' && (
@@ -268,6 +288,8 @@ export function PreviewPanel({
                     scheduleEvents={profile.scheduleEvents ?? undefined}
                     faqItems={profile.faqItems ?? undefined}
                     onRsvpClick={() => {}}
+                    onPhotoSlotClick={handlePhotoSlotClick}
+                    isPreview={true}
                   />
                 )}
                 {settings.theme === 'coastal-slate' && (
@@ -285,6 +307,8 @@ export function PreviewPanel({
                     scheduleEvents={profile.scheduleEvents ?? undefined}
                     faqItems={profile.faqItems ?? undefined}
                     onRsvpClick={() => {}}
+                    onPhotoSlotClick={handlePhotoSlotClick}
+                    isPreview={true}
                   />
                 )}
               </>
@@ -420,6 +444,60 @@ export function PreviewPanel({
           </div>
         </div>
       </div>
+
+      {/* Photo Selection Modal */}
+      {selectedSlot && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-stone-200">
+              <div>
+                <h3 className="text-sm font-semibold text-stone-900">
+                  Select Photo
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Click a photo to assign it to this slot
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedSlot(null)}
+                className="p-1 hover:bg-stone-100 rounded transition-colors"
+              >
+                <svg className="h-4 w-4 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Photo Grid */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {websitePhotos.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-sm text-stone-500">
+                    No photos available. Upload photos to your gallery first.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {websitePhotos.map((photo) => (
+                    <button
+                      key={photo.id}
+                      onClick={() => handlePhotoSelect(photo.url)}
+                      className="aspect-square rounded overflow-hidden bg-stone-100 border-2 border-transparent hover:border-primary transition-colors"
+                    >
+                      <img
+                        src={photo.url}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

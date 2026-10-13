@@ -38,6 +38,8 @@ interface PhotoFocusedLayoutProps {
   scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
+  onPhotoSlotClick?: (slotId: string) => void;
+  isPreview?: boolean;
 }
 
 export function PhotoFocusedLayout({
@@ -54,6 +56,8 @@ export function PhotoFocusedLayout({
   scheduleEvents,
   faqItems,
   onRsvpClick,
+  onPhotoSlotClick,
+  isPreview = false,
 }: PhotoFocusedLayoutProps) {
   const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
     if (layoutSlots && layoutSlots[slotId]) {
@@ -81,6 +85,8 @@ export function PhotoFocusedLayout({
           src={getPhoto('hero', 0)}
           alt="Hero Landscape"
           className="w-full h-full object-cover"
+          onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+          isPreview={isPreview}
         />
         <div className="absolute inset-0 bg-black/30" />
 
@@ -111,6 +117,8 @@ export function PhotoFocusedLayout({
                 src={getPhoto('portrait-1', 1)}
                 alt="Portrait Feature 1"
                 className="w-full h-full object-cover rounded-lg"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('portrait-1') : undefined}
+                isPreview={isPreview}
               />
             </div>
             <div className="col-span-1">
@@ -118,6 +126,8 @@ export function PhotoFocusedLayout({
                 src={getPhoto('square-1', 2)}
                 alt="Square Detail 1"
                 className="aspect-square w-full object-cover rounded-lg"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('square-1') : undefined}
+                isPreview={isPreview}
               />
             </div>
             <div className="col-span-1 row-span-2">
@@ -125,6 +135,8 @@ export function PhotoFocusedLayout({
                 src={getPhoto('portrait-2', 3)}
                 alt="Portrait Feature 2"
                 className="w-full h-full object-cover rounded-lg"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('portrait-2') : undefined}
+                isPreview={isPreview}
               />
             </div>
             <div className="col-span-1">
@@ -132,6 +144,8 @@ export function PhotoFocusedLayout({
                 src={getPhoto('square-2', 4)}
                 alt="Square Detail 2"
                 className="aspect-square w-full object-cover rounded-lg"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('square-2') : undefined}
+                isPreview={isPreview}
               />
             </div>
             <div className="col-span-1">
@@ -146,6 +160,8 @@ export function PhotoFocusedLayout({
                   src={getPhoto('landscape', 5)}
                   alt="Landscape Break"
                   className="aspect-video w-full object-cover rounded-lg"
+                  onClick={onPhotoSlotClick ? () => onPhotoSlotClick('landscape') : undefined}
+                  isPreview={isPreview}
                 />
               </div>
             )}

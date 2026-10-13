@@ -25,7 +25,6 @@ import {
   AudioSettings,
   OpeningTransitionPicker,
   HeroTextColorPicker,
-  PhotoSlotAllocator,
 } from '@/features/website-builder';
 import { useGalleryPhotos } from '@/lib/hooks/use-gallery';
 import { DEFAULT_SECTION_ORDER } from '@/features/website-builder/section-toggles';
@@ -331,6 +330,17 @@ export default function WebsiteBuilderPage() {
     [],
   );
 
+  const handlePhotoSlotUpdate = useCallback(
+    (slotId: string, photoUrl: string) => {
+      setLayoutSlots((prev) => ({
+        ...prev,
+        [slotId]: photoUrl,
+      }));
+      setHasUnsavedChanges(true);
+    },
+    [],
+  );
+
   const handleSave = async () => {
     if (!localSettings) return;
     try {
@@ -517,36 +527,6 @@ export default function WebsiteBuilderPage() {
           onChange={handleThemeChange}
         />
 
-        <PhotoSlotAllocator
-          templateId={localSettings.theme}
-          layoutSlots={layoutSlots}
-          availablePhotos={(galleryData?.photos || [])
-            .filter((p) => {
-              // Only include visible photos (check for [visible:true] tag)
-              if (!p.caption) return true;
-              const match = p.caption.match(/\[visible:(true|false)\]/);
-              return match ? match[1] === 'true' : true;
-            })
-            .map((p) => ({
-              id: p.id,
-              url: p.storageKey.startsWith('/') ? p.storageKey : `/uploads/${p.storageKey}`,
-              caption: p.caption,
-            }))}
-          onSlotUpdate={(slotId, photoUrl) => {
-            setLayoutSlots((prev) => {
-              const updated = { ...prev };
-              if (photoUrl === null) {
-                delete updated[slotId];
-              } else {
-                updated[slotId] = photoUrl;
-              }
-              return updated;
-            });
-            setHasUnsavedChanges(true);
-          }}
-          onUploadClick={() => router.push(`/dashboard/${weddingId}/gallery`)}
-        />
-
         <HeroTextColorPicker
           value={localSettings.heroTextColor as 'light' | 'dark'}
           onChange={handleHeroTextColorChange}
@@ -650,6 +630,7 @@ export default function WebsiteBuilderPage() {
                 url: p.storageKey.startsWith('/') ? p.storageKey : `/uploads/${p.storageKey}`,
                 caption: p.caption ?? undefined,
               }))}
+            onPhotoSlotUpdate={handlePhotoSlotUpdate}
           />
         )}
       </div>

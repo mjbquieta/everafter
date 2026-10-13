@@ -37,6 +37,8 @@ interface MinimalistLayoutProps {
   scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
+  onPhotoSlotClick?: (slotId: string) => void;
+  isPreview?: boolean;
 }
 
 export function MinimalistLayout({
@@ -53,6 +55,8 @@ export function MinimalistLayout({
   scheduleEvents,
   faqItems,
   onRsvpClick,
+  onPhotoSlotClick,
+  isPreview = false,
 }: MinimalistLayoutProps) {
   const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
     // First, try to get from layoutSlots
@@ -118,6 +122,8 @@ export function MinimalistLayout({
                   src={getPhoto('hero', 0)}
                   alt="Hero Portrait"
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 rounded"
+                  onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+                  isPreview={isPreview}
                 />
               </div>
             </div>
@@ -135,6 +141,8 @@ export function MinimalistLayout({
                 src={getPhoto('story', 1)}
                 alt="Portrait 1"
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 rounded"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story') : undefined}
+                isPreview={isPreview}
               />
             </div>
           </div>
@@ -145,6 +153,8 @@ export function MinimalistLayout({
                 src={getPhoto('backdrop', 2)}
                 alt="Portrait 2"
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 rounded"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('backdrop') : undefined}
+                isPreview={isPreview}
               />
             </div>
           </div>

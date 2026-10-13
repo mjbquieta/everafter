@@ -37,6 +37,8 @@ interface AsymmetricLayoutProps {
   scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
+  onPhotoSlotClick?: (slotId: string) => void;
+  isPreview?: boolean;
 }
 
 export function AsymmetricLayout({
@@ -53,6 +55,8 @@ export function AsymmetricLayout({
   scheduleEvents,
   faqItems,
   onRsvpClick,
+  onPhotoSlotClick,
+  isPreview = false,
 }: AsymmetricLayoutProps) {
   const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
     // First, try to get from layoutSlots
@@ -110,6 +114,8 @@ export function AsymmetricLayout({
               src={getPhoto('hero', 0)}
               alt="Hero"
               className="aspect-[3/4] w-full object-cover rounded-2xl shadow-lg"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+              isPreview={isPreview}
             />
           </div>
         </div>
@@ -143,6 +149,8 @@ export function AsymmetricLayout({
               src={getPhoto('story-landscape', 1)}
               alt="Story"
               className="aspect-video w-full object-cover rounded-2xl shadow-md"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story-landscape') : undefined}
+              isPreview={isPreview}
             />
           </div>
         </div>
@@ -153,16 +161,22 @@ export function AsymmetricLayout({
             src={getPhoto('detail-square', 2)}
             alt="Gallery 1"
             className="aspect-square w-full object-cover rounded-xl"
+            onClick={onPhotoSlotClick ? () => onPhotoSlotClick('detail-square') : undefined}
+            isPreview={isPreview}
           />
           <PhotoSlot
             src={getPhoto('portrait-accent', 3)}
             alt="Gallery 2"
             className="aspect-[3/4] w-full object-cover rounded-xl"
+            onClick={onPhotoSlotClick ? () => onPhotoSlotClick('portrait-accent') : undefined}
+            isPreview={isPreview}
           />
           <PhotoSlot
             src={getPhoto('panoramic', 4)}
             alt="Gallery 3"
             className="aspect-[21/9] w-full object-cover rounded-xl col-span-2 md:col-span-1"
+            onClick={onPhotoSlotClick ? () => onPhotoSlotClick('panoramic') : undefined}
+            isPreview={isPreview}
           />
         </div>
       </section>

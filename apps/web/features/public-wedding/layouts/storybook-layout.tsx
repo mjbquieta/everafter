@@ -37,6 +37,8 @@ interface StorybookLayoutProps {
   scheduleEvents?: Array<{ time: string; title: string; description?: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   onRsvpClick: () => void;
+  onPhotoSlotClick?: (slotId: string) => void;
+  isPreview?: boolean;
 }
 
 export function StorybookLayout({
@@ -53,6 +55,8 @@ export function StorybookLayout({
   scheduleEvents,
   faqItems,
   onRsvpClick,
+  onPhotoSlotClick,
+  isPreview = false,
 }: StorybookLayoutProps) {
   const getPhoto = (slotId: string, fallbackIndex: number = 0) => {
     if (layoutSlots && layoutSlots[slotId]) {
@@ -99,6 +103,8 @@ export function StorybookLayout({
               src={getPhoto('hero', 0)}
               alt="Romantic Hero"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+              isPreview={isPreview}
             />
           </div>
           <div className="absolute top-[15%] right-[8%] w-[45%] md:w-[38%] aspect-[3/4] transform rotate-[4deg]">
@@ -106,6 +112,8 @@ export function StorybookLayout({
               src={getPhoto('story-left', 1)}
               alt="Story Left"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story-left') : undefined}
+              isPreview={isPreview}
             />
           </div>
           <div className="absolute bottom-[5%] left-[25%] w-[38%] md:w-[32%] aspect-square transform rotate-[-3deg]">
@@ -113,6 +121,8 @@ export function StorybookLayout({
               src={getPhoto('story-right', 2)}
               alt="Story Right"
               className="w-full h-full object-cover rounded-2xl shadow-xl border-8 border-white"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story-right') : undefined}
+              isPreview={isPreview}
             />
           </div>
         </div>
@@ -129,6 +139,8 @@ export function StorybookLayout({
                   src={getPhoto('detail', 3)}
                   alt="Botanical Detail"
                   className="aspect-[4/3] w-full object-cover rounded-2xl shadow-lg"
+                  onClick={onPhotoSlotClick ? () => onPhotoSlotClick('detail') : undefined}
+                  isPreview={isPreview}
                 />
               </div>
             )}
