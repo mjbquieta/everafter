@@ -22,7 +22,7 @@ const themes = [
     couple: 'Mark & Issa',
     date: 'December 14, 2025',
     venue: 'Manila Cathedral',
-    description: 'Classic serif typography paired with warm beige canvas and earthy terracotta accents.',
+    description: 'Centered portrait layout with elegant typography. Warm beige tones and classic serif styling.',
     primary: '#8C7355',
     secondary: '#E8DCC8',
     bg: '#F9F6F0',
@@ -34,7 +34,7 @@ const themes = [
     couple: 'Aria & Lucas',
     date: 'March 22, 2026',
     venue: 'The Glass Garden',
-    description: 'Poetic editorial serif on lavender-tinged canvas with deep violet and mauve.',
+    description: 'Asymmetric photo-driven layout with staggered gallery. Lavender canvas with deep plum accents.',
     primary: '#4A2E4B',
     secondary: '#D4C5D6',
     bg: '#F5F2F7',
@@ -46,7 +46,7 @@ const themes = [
     couple: 'Sofia & James',
     date: 'June 8, 2026',
     venue: 'Villa Rosa Estate',
-    description: 'Romantic serif with soft italics on blush pink canvas and berry mauve highlights.',
+    description: 'Romantic overlapping photo cards with heart motif. Soft blush pink with berry mauve details.',
     primary: '#9E4759',
     secondary: '#F2D5DA',
     bg: '#FAF0F2',
@@ -58,7 +58,7 @@ const themes = [
     couple: 'James & Clara',
     date: 'August 18, 2026',
     venue: 'Seaside Chapel',
-    description: 'Clean modern serif on coastal blue canvas with deep slate and soft azure tones.',
+    description: 'Full-width hero with masonry photo grid. Coastal blue palette with clean modern serif.',
     primary: '#2C4251',
     secondary: '#C5D4DD',
     bg: '#EDF3F7',
@@ -70,7 +70,7 @@ const themes = [
     couple: 'Elena & Daniel',
     date: 'October 5, 2026',
     venue: 'The Grand Ballroom',
-    description: 'Dramatic obsidian charcoal canvas with crisp white typography and champagne gold accents.',
+    description: 'Editorial split layout with framed photography. Dramatic dark canvas with amber gold accents.',
     primary: '#FFFFFF',
     secondary: '#D4AF37',
     bg: '#0F1015',
@@ -91,7 +91,7 @@ const faqs = [
   },
   {
     q: 'Do I need coding skills to customize my website?',
-    a: 'Not at all. Choose a theme preset, adjust colors and fonts with simple controls, and toggle sections on or off. Everything is visual.',
+    a: 'Not at all. Choose a template, click photos in the preview to assign your images, adjust colors and fonts with simple controls, and toggle sections on or off. Everything is visual.',
   },
   {
     q: 'Can wedding planners use EverAfter for multiple clients?',
@@ -102,6 +102,8 @@ const faqs = [
 /* ─── Theme Mockup Components ────────────────────────────────────────────────── */
 
 function DesktopMockup({ theme }: { theme: (typeof themes)[number] }) {
+  const templateSlug = theme.name.toLowerCase().replace(/ /g, '-');
+
   return (
     <div className="rounded-2xl border border-stone-200/90 bg-white shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] overflow-hidden">
       {/* Browser chrome */}
@@ -115,112 +117,34 @@ function DesktopMockup({ theme }: { theme: (typeof themes)[number] }) {
           everafter.app/{theme.couple.toLowerCase().replace(/ & /g, '-').replace(/\s/g, '-')}
         </div>
       </div>
-      {/* Wedding site content */}
-      <div style={{ backgroundColor: theme.bg }} className="px-6 py-10 md:px-10 md:py-14">
-        {/* Nav mockup */}
-        <div className="flex items-center justify-center gap-6 mb-10">
-          {['Our Story', 'Details', 'RSVP'].map((item) => (
-            <span
-              key={item}
-              className="font-sans text-[9px] uppercase tracking-[0.15em]"
-              style={{ color: theme.fg, opacity: 0.4 }}
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-        {/* Hero */}
-        <div className="text-center">
-          <p
-            className="font-sans text-[8px] font-semibold uppercase tracking-[0.25em] mb-3"
-            style={{ color: theme.primary }}
-          >
-            Wedding Invitation
-          </p>
-          <h3
-            className="font-serif text-2xl md:text-3xl font-medium tracking-tight leading-tight"
-            style={{ color: theme.fg }}
-          >
-            {theme.couple}
-          </h3>
-          <div className="flex items-center justify-center gap-3 mt-3">
-            <div className="h-px w-8" style={{ backgroundColor: theme.primary, opacity: 0.3 }} />
-            <p
-              className="font-sans text-[8px] font-semibold uppercase tracking-[0.2em]"
-              style={{ color: theme.fg, opacity: 0.5 }}
-            >
-              {theme.date}
-            </p>
-            <div className="h-px w-8" style={{ backgroundColor: theme.primary, opacity: 0.3 }} />
-          </div>
-          <p
-            className="font-sans text-[9px] mt-2"
-            style={{ color: theme.fg, opacity: 0.4 }}
-          >
-            {theme.venue}
-          </p>
-          {/* CTA */}
-          <div className="mt-6 inline-flex items-center justify-center gap-1.5 rounded-md px-5 py-2 text-[9px] font-semibold text-white"
-               style={{ backgroundColor: theme.primary }}>
-            RSVP Now
-          </div>
-        </div>
-        {/* Decorative divider */}
-        <div className="flex items-center justify-center gap-2 mt-8">
-          <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: theme.secondary }} />
-          <Sparkles className="h-3 w-3" style={{ color: theme.accent }} />
-          <div className="h-px flex-1 max-w-[60px]" style={{ backgroundColor: theme.secondary }} />
-        </div>
+      {/* Template Screenshot */}
+      <div className="aspect-[16/10] overflow-hidden">
+        <img
+          src={`/images/templates/${templateSlug}.png`}
+          alt={`${theme.name} template preview`}
+          className="w-full h-full object-cover object-top"
+        />
       </div>
     </div>
   );
 }
 
 function MobileMockup({ theme }: { theme: (typeof themes)[number] }) {
+  const templateSlug = theme.name.toLowerCase().replace(/ /g, '-');
+
   return (
     <div className="w-[140px] sm:w-[160px] md:w-[170px] h-[300px] sm:h-[340px] md:h-[360px] rounded-[28px] sm:rounded-[34px] border-[5px] sm:border-[6px] border-stone-800 bg-stone-900 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] overflow-hidden">
       {/* Screen */}
       <div className="rounded-[23px] sm:rounded-[28px] overflow-hidden bg-white relative flex flex-col h-full">
         {/* Dynamic Island / Speaker Pill */}
         <div className="w-10 sm:w-12 h-2.5 sm:h-3 bg-stone-900 rounded-full mx-auto mt-1.5 z-20 shrink-0" />
-
-        {/* Content Area */}
-        <div style={{ backgroundColor: theme.bg }} className="flex-1 px-3 py-4 flex flex-col justify-center">
-          <div className="text-center">
-            <p
-              className="font-sans text-[7px] uppercase tracking-widest mb-2"
-              style={{ color: theme.primary }}
-            >
-              The Wedding of
-            </p>
-            <h4
-              className="font-serif text-[10px] sm:text-[11px] font-medium tracking-tight leading-tight"
-              style={{ color: theme.fg }}
-            >
-              {theme.couple}
-            </h4>
-            <p
-              className="font-sans text-[7px] uppercase tracking-widest mt-1.5"
-              style={{ color: theme.fg, opacity: 0.5 }}
-            >
-              {theme.date}
-            </p>
-            {/* Divider */}
-            <div className="mx-auto my-2.5 h-px w-8" style={{ backgroundColor: theme.secondary }} />
-            {/* Placeholder content lines */}
-            <div className="space-y-1 mt-2.5">
-              <div className="mx-auto h-0.5 w-4/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-              <div className="mx-auto h-0.5 w-3/5 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-              <div className="mx-auto h-0.5 w-2/3 rounded" style={{ backgroundColor: theme.secondary, opacity: 0.5 }} />
-            </div>
-            {/* RSVP button */}
-            <div
-              className="mt-3 mx-auto inline-block rounded-full px-3 py-1 text-[7px] font-sans font-bold text-white"
-              style={{ backgroundColor: theme.primary }}
-            >
-              RSVP Now
-            </div>
-          </div>
+        {/* Template Screenshot */}
+        <div className="flex-1 overflow-hidden">
+          <img
+            src={`/images/templates/${templateSlug}-mobile.png`}
+            alt={`${theme.name} mobile preview`}
+            className="w-full h-full object-cover object-top"
+          />
         </div>
       </div>
     </div>
@@ -284,7 +208,7 @@ function ThemeCarousel() {
         <div className="lg:col-span-5 flex flex-col justify-center space-y-8">
           <div>
             <p className="font-sans text-[11px] tracking-[0.3em] uppercase text-stone-500 mb-6">
-              THEME SELECTOR
+              TEMPLATE SELECTOR
             </p>
 
             {/* Theme tabs - vertical on desktop */}
@@ -433,7 +357,7 @@ export default function HomePage() {
               Bespoke templates for every <span className="italic">vision</span>
             </h2>
             <p className="mt-6 text-base sm:text-lg text-stone-600 leading-relaxed font-serif">
-              Each theme offers distinct editorial personality with customizable colors, typography, and layout to reflect your unique love story.
+              Each template features a unique layout design and photo-driven composition. Customize with your colors, typography, and photos to tell your love story.
             </p>
           </div>
 

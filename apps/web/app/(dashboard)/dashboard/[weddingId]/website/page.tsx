@@ -527,10 +527,13 @@ export default function WebsiteBuilderPage() {
           onChange={handleThemeChange}
         />
 
-        <HeroTextColorPicker
-          value={localSettings.heroTextColor as 'light' | 'dark'}
-          onChange={handleHeroTextColorChange}
-        />
+        {/* Only show Hero Text Theme for legacy themes */}
+        {!['midnight-editorial', 'moody-plum', 'warm-linen', 'dusty-rose', 'coastal-slate'].includes(localSettings.theme) && (
+          <HeroTextColorPicker
+            value={localSettings.heroTextColor as 'light' | 'dark'}
+            onChange={handleHeroTextColorChange}
+          />
+        )}
 
         <ColorPicker
           primaryColor={localSettings.primaryColor}

@@ -115,17 +115,14 @@ export function MinimalistLayout({
 
           {/* Right: Framed Portrait */}
           <div className="relative">
-            <div className="aspect-[3/4] relative">
-              <div className="absolute inset-0 border border-amber-400/30 rounded" />
-              <div className="absolute inset-2">
-                <PhotoSlot
-                  src={getPhoto('hero', 0)}
-                  alt="Hero Portrait"
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 rounded"
-                  onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
-                  isPreview={isPreview}
-                />
-              </div>
+            <div className="relative border-2 border-amber-400/30 p-3 rounded">
+              <PhotoSlot
+                src={getPhoto('hero', 0)}
+                alt="Hero Portrait"
+                className="w-full h-auto max-h-[600px] object-contain rounded grayscale hover:grayscale-0 transition-all duration-500"
+                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
+                isPreview={isPreview}
+              />
             </div>
           </div>
         </div>
@@ -134,29 +131,23 @@ export function MinimalistLayout({
       {/* Framed Portrait Blocks */}
       <section className="px-4 md:px-8 py-16 md:py-20 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="aspect-square relative group">
-            <div className="absolute inset-0 border border-white/20 rounded" />
-            <div className="absolute inset-4">
-              <PhotoSlot
-                src={getPhoto('story', 1)}
-                alt="Portrait 1"
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 rounded"
-                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story') : undefined}
-                isPreview={isPreview}
-              />
-            </div>
+          <div className="relative border-2 border-white/20 p-4 rounded group">
+            <PhotoSlot
+              src={getPhoto('story', 1)}
+              alt="Portrait 1"
+              className="w-full h-auto object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story') : undefined}
+              isPreview={isPreview}
+            />
           </div>
-          <div className="aspect-square relative group">
-            <div className="absolute inset-0 border border-white/20 rounded" />
-            <div className="absolute inset-4">
-              <PhotoSlot
-                src={getPhoto('backdrop', 2)}
-                alt="Portrait 2"
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 rounded"
-                onClick={onPhotoSlotClick ? () => onPhotoSlotClick('backdrop') : undefined}
-                isPreview={isPreview}
-              />
-            </div>
+          <div className="relative border-2 border-white/20 p-4 rounded group">
+            <PhotoSlot
+              src={getPhoto('backdrop', 2)}
+              alt="Portrait 2"
+              className="w-full h-auto object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
+              onClick={onPhotoSlotClick ? () => onPhotoSlotClick('backdrop') : undefined}
+              isPreview={isPreview}
+            />
           </div>
         </div>
       </section>
