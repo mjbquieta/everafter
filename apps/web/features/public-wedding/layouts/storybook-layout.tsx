@@ -98,12 +98,12 @@ export function StorybookLayout({
 
         {/* Mobile: Stacked Cards, Desktop: Overlapping Cards */}
         {/* Mobile Layout */}
-        <div className="md:hidden space-y-4 max-w-sm mx-auto">
-          <div className="transform rotate-[-2deg]">
+        <div className="md:hidden grid grid-cols-2 gap-4 max-w-md mx-auto">
+          <div className="col-span-2 transform rotate-[-2deg]">
             <PhotoSlot
               src={getPhoto('hero', 0)}
               alt="Romantic Hero"
-              className="w-full aspect-[4/5] object-cover rounded-2xl shadow-xl border-8 border-white"
+              className="w-full aspect-[4/5] object-cover rounded-xl shadow-lg border-4 border-white"
               onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
               isPreview={isPreview}
             />
@@ -112,7 +112,7 @@ export function StorybookLayout({
             <PhotoSlot
               src={getPhoto('story-left', 1)}
               alt="Story Left"
-              className="w-full aspect-[3/4] object-cover rounded-2xl shadow-xl border-8 border-white"
+              className="w-full aspect-square object-cover rounded-xl shadow-lg border-4 border-white"
               onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story-left') : undefined}
               isPreview={isPreview}
             />
@@ -121,7 +121,7 @@ export function StorybookLayout({
             <PhotoSlot
               src={getPhoto('story-right', 2)}
               alt="Story Right"
-              className="w-full aspect-square object-cover rounded-2xl shadow-xl border-8 border-white"
+              className="w-full aspect-square object-cover rounded-xl shadow-lg border-4 border-white"
               onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story-right') : undefined}
               isPreview={isPreview}
             />

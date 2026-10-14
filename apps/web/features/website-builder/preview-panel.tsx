@@ -154,6 +154,29 @@ export function PreviewPanel({
 
   return (
     <div className="flex flex-col h-full">
+      {/* Force mobile styles when in mobile viewport */}
+      {viewport === 'mobile' && (
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .force-mobile-view .md\\:grid-cols-2 {
+              grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+            }
+            .force-mobile-view .md\\:order-last,
+            .force-mobile-view .md\\:order-first,
+            .force-mobile-view .md\\:order-1,
+            .force-mobile-view .md\\:order-2 {
+              order: 0 !important;
+            }
+            .force-mobile-view .order-first {
+              order: -1 !important;
+            }
+            .force-mobile-view .order-last {
+              order: 999 !important;
+            }
+          `
+        }} />
+      )}
+
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
         <div className="flex items-center gap-1">
@@ -196,7 +219,7 @@ export function PreviewPanel({
       {/* Preview area */}
       <div className="flex-1 overflow-auto bg-border/20 p-4 flex justify-center">
         <div
-          className="bg-white rounded-lg shadow-sm overflow-auto transition-all duration-300"
+          className={`bg-white rounded-lg shadow-sm overflow-auto transition-all duration-300 ${viewport === 'mobile' ? 'force-mobile-view' : ''}`}
           style={{
             width: viewportConfig[viewport].width,
             maxWidth: '100%',
