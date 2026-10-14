@@ -83,43 +83,43 @@ export function MinimalistLayout({
   return (
     <div className="min-h-screen bg-[#0F1015] text-white">
       {/* Stark Hero */}
-      <section id="home" className="relative px-4 md:px-8 py-20 md:py-32 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <section id="home" className="relative px-4 md:px-8 py-12 md:py-20 lg:py-32 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left: Minimal Typography */}
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className="space-y-6 md:space-y-8">
+            <div className="space-y-3 md:space-y-4">
               <p className="text-xs uppercase tracking-[0.3em] text-stone-400">
                 You Are Invited
               </p>
-              <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl leading-tight">
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-tight">
                 {brideName}
-                <span className="block text-amber-400 my-4">&</span>
+                <span className="block text-amber-400 my-3 md:my-4">&</span>
                 {groomName}
               </h1>
               <div className="h-px w-24 bg-amber-400" />
             </div>
 
-            <div className="space-y-3 text-stone-300">
+            <div className="space-y-2 md:space-y-3 text-sm md:text-base text-stone-300">
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-amber-400" />
-                <p>{weddingDate}</p>
+                <Calendar className="h-4 w-4 md:h-5 md:w-5 text-amber-400 flex-shrink-0" />
+                <p className="line-clamp-2">{weddingDate}</p>
               </div>
               {wedding.venue?.name && (
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-amber-400" />
-                  <p>{wedding.venue.name}</p>
+                  <MapPin className="h-4 w-4 md:h-5 md:w-5 text-amber-400 flex-shrink-0" />
+                  <p className="line-clamp-2">{wedding.venue.name}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Right: Framed Portrait */}
-          <div className="relative">
-            <div className="relative border-2 border-amber-400/30 p-3 rounded">
+          <div className="relative order-first md:order-last">
+            <div className="relative border-2 border-amber-400/30 p-2 md:p-3 rounded">
               <PhotoSlot
                 src={getPhoto('hero', 0)}
                 alt="Hero Portrait"
-                className="w-full h-auto max-h-[600px] object-contain rounded grayscale hover:grayscale-0 transition-all duration-500"
+                className="w-full h-auto max-h-[400px] md:max-h-[600px] object-contain rounded grayscale hover:grayscale-0 transition-all duration-500"
                 onClick={onPhotoSlotClick ? () => onPhotoSlotClick('hero') : undefined}
                 isPreview={isPreview}
               />
@@ -129,22 +129,22 @@ export function MinimalistLayout({
       </section>
 
       {/* Framed Portrait Blocks */}
-      <section className="px-4 md:px-8 py-16 md:py-20 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="relative border-2 border-white/20 p-4 rounded group">
+      <section className="px-4 md:px-8 py-12 md:py-16 lg:py-20 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="relative border-2 border-white/20 p-3 md:p-4 rounded group">
             <PhotoSlot
               src={getPhoto('story', 1)}
               alt="Portrait 1"
-              className="w-full h-auto object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
+              className="w-full h-auto max-h-[400px] md:max-h-none object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
               onClick={onPhotoSlotClick ? () => onPhotoSlotClick('story') : undefined}
               isPreview={isPreview}
             />
           </div>
-          <div className="relative border-2 border-white/20 p-4 rounded group">
+          <div className="relative border-2 border-white/20 p-3 md:p-4 rounded group">
             <PhotoSlot
               src={getPhoto('backdrop', 2)}
               alt="Portrait 2"
-              className="w-full h-auto object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
+              className="w-full h-auto max-h-[400px] md:max-h-none object-contain rounded grayscale group-hover:grayscale-0 transition-all duration-500"
               onClick={onPhotoSlotClick ? () => onPhotoSlotClick('backdrop') : undefined}
               isPreview={isPreview}
             />
@@ -154,17 +154,17 @@ export function MinimalistLayout({
 
       {/* Our Story */}
       {showStory && (proposalStory || loveStory) && (
-        <section id="story" className="px-4 md:px-8 py-16 md:py-20 max-w-4xl mx-auto border-t border-white/10">
-          <h2 className="font-serif text-3xl md:text-4xl text-center mb-8 text-white">
+        <section id="story" className="px-4 md:px-8 py-12 md:py-16 lg:py-20 max-w-4xl mx-auto border-t border-white/10">
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-6 md:mb-8 text-white">
             Our Story
           </h2>
-          <div className="space-y-12">
+          <div className="space-y-8 md:space-y-12">
             {proposalStory && (
               <div>
-                <h3 className="font-serif text-xl md:text-2xl text-center mb-4 text-amber-400">
+                <h3 className="font-serif text-lg md:text-xl lg:text-2xl text-center mb-3 md:mb-4 text-amber-400">
                   The Proposal
                 </h3>
-                <p className="text-stone-300 text-lg leading-relaxed whitespace-pre-line text-center">
+                <p className="text-stone-300 text-base md:text-lg leading-relaxed whitespace-pre-line text-center">
                   {proposalStory}
                 </p>
               </div>
@@ -172,11 +172,11 @@ export function MinimalistLayout({
             {loveStory && (
               <div>
                 {proposalStory && (
-                  <h3 className="font-serif text-xl md:text-2xl text-center mb-4 text-amber-400">
+                  <h3 className="font-serif text-lg md:text-xl lg:text-2xl text-center mb-3 md:mb-4 text-amber-400">
                     Our Love Story
                   </h3>
                 )}
-                <p className="text-stone-300 text-lg leading-relaxed whitespace-pre-line text-center">
+                <p className="text-stone-300 text-base md:text-lg leading-relaxed whitespace-pre-line text-center">
                   {loveStory}
                 </p>
               </div>
@@ -187,18 +187,18 @@ export function MinimalistLayout({
 
       {/* Schedule/Programme */}
       {showSchedule && scheduleEvents && scheduleEvents.length > 0 && (
-        <section id="schedule" className="px-4 md:px-8 py-16 md:py-20 border-t border-white/10">
+        <section id="schedule" className="px-4 md:px-8 py-12 md:py-16 lg:py-20 border-t border-white/10">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl text-center mb-12 text-white">
+            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-8 md:mb-12 text-white">
               Programme
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {scheduleEvents.map((event, idx) => (
-                <div key={idx} className="border-l-2 border-amber-400 pl-6">
+                <div key={idx} className="border-l-2 border-amber-400 pl-4 md:pl-6">
                   <p className="text-xs uppercase tracking-[0.2em] text-amber-400 mb-1">
                     {event.time}
                   </p>
-                  <h3 className="text-xl font-serif text-white mb-2">{event.title}</h3>
+                  <h3 className="text-lg md:text-xl font-serif text-white mb-2">{event.title}</h3>
                   {event.description && (
                     <p className="text-sm text-stone-400">{event.description}</p>
                   )}
@@ -211,16 +211,16 @@ export function MinimalistLayout({
 
       {/* FAQ */}
       {showFaq && faqItems && faqItems.length > 0 && (
-        <section id="faq" className="px-4 md:px-8 py-16 md:py-20 border-t border-white/10">
+        <section id="faq" className="px-4 md:px-8 py-12 md:py-16 lg:py-20 border-t border-white/10">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl text-center mb-12 text-white">
+            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-8 md:mb-12 text-white">
               Frequently Asked
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {faqItems.map((item, idx) => (
                 <div key={idx}>
-                  <h3 className="text-lg font-serif text-white mb-2">{item.question}</h3>
-                  <p className="text-stone-400 leading-relaxed">{item.answer}</p>
+                  <h3 className="text-base md:text-lg font-serif text-white mb-2">{item.question}</h3>
+                  <p className="text-sm md:text-base text-stone-400 leading-relaxed">{item.answer}</p>
                 </div>
               ))}
             </div>
@@ -230,44 +230,44 @@ export function MinimalistLayout({
 
       {/* Minimal Details */}
       {showDetails && (
-      <section id="details" className="px-4 md:px-8 py-16 md:py-20 border-t border-white/10">
+      <section id="details" className="px-4 md:px-8 py-12 md:py-16 lg:py-20 border-t border-white/10">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-3xl md:text-4xl text-center mb-12">
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-8 md:mb-12">
             Event Programme
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4 text-center md:text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="space-y-3 md:space-y-4 text-center md:text-left">
               <p className="text-xs uppercase tracking-[0.2em] text-amber-400">
                 Ceremony
               </p>
-              <p className="text-stone-300">{weddingDate}</p>
+              <p className="text-sm md:text-base text-stone-300">{weddingDate}</p>
               {wedding.venue?.name && (
-                <p className="text-sm text-stone-400">{wedding.venue.name}</p>
+                <p className="text-xs md:text-sm text-stone-400">{wedding.venue.name}</p>
               )}
             </div>
 
-            <div className="space-y-4 text-center md:text-left">
+            <div className="space-y-3 md:space-y-4 text-center md:text-left">
               <p className="text-xs uppercase tracking-[0.2em] text-amber-400">
                 Reception
               </p>
-              <p className="text-stone-300">Following Ceremony</p>
+              <p className="text-sm md:text-base text-stone-300">Following Ceremony</p>
               {wedding.venue?.name && (
-                <p className="text-sm text-stone-400">{wedding.venue.name}</p>
+                <p className="text-xs md:text-sm text-stone-400">{wedding.venue.name}</p>
               )}
             </div>
           </div>
 
           {showRsvp && (
-            <div id="rsvp" className="text-center mt-16">
-              <div className="inline-block space-y-4">
-                <p className="text-sm text-stone-400">
+            <div id="rsvp" className="text-center mt-12 md:mt-16">
+              <div className="inline-block space-y-3 md:space-y-4">
+                <p className="text-xs md:text-sm text-stone-400 px-4">
                   Kindly respond by {wedding.rsvpDeadline ? new Date(wedding.rsvpDeadline).toLocaleDateString() : 'invitation date'}
                 </p>
                 <div>
                   <button
                     onClick={onRsvpClick}
-                    className="px-8 py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-stone-900 transition-colors font-sans text-sm font-semibold uppercase tracking-wider rounded"
+                    className="px-6 md:px-8 py-3 md:py-4 bg-transparent border-2 border-white text-white hover:bg-white hover:text-stone-900 transition-colors font-sans text-xs md:text-sm font-semibold uppercase tracking-wider rounded"
                   >
                     RSVP
                   </button>

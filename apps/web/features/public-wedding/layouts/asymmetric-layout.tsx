@@ -82,34 +82,34 @@ export function AsymmetricLayout({
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
       {/* Section 1: Split Hero */}
-      <section id="home" className="relative px-4 md:px-8 py-12 md:py-20 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <section id="home" className="relative px-4 md:px-8 py-10 md:py-12 lg:py-20 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
           {/* Left: Editorial Text */}
-          <div className="space-y-6 md:pr-8">
-            <div className="space-y-3">
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-stone-900 leading-tight">
+          <div className="space-y-4 md:space-y-6 md:pr-8 order-2 md:order-1">
+            <div className="space-y-2 md:space-y-3">
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 leading-tight">
                 {brideName}
-                <span className="text-stone-400 mx-3">&</span>
+                <span className="text-stone-400 mx-2 md:mx-3">&</span>
                 {groomName}
               </h1>
               <div className="flex items-center gap-2 text-stone-600">
-                <Calendar className="h-4 w-4" />
-                <p className="text-lg">{weddingDate}</p>
+                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <p className="text-sm md:text-base lg:text-lg line-clamp-2">{weddingDate}</p>
               </div>
               {wedding.venue?.name && (
                 <div className="flex items-center gap-2 text-stone-600">
-                  <MapPin className="h-4 w-4" />
-                  <p className="text-sm">{wedding.venue.name}</p>
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
+                  <p className="text-xs md:text-sm line-clamp-2">{wedding.venue.name}</p>
                 </div>
               )}
             </div>
-            <p className="text-stone-600 leading-relaxed max-w-md">
+            <p className="text-sm md:text-base text-stone-600 leading-relaxed max-w-md">
               {wedding.tagline || 'Join us as we celebrate our love story and begin our journey together.'}
             </p>
           </div>
 
           {/* Right: Tall Portrait */}
-          <div className="relative">
+          <div className="relative order-1 md:order-2">
             <PhotoSlot
               src={getPhoto('hero', 0)}
               alt="Hero"
@@ -123,22 +123,22 @@ export function AsymmetricLayout({
 
       {/* Section 2: Narrative & Staggered Collage */}
       {showStory && (proposalStory || loveStory) && (
-      <section id="story" className="px-4 md:px-8 py-12 md:py-16 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center mb-12">
-          <div className="space-y-6">
-            <h2 className="font-serif text-3xl text-stone-900">Our Story</h2>
+      <section id="story" className="px-4 md:px-8 py-10 md:py-12 lg:py-16 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center mb-8 md:mb-12">
+          <div className="space-y-4 md:space-y-6">
+            <h2 className="font-serif text-2xl md:text-3xl text-stone-900">Our Story</h2>
             {proposalStory && (
               <div>
-                <h3 className="font-serif text-xl text-stone-700 mb-2">The Proposal</h3>
-                <p className="text-stone-600 leading-relaxed whitespace-pre-line">
+                <h3 className="font-serif text-lg md:text-xl text-stone-700 mb-2">The Proposal</h3>
+                <p className="text-sm md:text-base text-stone-600 leading-relaxed whitespace-pre-line">
                   {proposalStory}
                 </p>
               </div>
             )}
             {loveStory && (
               <div>
-                {proposalStory && <h3 className="font-serif text-xl text-stone-700 mb-2">Our Love Story</h3>}
-                <p className="text-stone-600 leading-relaxed whitespace-pre-line">
+                {proposalStory && <h3 className="font-serif text-lg md:text-xl text-stone-700 mb-2">Our Love Story</h3>}
+                <p className="text-sm md:text-base text-stone-600 leading-relaxed whitespace-pre-line">
                   {loveStory}
                 </p>
               </div>
@@ -156,25 +156,25 @@ export function AsymmetricLayout({
         </div>
 
         {/* 3-Frame Asymmetric Gallery */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 lg:gap-4">
           <PhotoSlot
             src={getPhoto('detail-square', 2)}
             alt="Gallery 1"
-            className="aspect-square w-full object-cover rounded-xl"
+            className="aspect-square w-full object-cover rounded-lg md:rounded-xl"
             onClick={onPhotoSlotClick ? () => onPhotoSlotClick('detail-square') : undefined}
             isPreview={isPreview}
           />
           <PhotoSlot
             src={getPhoto('portrait-accent', 3)}
             alt="Gallery 2"
-            className="aspect-[3/4] w-full object-cover rounded-xl"
+            className="aspect-[3/4] w-full object-cover rounded-lg md:rounded-xl"
             onClick={onPhotoSlotClick ? () => onPhotoSlotClick('portrait-accent') : undefined}
             isPreview={isPreview}
           />
           <PhotoSlot
             src={getPhoto('panoramic', 4)}
             alt="Gallery 3"
-            className="aspect-[21/9] w-full object-cover rounded-xl col-span-2 md:col-span-1"
+            className="aspect-[16/9] md:aspect-[21/9] w-full object-cover rounded-lg md:rounded-xl col-span-2 md:col-span-1"
             onClick={onPhotoSlotClick ? () => onPhotoSlotClick('panoramic') : undefined}
             isPreview={isPreview}
           />
@@ -184,18 +184,18 @@ export function AsymmetricLayout({
 
       {/* Schedule/Programme */}
       {showSchedule && scheduleEvents && scheduleEvents.length > 0 && (
-        <section id="schedule" className="px-4 md:px-8 py-12 md:py-16 max-w-7xl mx-auto">
+        <section id="schedule" className="px-4 md:px-8 py-10 md:py-12 lg:py-16 max-w-7xl mx-auto">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl text-center mb-12 text-stone-900">
+            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-8 md:mb-12 text-stone-900">
               Programme
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {scheduleEvents.map((event, idx) => (
-                <div key={idx} className="border-l-2 border-stone-300 pl-6">
+                <div key={idx} className="border-l-2 border-stone-300 pl-4 md:pl-6">
                   <p className="text-xs uppercase tracking-[0.2em] text-stone-500 mb-1">
                     {event.time}
                   </p>
-                  <h3 className="text-xl font-serif text-stone-900 mb-2">{event.title}</h3>
+                  <h3 className="text-lg md:text-xl font-serif text-stone-900 mb-2">{event.title}</h3>
                   {event.description && (
                     <p className="text-sm text-stone-600">{event.description}</p>
                   )}
@@ -208,16 +208,16 @@ export function AsymmetricLayout({
 
       {/* FAQ */}
       {showFaq && faqItems && faqItems.length > 0 && (
-        <section id="faq" className="px-4 md:px-8 py-12 md:py-16 max-w-7xl mx-auto">
+        <section id="faq" className="px-4 md:px-8 py-10 md:py-12 lg:py-16 max-w-7xl mx-auto">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl text-center mb-12 text-stone-900">
+            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-center mb-8 md:mb-12 text-stone-900">
               Frequently Asked
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {faqItems.map((item, idx) => (
                 <div key={idx}>
-                  <h3 className="text-lg font-serif text-stone-900 mb-2">{item.question}</h3>
-                  <p className="text-stone-600 leading-relaxed">{item.answer}</p>
+                  <h3 className="text-base md:text-lg font-serif text-stone-900 mb-2">{item.question}</h3>
+                  <p className="text-sm md:text-base text-stone-600 leading-relaxed">{item.answer}</p>
                 </div>
               ))}
             </div>
@@ -227,28 +227,28 @@ export function AsymmetricLayout({
 
       {/* Event Details & RSVP */}
       {showDetails && (
-      <section id="details" className="px-4 md:px-8 py-12 md:py-20 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="font-serif text-3xl md:text-4xl text-stone-900 mb-3">
+      <section id="details" className="px-4 md:px-8 py-10 md:py-12 lg:py-20 max-w-7xl mx-auto">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl text-stone-900 mb-2 md:mb-3">
             Event Details
           </h2>
-          <p className="text-stone-600">Mark your calendars for our special day</p>
+          <p className="text-sm md:text-base text-stone-600">Mark your calendars for our special day</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-sm">
-            <h3 className="font-semibold text-stone-900 mb-4">Ceremony</h3>
-            <div className="space-y-2 text-sm text-stone-600">
-              <p>{weddingDate}</p>
-              {wedding.venue?.name && <p>{wedding.venue.name}</p>}
-              {wedding.venue?.address && <p className="text-xs">{wedding.venue.address}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto mb-8 md:mb-12">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
+            <h3 className="font-semibold text-stone-900 mb-3 md:mb-4">Ceremony</h3>
+            <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-stone-600">
+              <p className="line-clamp-2">{weddingDate}</p>
+              {wedding.venue?.name && <p className="line-clamp-2">{wedding.venue.name}</p>}
+              {wedding.venue?.address && <p className="text-xs line-clamp-3">{wedding.venue.address}</p>}
             </div>
           </div>
-          <div className="bg-white rounded-2xl border border-stone-200 p-8 shadow-sm">
-            <h3 className="font-semibold text-stone-900 mb-4">Reception</h3>
-            <div className="space-y-2 text-sm text-stone-600">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 md:p-8 shadow-sm">
+            <h3 className="font-semibold text-stone-900 mb-3 md:mb-4">Reception</h3>
+            <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-stone-600">
               <p>Following ceremony</p>
-              {wedding.venue?.name && <p>{wedding.venue.name}</p>}
+              {wedding.venue?.name && <p className="line-clamp-2">{wedding.venue.name}</p>}
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@ export function AsymmetricLayout({
         <div id="rsvp" className="text-center">
           <button
             onClick={onRsvpClick}
-            className="px-8 py-4 bg-stone-900 text-white hover:bg-stone-800 transition-colors font-sans text-sm font-semibold uppercase tracking-wider rounded-lg"
+            className="px-6 md:px-8 py-3 md:py-4 bg-stone-900 text-white hover:bg-stone-800 transition-colors font-sans text-xs md:text-sm font-semibold uppercase tracking-wider rounded-lg"
           >
             RSVP to Celebrate With Us
           </button>

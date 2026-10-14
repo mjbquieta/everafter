@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 interface NavItem {
   id: string;
@@ -14,9 +15,20 @@ interface NavigationBarProps {
   coupleNames: string;
   hasBanner: boolean;
   layout?: NavLayout;
+  backgroundColor?: string;
+  foregroundColor?: string;
+  primaryColor?: string;
 }
 
-export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }: NavigationBarProps) {
+export function NavigationBar({
+  items,
+  coupleNames,
+  hasBanner,
+  layout = 'left',
+  backgroundColor = '#FFFFFF',
+  foregroundColor = '#000000',
+  primaryColor = '#000000'
+}: NavigationBarProps) {
   const [activeSection, setActiveSection] = useState(items[0]?.id ?? '');
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -134,6 +146,9 @@ export function NavigationBar({ items, coupleNames, hasBanner, layout = 'left' }
           coupleNames={coupleNames}
           open={mobileMenuOpen}
           setOpen={setMobileMenuOpen}
+          backgroundColor={backgroundColor}
+          foregroundColor={foregroundColor}
+          primaryColor={primaryColor}
         />
       </div>
     </nav>
@@ -148,6 +163,9 @@ function MobileMenu({
   coupleNames,
   open,
   setOpen,
+  backgroundColor,
+  foregroundColor,
+  primaryColor,
 }: {
   items: NavItem[];
   activeSection: string;
@@ -156,7 +174,16 @@ function MobileMenu({
   coupleNames: string;
   open: boolean;
   setOpen: (open: boolean) => void;
+  backgroundColor: string;
+  foregroundColor: string;
+  primaryColor: string;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -169,6 +196,55 @@ function MobileMenu({
     // Small delay so the overlay unmounts and body scroll restores before scrolling
     setTimeout(() => scrollTo(id), 50);
   };
+
+  const menuContent = open ? (
+        <div
+          className="fixed inset-0 z-[100000] flex flex-col bg-white"
+          style={{ backgroundColor: backgroundColor || '#FFFFFF', color: foregroundColor || '#000000' }}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between px-6 h-16 shrink-0"
+            style={{ borderBottom: `1px solid ${foregroundColor || '#000000'}1a` }}
+          >
+            <span
+              className="font-serif text-lg font-medium tracking-tight"
+              style={{ color: foregroundColor }}
+            >
+              {coupleNames}
+            </span>
+            <button
+              onClick={() => setOpen(false)}
+              className="p-2 -mr-2 active:opacity-60"
+              aria-label="Close menu"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <line x1="6" y1="6" x2="18" y2="18" stroke={foregroundColor} strokeWidth="2" strokeLinecap="round" />
+                <line x1="18" y1="6" x2="6" y2="18" stroke={foregroundColor} strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Navigation links */}
+          <nav className="flex-1 flex flex-col items-center justify-center px-6 py-12 overflow-y-auto">
+            <div className="flex flex-col items-center gap-6 w-full max-w-sm">
+              {items.map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => handleNav(id)}
+                  className="w-full py-4 text-center font-serif text-2xl tracking-wide active:scale-95 transition-transform"
+                  style={{
+                    color: activeSection === id ? primaryColor : foregroundColor,
+                    fontWeight: activeSection === id ? 600 : 400,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </nav>
+        </div>
+  ) : null;
 
   return (
     <div className="md:hidden">
@@ -184,57 +260,8 @@ function MobileMenu({
         </svg>
       </button>
 
-      {/* Full-screen overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[9999] flex flex-col"
-          style={{ backgroundColor: 'var(--wedding-background)' }}
-        >
-          {/* Close button */}
-          <div
-            className="flex items-center justify-end px-6 h-16 shrink-0"
-            style={{ borderBottom: '1px solid color-mix(in srgb, var(--wedding-foreground) 10%, transparent)' }}
-          >
-            <button
-              onClick={() => setOpen(false)}
-              className="p-2 transition-opacity hover:opacity-60"
-              style={{ color: 'var(--wedding-foreground)' }}
-              aria-label="Close menu"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Links */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 py-12">
-            {items.map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => handleNav(id)}
-                className="font-serif text-2xl tracking-wide transition-opacity hover:opacity-60"
-                style={{
-                  color: activeSection === id ? 'var(--wedding-primary)' : 'var(--wedding-foreground)',
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Couple names at bottom */}
-          <div className="shrink-0 pb-10 text-center">
-            <p
-              className="font-serif text-sm tracking-wide"
-              style={{ color: 'color-mix(in srgb, var(--wedding-foreground) 60%, transparent)' }}
-            >
-              {coupleNames}
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Render menu via portal to document body */}
+      {mounted && menuContent && createPortal(menuContent, document.body)}
     </div>
   );
 }

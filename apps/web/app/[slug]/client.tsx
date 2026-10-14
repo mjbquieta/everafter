@@ -209,6 +209,9 @@ export function PublicWeddingClient({ data }: { data: PublicWeddingData }) {
             : !!settings.heroBanner
         }
         layout={settings.navigationStyle as 'left' | 'center' | 'right'}
+        backgroundColor={settings.backgroundColor}
+        foregroundColor={settings.backgroundColor === '#0F1015' ? '#F5F3EF' : '#2B2726'}
+        primaryColor={settings.primaryColor}
       />
 
       {/* Template-specific full layouts */}
